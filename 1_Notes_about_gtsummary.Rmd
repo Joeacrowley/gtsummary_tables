@@ -1,0 +1,294 @@
+---
+title: "Gtsummary general notes"
+author: "Joe Crowley"
+date: "2024-10-19"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+library(huxtable)
+library(openxlsx)
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+ddir <- paste0(getwd(), "/")
+setwd(ddir)
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+```
+
+<br>
+
+# Gtsummary themes
+
+## Regular 
+
+```{r}
+
+ess10 %>% tbl_summary(include = mnactic)
+
+```
+
+## Compact
+
+```{r}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+ess10 %>% tbl_summary(include = mnactic) # Compact... applies to everything after this
+
+```
+
+<br>
+
+# Column names
+
+```{r}
+
+# To see column names
+ess10 %>% tbl_summary(include = mnactic) %>% show_header_names()
+
+```
+
+<br>
+
+# Duplicate variable names
+
+When an outcome variable is also in the 'by' argument it is silently dropped.
+
+```{r}
+
+ess10 %>% tbl_summary(include = all_of(c("feethngr", "rlgblge","vote","gndr")), 
+                      by = gndr)
+
+```
+
+<br>
+
+# Merging gtsummary tables
+
+```{r}
+
+vars <- c("feethngr", "rlgblge","vote","gndr")
+
+mrg_tab1 <- 
+  ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(include = all_of(vars), by = gndr)
+
+mrg_tab2 <- 
+  ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(include = all_of(vars), by = vote)
+
+tbl_merge(list(mrg_tab1, mrg_tab2))
+
+```
+
+<br>
+
+# Omit empty factor levels 
+
+```{r}
+
+ess10 %>% 
+  mutate(mnactic = fct_drop(mnactic)) %>%
+  tbl_summary(include = mnactic) %>%   remove_row_type(type = "missing")
+
+```
+
+<br> 
+
+# Add difference
+
+```{r}
+
+ess10 %>% 
+  mutate(mnactic = fct_drop(mnactic), gndr = fct_drop(gndr)) %>%
+  tbl_summary(include = mnactic, by = gndr, statistic = list(all_categorical() ~ "{p}%")) %>% 
+  add_difference()
+
+```
+
+```{r error=T}
+ess10 %>% 
+  mutate(mnactic = fct_drop(mnactic), gndr = fct_drop(gndr)) %>%
+  tbl_summary(include = gndr, by = mnactic, statistic = list(all_categorical() ~ "{p}%")) %>% 
+  add_difference()
+
+```
+
+<br> 
+
+# Add CI 
+
+```{r}
+
+ess10 %>% 
+  mutate(mnactic = fct_drop(mnactic), gndr = fct_drop(gndr)) %>%
+  tbl_summary(include = mnactic, by = gndr, statistic = list(all_categorical() ~ "{p}%")) %>% 
+  add_ci(statistic = list(all_categorical() ~ "{conf.low}-{conf.high}"),
+         style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+```
+
+
+
+# Flextable 
+
+Converting gtsummary tables to flextables.
+
+```{r, include=F}
+
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir))
+
+# Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))
+```
+
+
+```{r}
+
+tbl <- ess10 %>% tables(variables = c("lrscale","atchctr"), caption = "Caption provided for testing")
+tbl
+
+# Step required as flextable won't accept the div style formatting
+tbl[["table_styling"]][["caption"]]
+            
+title <- str_split_i(tbl[["table_styling"]][["caption"]], "\\>", 2) %>%
+    str_split_i("\\<", 1) %>%
+    str_trim() 
+
+title
+
+title_remover <- function(x) { 
+  
+title <- str_split_i(x[["table_styling"]][["caption"]], "\\>", 2) %>%
+    str_split_i("\\<", 1) %>%
+    str_trim() 
+
+return(title)
+
+}
+
+ztitle <- title_remover(tbl)
+
+title
+
+ftbl <- 
+  tbl %>% 
+  modify_caption(caption = title) %>%
+  as_flex_table()
+
+ftbl
+
+# Need to find out how to format it properly when making flextable. 
+
+```
+
+<br>
+
+# Huxtable
+
+```{r}
+
+table <- 
+  ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  tables(variables = c("lrscale","atchctr","psppsgva","hincfel"), 
+         caption = "Again, caption provided for testing.")
+
+table
+
+table %>% as_hux_xlsx(file = "./3a. gtsummary to huxtable export test.xlsx")
+
+ht <- 
+  table %>% 
+  modify_caption(title_remover(table)) %>%
+  as_hux_table()
+
+ht
+
+table %>% 
+  modify_caption(title_remover(table)) %>%
+  as_hux_xlsx(file = "./3b. gtsummary to huxtable export test (better captions).xlsx")
+
+```
+
+<br>
+
+## Set header rows
+
+[Header rows](https://hughjonesd.github.io/huxtable/reference/header_cols.html)
+
+```{r set headre rows}
+
+ht
+
+ht <- set_header_rows(ht, 1, TRUE)
+ht <- set_header_cols(ht, 1, TRUE)
+
+style_headers(ht,
+       bold       = TRUE,
+       text_color = "purple"
+     )
+
+header_rows(ht)
+
+table %>% as_hux_table() %>% header_rows()
+
+cross_break_table <- ess10 %>% 
+  mutate(across(all_of(c("lrscale","gndr")), ~fct_drop(.x))) %>%
+  tables(variables ="lrscale", crossbreaks = "gndr")
+
+cross_break_table
+
+cross_break_table %>% as_hux_table() %>% header_rows()
+
+ht <- cross_break_table %>% as_hux_table() 
+ht <- set_header_cols(ht, 1, TRUE)
+
+style_headers(ht,
+       bold       = TRUE,
+       text_color = "purple"
+     )
+
+
+```
+
+<br><br>
+
+```{r}
+
+cross_break_table[["table_body"]]
+
+tbl_modified <- cross_break_table %>%
+  modify_table_body(
+    ~ .x %>%
+      dplyr::mutate(row_id = row_number()) %>%
+      dplyr::mutate(across(starts_with("stat_"), ~case_when(row_id == 1 ~ "%", TRUE ~ .x))) %>% 
+      dplyr::select(-stat_label, -row_id) 
+  )
+
+tbl_modified
+
+```
+

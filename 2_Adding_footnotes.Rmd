@@ -1,0 +1,407 @@
+---
+title: "6 Base notes"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+# Easiest to copy all these packages into a script using these functions
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+library(huxtable)
+library(openxlsx)
+library(haven)
+library(srvyr)
+
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+# Load BSA teaching data
+df <- read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
+
+glimpse(df)
+
+svy_df <- df %>% as_survey_design(weights = WtFactor)
+
+```
+
+<br>
+
+# Load other functions
+
+```{r, include=F}
+# Available files
+ddir <- paste0(getwd(), "/")
+
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir))
+
+# Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))
+
+```
+
+<br> 
+
+## Produce testing table
+
+```{r}
+
+# Show function code... 
+tables
+
+# Create test table
+tbl <- df %>% tables(variables = "skipmeal", crossbreaks = "RSex")
+
+tbl
+
+```
+
+<br> 
+
+## Manual source note
+
+```{r}
+
+tbl %>% modify_source_note(
+  source_note = "<b>text:</b> <br> text <br><br> Double the break symbol for a double space.", 
+  text_interpret = "html"
+)
+
+```
+
+<br> 
+
+# Functions to set up base sizes
+
+These are functions from elsewhere and are really more complex than they need to be. They work though, so live with it. 
+
+<br>
+
+## Function 1 - generate an object containing base information
+
+```{r}
+
+# Takes a named vector containing variable names and associated base descriptions, 
+# a character vector of variables to return the base description for, and returns 
+# the description as a character vector. 
+
+base_information <- function(
+    data, 
+    general_base, 
+    specific_bases
+    ) {
+  
+  everything_else <- general_base
+  var_descriptions <- specific_bases
+  
+  # Check whether survey data or not (T = survey; F = data frame)
+  whether_survey_data <- if(
+     class(data) %>% 
+      grep("survey.design", ., value = T) %>% 
+      length() > 0
+  ){T} else {F}
+  data2 <- if(whether_survey_data == T){data[["variables"]]} else {data}
+
+  variable_labels <- data2 %>% select(names(var_descriptions)) %>% var_label(unlist = T, null_action = "fill")
+  all_variable_labels <- data2 %>% var_label(unlist = T, null_action = "fill")
+  
+  base_descriptions <- list(everything_else, var_descriptions, variable_labels, all_variable_labels)
+  return(base_descriptions)
+  
+}
+
+writeLines(
+  c("base_information <- ", # Assignment needs to be added manually
+  deparse(base_information)), # Extract function code
+  paste0(ddir,"base_information.R")) # File name is just the function name 
+
+```
+
+<br>
+
+The resulting function takes as it's main argument a named vector containing the base descriptions to be used as well as...  
+
+* general_base, which is a description for all other base notes, besides those in the named vector.  
+* data, the data frame being used for the tables.
+
+```{r}
+
+var_descriptions <- 
+  c(
+    Spend1 = "Subsample A", 
+    SocTrust = "Subsample A" 
+  )
+
+var_descriptions
+
+example_of_base_information <- base_information(
+  data = df,
+  general_base = "Asked of all respondents", 
+  specific_bases = var_descriptions
+)
+
+example_of_base_information
+
+```
+
+<br>
+
+## Function 2 - create base descriptions for a table
+
+```{r}
+
+create_bases <- function(
+    base_info,
+    variables
+){
+  
+  names_of_variables_with_specific_bases <- base_info[[2]] %>% names
+  bases_to_use <- names_of_variables_with_specific_bases %in% variables
+  variable_labels_to_use <- base_info[[3]][bases_to_use]
+  bases_to_use <- base_info[[2]][bases_to_use] 
+  
+  if(length(bases_to_use) > 0){list_of_bases <- paste0(bases_to_use, ":-  ", variable_labels_to_use)} else {list_of_bases <- c()}
+  
+  variables_using_default_description <- variables[!variables %in% names_of_variables_with_specific_bases]
+  
+  if(length(variables_using_default_description) > 0){
+    labels_of_variables_using_default_description <- base_info[[4]][variables_using_default_description]
+    default_base_description <- paste0(base_info[[1]],  ":-  ", labels_of_variables_using_default_description)
+    list_of_bases <- c(list_of_bases, default_base_description)
+  } 
+  
+  list_of_bases <- list_of_bases %>% paste0(., collapse = " X ")
+  
+  return(list_of_bases)
+  
+}
+
+writeLines(
+  c("create_bases <- ", # Assignment needs to be added manually
+  deparse(create_bases)), # Extract function code
+  paste0(ddir,"create_bases.R")) # File name is just the function name 
+
+```
+
+<br>
+
+Arguments are:  
+
+* base_info:  The object created by `base_information` function,  
+* variables: A character vector of outcome variables.  
+
+```{r}
+base_example <- create_bases(example_of_base_information, c("libauth","leftrigh", "RSex", "Spend1"))
+base_example
+```
+
+<br>
+
+## Function 3, formatting base note
+
+This takes the output of create_bases and formats it ready for use. It has one argument, the output of `create_bases`.  
+
+```{r}
+
+prepare_base_for_table <- function(bases_for_table) {
+  
+  base_results <- list()
+  
+  bases <- bases_for_table %>% str_split_1(., " X ") %>% unique
+  base_descriptions <- bases %>% str_split_i(., ":-  ", 1)
+  variables <- bases %>% str_split_i(., ":-  ", 2)
+  
+  unique_base_descriptions <- unique(base_descriptions)
+  if(length(unique_base_descriptions) == 1){
+    base_results <- append(base_results ,list(unique_base_descriptions))
+  } else {
+    
+    most_common_base_description <- data.frame(base_descriptions = base_descriptions) %>% 
+      count(base_descriptions) %>% 
+      mutate(max_n = max(n)) %>% 
+      filter(n == max_n) %>% 
+      pull(base_descriptions) %>% 
+      unique
+    
+    if(length(most_common_base_description) > 1){most_common_base_description <- most_common_base_description[1]}
+    
+    base_results[[1]] <- most_common_base_description %>% paste("All other variables:- ", ., collapse = "") 
+    #%>% str_to_sentence()
+    
+    unique_base_descriptions <- unique_base_descriptions[!unique_base_descriptions %in% most_common_base_description]
+    
+    for (xxx in unique_base_descriptions){
+      
+      index <- which(base_descriptions %in% xxx) 
+      variable_list <- paste0(variables[index], collapse = ", ") 
+      variable_description <- paste0(xxx, ":- ", variable_list) 
+      base_results <- append(base_results, variable_description)
+      
+    }
+    
+  }
+  
+  base_results <- rev(base_results)
+  
+  # Comment back in to bold first part of base descriptions
+  #base_results_part1 <- map(base_results, ~str_split_i(., ":-", 1)) 
+  #base_results_part1_replacement <- base_results_part1 %>% paste0("<b>", ., "</b>")
+  #base_results <- pmap(list(base_results, base_results_part1, base_results_part1_replacement), 
+  #                     function(base, base1, base1_replace)
+  #                       str_replace(base, base1, base1_replace))
+  
+  base_results <- str_replace_all(base_results, ":-", ":")
+  
+  if(length(base_results) > 1){
+  base_results <- paste0(base_results, collapse = "<br><br>")
+  base_results <- paste0("<br><b>Variable base descriptions:</b><br>", base_results)
+  } else {
+  base_results <- paste0("<br><b>Base:</b> ", base_results)
+  }
+  
+  return(base_results)
+  
+}
+
+writeLines(
+  c("prepare_base_for_table <- ", # Assignment needs to be added manually
+  deparse(prepare_base_for_table)), # Extract function code
+  paste0(ddir,"prepare_base_for_table.R")) # File name is just the function name 
+
+```
+
+<br>
+
+Here is it being used and the results added to a `tbl_summary` table. 
+
+```{r}
+base_note <- prepare_base_for_table(base_example)
+base_note
+
+tbl %>% modify_source_note(
+  source_note = base_note, 
+  text_interpret = "html"
+)
+
+```
+
+<br> 
+
+## Function 4 - draws together function 2 and 3 
+
+This function has four arguments and can add different types of table notes. At the moment there is no default for 'bases_info' where no 'bases_info' is actually provided, I need to do something about that.  
+    
+```{r}
+
+# Also need some capacity to add a source description, or several I suppose, ideally. 
+gtsummary_table_notes <- function(
+    bases_info = NULL, # The object with base descriptions (from base_information() function)
+    vars, # Character vector of variable names
+    source_note = NULL, # A string describing the data source
+    other_footnotes = NULL# Other character strings as footnotes, each on its own line. 
+  ){
+  
+  if(!is.null(bases_info)){
+  base_notes <- 
+    create_bases(
+      base_info = bases_info, variables = vars
+      ) %>% 
+      prepare_base_for_table() 
+  } else {
+    base_notes <- ""
+  }
+  
+  if (!is.null(source_note)){base_notes <- paste0(base_notes, "<br><br><b>Source:</b> ", source_note)}
+  
+  if(!is.null(other_footnotes)){
+    other_footnotes <- paste0(other_footnotes, collapse = "<br><br>")
+    base_notes <- paste0(base_notes, "<br><br><b>Footnotes:</b><br>", other_footnotes)
+      }
+  
+  return(base_notes)
+  
+}
+
+writeLines(
+  c("gtsummary_table_notes <- ", # Assignment needs to be added manually
+  deparse(gtsummary_table_notes)), # Extract function code
+  paste0(ddir,"gtsummary_table_notes.R")) # File name is just the function name 
+
+
+```
+
+<br>
+
+```{r}
+
+note_with_source <- gtsummary_table_notes(bases_info = example_of_base_information, vars = c("RSex", "Spend1"))
+note_with_source
+
+tbl %>% modify_source_note(
+  source_note = note_with_source, 
+  text_interpret = "html"
+)
+
+```
+
+<br> 
+
+```{r}
+tbl %>% modify_source_note(
+  source_note = gtsummary_table_notes(vars = c("RSex")), 
+  text_interpret = "html"
+)
+
+```
+
+<br>
+
+```{r}
+
+tbl %>% modify_source_note(
+  source_note = gtsummary_table_notes(vars = c("RSex"), 
+                                      source_note = "Source note with no base note."), 
+  text_interpret = "html"
+)
+
+```
+
+<br> 
+
+```{r}
+
+note_with_source <- gtsummary_table_notes(bases_info = example_of_base_information, vars = c("RSex", "Spend1"), 
+                      source_note = "The source is", 
+                      other_footnotes = c("Text for other footnotes.", "Second footnote."))
+
+tbl %>% modify_source_note(
+  source_note = note_with_source, 
+  text_interpret = "html"
+)
+
+```

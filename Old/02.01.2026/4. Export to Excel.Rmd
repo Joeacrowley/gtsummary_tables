@@ -1,0 +1,384 @@
+---
+title: "Put gtsummary in Excel"
+output:
+  html_document:
+    df_print: tibble
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+```{r set up, collapse=T}
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+library(huxtable)
+library(openxlsx)
+library(haven)
+
+# Load BSA teaching data
+df <- read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+
+look_for(df)
+df %>% count(skipmeal)
+df %>% count(RSex)
+
+df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
+df %>% count(skipmeal)
+df %>% count(RSex)
+df %>% count(HEdQual3)
+
+# Call a crossbreak function 
+source("/Users/joecrowley/R/Tables/gtsummary/.cbreak.R")
+
+```
+
+<br> 
+
+```{r function}
+
+.cbreak
+
+```
+
+<br> 
+
+```{r crossbreak}
+
+tbl <- df %>% .cbreak(outcome = "skipmeal", crossbreak = "RSex")
+tbl
+
+```
+
+<br> 
+
+# Set up huxtable styling
+
+Uses NatCen blue colour palette. 
+
+```{r colour palette}
+
+blue_pal <- c("#7082d4", "#8f99de", "#abb5e5", "#c7cced", "#e3e5f5")
+
+```
+
+<br> 
+
+For whatever reason the code to format the caption does not work. It's annoying but not the end of the world, when adding to Excel I do it manually. 
+
+```{r huxtable}
+
+style_hux_df <- function(df, align = 1) {
+  
+  temp_capt <- df[["table_styling"]]$caption %>% str_split_i(., "\\>", 2) %>% str_split_i(., "\\<", 1) %>% trimws()
+  
+  ht <- as_hux_table(df)
+  caption(ht) <- NA  
+  
+  # Set font and size
+  font(ht) <- "Arial"
+  font_size(ht) <- 11
+
+  # Remove background fill
+  background_color(ht) <- "white"
+  
+  # Bold headers
+  # ht <- set_bold(ht, 1, everywhere, TRUE)
+  header_row_num <- ht %>% header_rows() %>% sum
+  ht <- set_bold(ht, 1:header_row_num, everywhere, TRUE)
+  ht <- set_background_color(ht, 1, everywhere, "#8f99de")
+  
+  if (header_row_num > 1){
+    ht <- set_background_color(ht, 2, everywhere, "#abb5e5")
+  }
+  
+  if (header_row_num > 2){
+    ht <- set_background_color(ht, 3, everywhere, "#c7cced")
+  }
+
+  # Set border widths
+  top_border(ht)    <- 1.5
+  bottom_border(ht) <- 1.5
+  left_border(ht)   <- 1.5
+  right_border(ht)  <- 1.5
+  
+  # Set border colors
+  top_border_color(ht)    <- "#8f99de"
+  bottom_border_color(ht) <- "#8f99de"
+  left_border_color(ht)   <- "#8f99de"
+  right_border_color(ht)  <- "#8f99de"
+  
+  # Alignment: left-align columns 1 to `align`, right-align the rest
+  align_vec <- ifelse(seq_along(df) <= align, "left", "right")
+  for (col in seq_along(align_vec)) {
+    ht <- set_align(ht, everywhere, col, align_vec[col])
+  }
+  
+  na_string(ht) <- "" 
+  set_number_format(ht, everywhere, value = fmt_pretty(digits = 1)) 
+  
+  # Create a matrix of empty strings with the same number of rows
+  empty_cols <- matrix("", nrow = 1, ncol = ncol(ht))
+  
+  # Convert to huxtable
+  empty_hux <- as_hux(empty_cols)
+  empty_hux[1,1] <- temp_capt
+  empty_hux <- empty_hux %>% merge_across(1, everywhere)
+  
+  ht <- rbind(empty_hux, ht)
+  
+  # Set font and size of caption
+  set_font(ht, 1, everywhere, "Arial")
+  set_font_size(ht, 1, everywhere, 13)
+  set_bold(ht, 1, everywhere, TRUE)
+  set_align(ht, 1, everywhere, "left")
+  
+  return(ht)
+}
+
+```
+
+```{r}
+
+writeLines(
+  c("style_hux_df <- ", # Assignment needs to be added manually
+  deparse(style_hux_df)), # Extract function code
+  paste0("/Users/joecrowley/R/Tables/gtsummary/style_hux_df.R")) # File name is just the function name 
+
+```
+
+
+<br>
+
+## Trial with crossbreak
+
+```{r huxtable formatting with crossbreaks}
+
+tbl %>% style_hux_df() 
+tbl %>% style_hux_df()  %>% as_flextable()
+
+```
+
+<br> 
+
+## With nested tables? 
+
+```{r huxtable formatting with nested crossbreaks}
+
+source("/Users/joecrowley/R/Tables/gtsummary/.ncbreak.R")
+
+.ncbreak
+
+```
+
+<br>
+
+```{r}
+
+ntbl <- 
+  df %>% .ncbreak(
+  outcomes = "skipmeal", 
+  predictor = "RSex", 
+  nest = "HEdQual3"
+)
+
+ntbl %>% style_hux_df() 
+ntbl %>% style_hux_df() %>% as_flextable()
+
+```
+
+<br> 
+
+# Adding tables into Excel 
+
+## Trial 1
+
+This is fairly successful but the auto width function in openxlsx is just not that good.
+
+```{r huxtable to excel function}
+
+# Set max/min column widths-----------------------------------------------------
+# Set outside of function. 
+options("openxlsx.minWidth" = 10) 
+options("openxlsx.maxWidth" = 15) 
+
+addh <- function(
+    ht, 
+    workbook, 
+    sheet
+    ) {
+  
+# Convert huxtable to workbook (starts on row 2 and col 2)
+workbook_interim <- ht |> as_Workbook(Workbook = workbook ,start_row = 2, start_col = 2, sheet = sheet)
+
+# Excel cell locations
+end_row <- 1 + nrow(ht)  
+end_col <- 1 + ncol(ht)
+
+# Sheet background
+showGridLines(workbook_interim, sheet, showGridLines = FALSE)
+# addStyle(workbook_interim, sheet = sheet, style = createStyle(fgFill = "lightgrey"), rows = 1:1000, cols = 1:1000, gridExpand = TRUE, stack = TRUE)
+# 
+# # Table background (could also fill the huxtable...)
+# addStyle(workbook_interim, sheet = sheet, style = createStyle(fgFill = "white"), 
+#          rows = 2:end_row, 
+#          cols = 2:end_col, 
+#          gridExpand = TRUE, stack = TRUE)
+
+# Required to remove row heights set by as_Workbook() - these are problematic
+removeRowHeights(workbook_interim, sheet, rows = 2:end_row) 
+
+# Wrap cells -------------------------------------------------------------------
+
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T), 
+         cols = 2:end_col, 
+         rows = 2:end_row, 
+         gridExpand = TRUE, 
+         stack = T)
+
+# Remove huxtable defined column widths and apply openxlsx standards
+removeColWidths(workbook_interim, sheet, cols = 2:end_col)
+setColWidths(workbook_interim, sheet, cols = 2:end_col, widths = "auto")
+
+return(workbook_interim)
+
+}
+
+wb <- createWorkbook()
+
+wb <- ntbl %>% style_hux_df %>% addh(sheet = "nested table", workbook = wb)
+# Save out workbook
+saveWorkbook(wb, file = "/Users/joecrowley/R/Tables/gtsummary/4.1. Huxtable formatting with openxlsx.xlsx", overwrite = TRUE)
+
+```
+
+<br>
+
+## Trial 2
+
+The code below fairly successfully sets a sensible column width for tables. 
+
+It's still a little hard to navigate larger tables, but perhaps there's nothing to be done on that. 
+
+When merging 5 separate cross-break tables it might be possible to do something with colour or borders to indicate breaks between them better. 
+
+```{r manually set col_widths}
+
+.col_width <- function(huxt) { 
+  
+  # Identify number of header rows in gtsummary table
+  no_of_header_rows <- huxt %>% header_rows %>% sum
+  header_row <- 1 + no_of_header_rows
+  
+  # Extract first row of huxtable
+  header_row_char_length <- huxt[header_row,] %>% as_vector() %>% map_int(., str_length)
+  
+  # Extract outcome variable length. 
+  header_row_char_length[1] <- huxt[header_row+1,1] %>% as_vector() %>% map_int(., str_length)
+
+  # Multiple by number of pixels per character
+  header_proposed_width <- header_row_char_length + 3
+
+  # Cut off of 30 imposed, and lower bound of 10. 
+  header_proposed_width_cut_off <- ifelse(header_proposed_width > 30, 30, header_proposed_width)
+  header_proposed_width_cut_off <- ifelse(header_proposed_width_cut_off < 10, 10, header_proposed_width_cut_off)
+
+  # For column 1, cut off increased to 50
+  if (header_proposed_width[1] > 30) {
+    header_proposed_width_cut_off[1] <- ifelse(header_proposed_width[1] > 50, 50, header_proposed_width[1])
+  }
+  
+  # And lower bound of 20. 
+  if (header_proposed_width[1] < 20) {
+  header_proposed_width_cut_off[1] <- ifelse(header_proposed_width_cut_off[1] < 20, 20, header_proposed_width_cut_off[1])
+  }
+  
+return(header_proposed_width_cut_off)
+
+} 
+
+tbl %>% style_hux_df() %>% .col_width()
+
+
+
+
+addh <- function(
+    ht, 
+    workbook, 
+    sheet
+    ) {
+  
+# Convert huxtable to workbook (starts on row 2 and col 2)
+workbook_interim <- ht |> as_Workbook(Workbook = workbook ,start_row = 2, start_col = 2, sheet = sheet)
+
+# Excel cell locations
+end_row <- 1 + nrow(ht)  
+end_col <- 1 + ncol(ht)
+
+# Sheet background
+showGridLines(workbook_interim, sheet, showGridLines = FALSE)
+
+# Required to remove row heights set by as_Workbook() - these are problematic
+removeRowHeights(workbook_interim, sheet, rows = 2:end_row) 
+
+# Wrap cells -------------------------------------------------------------------
+
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T), 
+         cols = 2:end_col, 
+         rows = 2:end_row, 
+         gridExpand = TRUE, 
+         stack = T)
+
+# Remove huxtable defined column widths and apply openxlsx standards
+removeColWidths(workbook_interim, sheet, cols = 2:end_col)
+col_widths <- ht %>% .col_width()
+setColWidths(workbook_interim, sheet, cols = 2:end_col, widths = col_widths)
+setColWidths(workbook_interim, sheet, cols = 1, widths = 4)
+
+# Format caption... 
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T, fontName = "Arial", fontSize = 13, textDecoration = "bold"), 
+         cols = 2:end_col, 
+         rows = 2, 
+         gridExpand = TRUE, 
+         stack = T)
+setRowHeights(workbook_interim, sheet, rows = 2, heights = 30)
+
+return(workbook_interim)
+
+}
+
+wb <- createWorkbook()
+
+wb <- ntbl %>% style_hux_df %>% addh(sheet = "nested table", workbook = wb)
+wb <- tbl %>% style_hux_df %>% addh(sheet = "table", workbook = wb)
+
+# Save out workbook
+saveWorkbook(wb, file = "/Users/joecrowley/R/Tables/gtsummary/4.2. Huxtable formatting with openxlsx - user calculated col widths.xlsx", overwrite = TRUE)
+
+```
+ 
+
+
+
+```{r}
+writeLines(
+  c("addh <- ", # Assignment needs to be added manually
+  deparse(addh)), # Extract function code
+  paste0("/Users/joecrowley/R/Tables/gtsummary/addh.R")) # File name is just the function name 
+
+writeLines(
+  c(".col_width <- ", # Assignment needs to be added manually
+  deparse(.col_width)), # Extract function code
+  paste0("/Users/joecrowley/R/Tables/gtsummary/.col_width.R")) # File name is just the function name 
+
+
+```
+
+

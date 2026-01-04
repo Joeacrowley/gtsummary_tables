@@ -1,0 +1,233 @@
+---
+title: "Frequencies"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- paste0(getwd())
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+ess10 <- ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) 
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir)) %>% 
+  grep("_interim", ., value =T, invert = T) # Drop interim functions, not used.
+
+# Set of functions to be loaded. 
+file_paths
+
+```
+
+<br>
+
+## Load functions
+
+```{r, results='hide'}
+
+# Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))
+
+```
+
+<br> 
+
+# The function
+
+This calculates percentages for factor variables with the same levels and then merges them together for a quick overview of similar questions. 
+
+In my original version I imposed a requirement that all levels be equal, in the end I removed this because it was causing issues with overly strictness - preventing it running when really it was fine to do so. However, it may give odd results. 
+
+```{r}
+
+outcome_vars <- list("stflife", "stfgov")
+
+mtotals <- function(
+  outcomes, # Vector of outcomes
+  data, # Data frame
+  caption = NULL, 
+  bases = NULL, # The object with base descriptions (from base_information() function)
+  source = NULL, # A string describing the data source
+  footnotes = NULL # Other character strings as footnotes, each on its own line. 
+  ) {
+  
+  whether_survey_data <- if(class(data) %>% grep("survey.design", ., value = T) %>% length() > 0){T} else {F}
+  
+  if(whether_survey_data == T){n_statistic <- "{n_unweighted}"} else {n_statistic <- "{n}"}
+  
+  result <- map(outcomes, function(outcome){
+    
+    data2 <- data %>% mutate(
+      across(all_of(outcome), ~fct_drop(.x), .names = "the_merging_variable"), 
+      across(all_of(outcome), ~case_when(!is.na(.x) ~ "Unweighted base"), .names = "base")
+      ) 
+    
+    if(whether_survey_data == T){
+      var_label(data2[["variables"]]["base"]) <- ""
+      outcome_variable_label <- data[["variables"]] %>% pull(outcome) %>% var_label() %>% as.vector()
+      } else {
+      var_label(data2["base"]) <- ""
+      outcome_variable_label <- data %>% pull(outcome) %>% var_label() %>% as.vector()
+      }
+    
+    if(whether_survey_data == T){
+      summary_fun <- tbl_svysummary
+      } else {summary_fun <- tbl_summary
+      }
+
+    result <- 
+      summary_fun(
+          data = data2,
+          include = c(the_merging_variable, base),  
+          statistic = list(all_categorical() ~ "{p}", base ~ n_statistic),
+          label = list(the_merging_variable ~ " "), 
+          missing = "no", 
+          digits = everything() ~ 0
+      ) %>% 
+        modify_header(stat_0 = paste0("**", outcome_variable_label, "**"), label = "") %>% 
+        modify_footnote(everything() ~ NA)
+    
+    return(result)
+  
+    })
+
+  result <- tbl_merge(result, tab_spanner=F) 
+
+  result <- 
+    result %>%
+    modify_table_body(
+      ~ .x %>%
+        dplyr::mutate(row_id = row_number()) %>%
+        dplyr::mutate(across(starts_with("stat_"), ~case_when(row_id == 1 ~ "%", TRUE ~ .x))) %>% 
+        dplyr::select(-row_id) 
+        )
+
+  if(!is.null(caption)){result <- result %>% modify_caption(
+    paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption, "</div>"))
+    }
+    
+  footnotes <- gtsummary_table_notes(
+    bases_info = bases, 
+    vars = outcomes, 
+    source_note = source, 
+    other_footnotes = footnotes
+    )
+  
+  if(whether_survey_data == T){
+    stat_types <- "All statistics shown in this table are weighted."
+    } else {stat_types <- "All statistics shown in this table are unweighted."
+    }
+  
+  footnotes <- paste0(stat_types,"<br>",footnotes)
+
+  if (footnotes != ""){
+    result <- result %>% modify_source_note(
+    source_note = footnotes, 
+    text_interpret = "html")
+  }
+
+  return(result)
+  
+}
+
+
+writeLines(
+  c("mtotals <- ", # Assignment needs to be added manually
+  deparse(mtotals)), # Extract function code
+  paste0(ddir,"/mtotals.R")) # File name is just the function name 
+
+
+```
+
+<br>
+
+## Examples {.tabset} 
+
+### Example 1
+
+```{r}
+
+tbl <- ess10 %>% mtotals(outcomes = outcome_vars)
+tbl
+
+```
+
+### Example 2
+
+```{r}
+
+svy_tbl <- svy_df %>% mtotals(outcomes = outcome_vars)
+svy_tbl
+
+```
+
+### Example 3
+
+```{r}
+
+svy_tbl_captioned <- svy_df %>% mtotals(outcomes = outcome_vars, caption = "Satisfaction, of kinds various, I suppose")
+svy_tbl_captioned
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

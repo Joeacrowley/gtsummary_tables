@@ -1,0 +1,282 @@
+---
+title: "Overview of gtsummary tables"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+
+<br> 
+
+```{r packages, collapse=TRUE, include=FALSE}
+library(gtsummary) # Calculates statistics
+library(srvyr) # Creates survey design objects
+library(labelled) # For working with variable labels
+library(rlang) # Used within tables functions to reference variables
+library(huxtable) # Formats final tables
+library(openxlsx) # Exports final tables to Excel
+library(tidyverse) 
+library(flextable) # Used when dispalying huxtables as they display oddly without
+library(officer) # For exporting results to Excel (and also word after converting to flextable)
+```
+
+# Overview
+
+Functions are stored at this file path: /Users/joecrowley/R/Tables/gtsummary
+
+
+```{r function locations}
+
+# Review available functions
+ddir <- paste0(getwd(), "/")
+
+# Available files
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir)) %>% 
+  grep("_interim", ., value =T, invert = T) # Drop interim functions, not used.
+
+# Set of functions to be loaded. 
+file_paths
+
+```
+
+There are three general types of functions here: 1) interim functions used inside other functions, e.g. `totals` which is used inside `tables`, 2) the functions that produce tables, e.g. `tables`, and 3) functions that format tables and export them to Excel, e.g `style_hux_df` and `addh`. 
+
+<br>
+
+```{r results='hide'}
+
+# Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))
+
+```
+
+Now that the functions have been sourced they can be called.
+
+```{r}
+
+# Functions can now be called
+tables
+
+```
+
+<br> 
+
+## **Overview**
+
+* All weighted tables are fed a survey-design object. You do not set the weights as part of the function. You don't need to specify that it is weighted, the functions identify that and use the weight specified when creating the survey object.  
+
+* Variable should have labels.   
+
+* All categorical functions expect factors, numeric ones numeric variables. Binary data should be either yes / no, 0 / 1 or TRUE / FALSE. Yes / no should be a factor. Drop unused levels unless you want them to display.   
+
+* Multicode variables should have the same base size and contain variable labels that contain the splitter ": ", which identifies a unique stem used as the table heading. 
+
+Note the requirements above are not validated, but you should do them. Results may be unexpected if you don't.
+
+The exception is the multicode table code, which will check base sizes are the same and variables contain the required splitter ": ". 
+
+<br> 
+
+## **Specific functions:**  
+
+The **tables** function is the most basic and probably the most likely to be used. 
+
+This creates tables of totals and crosstabulations by one predictor variable. It accepts factor and numeric variables. It allows weighted data (a survey object) and unweighted data (a data frame). 
+
+**Arguments:**    
+
+ * `data`:  dataframe or survey object. 
+ * `variables`"  character vector of outcome variable names. 
+ * `crossbreaks`: NULL by default, or a character vector of predictors to crosstabulate by.  
+ * `stats_cat`: example is "{p}", it accepts a character vector of statistics to show, using those accepted by `gtsummary`. 
+ * `stats_num`: example is "{mean}", again, a character vector as accepted by `gtsummary`.   
+ * `ci`: NULL by default, if TRUE then add confidence intervals.  
+ * `num_digits`: by default this is 2. It is the number of digits for continuous variables, must be length 1 or same length as number of numeric statistics requested.  
+ * `split_num`: default is `FALSE`. If set to TRUE then split continuous variables stats over multiple lines if more than one. To allow this, split the requested statistics into separate elements within a character vector. Can only set split_num to TRUE if ci = NULL.  
+ * `sig`, by default is NULL. If TRUE adds significance testing.   
+ * `caption`, by default is NULL. If set to a character vector this is displayed as the caption.  
+ * `bases`: by default is NULL. Set to the the object with base descriptions (from the `base_information` function). 
+ * `source`: by defaul is NULL. A string describing the data source.
+ * `footnotes`: by default is NULL. Other character strings as footnotes, each on its own line. 
+ 
+The arguments above are mostly common to other functions. The exceptions are the 'variables' and 'crossbreaks' arguments which I have not yet standardised. 
+
+* The function **nested_tables** extends **tables** to allowing nesting, but permits only a single predictor. The argument to specify the nesting variable is `nest` - it accepts a character vector containing the variable name.  
+
+* **mtotals** is for creating a table showing proportions for several categorical variables with the same levels, stacked into a single dense table. 
+
+* **multicodes** created multicode tables for one set of multicode variables at a time, either for the variable overall or with crosstabulations by predictor variables. The **nest_multicodes** function is the nested version of this. 
+
+<br><br>
+
+## Examples {.tabset}
+
+```{r, collapse=T, results='hide'}
+
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+look_for(ess10, details = "none")
+
+ess10 <- ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) 
+
+ess10 <- ess10 %>% mutate(age3 = case_when(agea <= 34 ~ 1, agea <= 54 ~ 2, agea > 54 ~ 3)) %>% 
+  mutate(age3 = factor(age3, levels = c(1,2,3), labels = c("15-34", "35-54", "54+")))
+ess10 %>% count(agea)
+ess10 %>% count(age3)
+var_label(ess10$age3) <- "Age"
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+gtsummary::theme_gtsummary_compact()
+
+```
+
+<br>
+
+### tables
+
+Note the error when producing CI below reflects the fact that there are too few cases in each cell. 
+
+```{r}
+
+tables(svy_df %>% mutate(imwbcnt = fct_drop(imwbcnt)), 
+       variables = "imwbcnt")
+
+# With CI and sig testing
+tables(ess10 %>% mutate(imwbcnt = fct_drop(imwbcnt)), 
+       variables = "imwbcnt", 
+       crossbreaks = "age3", 
+       sig = T, ci = T)
+
+# Some cells have only 1 or 2 cases, so sig testing could not be produced. 
+tables(ess10 %>% mutate(imwbcnt = fct_drop(imwbcnt)), 
+       variables = "imwbcnt", 
+       crossbreaks = "age3", 
+       stats_cat = "{n}"
+       )
+
+```
+
+<br>
+
+### nested_tables
+
+Nested equivalent of *tables*. See, function arguments differ, needs cleaning up. 
+
+```{r}
+
+nested_tables(ess10, 
+              variables_int = c("lrscale","atchctr"), 
+              crossbreak = "gndr",
+              nest = "age3")
+
+```
+
+<br><br>
+
+# Exporting tables
+
+There are two functions provided for this, and a supporting one:  
+
+* *style_hux_df* - takes as an argument a gtsummary object produced by these functions and returns a formatted huxtable.      
+* *addh* - takes as argument an `openxlsx` workbook and sheet name (as a character vector), along with a huxtabe to be added to that workbook and sheet. 
+  *  `.col_width` is a supporting function used within addh that must be loaded.
+
+```{r example application, collapse=TRUE}
+
+# Load BSA teaching data
+df <- haven::read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
+
+# Create example table
+tbl <- df %>% tables(variables = "skipmeal", crossbreaks = "RSex")
+tbl
+
+# Use style_hux_df to convert to a huxtable
+tbl_hux <- tbl %>% style_hux_df()
+tbl_hux
+
+# Create worbkook as normal
+wb <- createWorkbook()
+
+# Use addh to add the table to the workbook.
+wb <- tbl_hux %>% addh(sheet = "Example table", workbook = wb)
+
+# Save out workbook as normal
+saveWorkbook(wb, file = paste0(ddir, "0. Example exported from overview code.xlsx"), overwrite = TRUE)
+
+```
+
+<br>
+
+# Adding footnotes
+
+```{r}
+
+# Step 1 - create a named vector that describes variable with specific base descriptions.
+var_descriptions <- 
+  c(
+    skipmeal = "Subsample - but I don't actually know what the subsample is, it is less though, look at the base sizes."
+    )
+
+var_descriptions
+
+
+# Create an object containing: 
+
+# - those specific base descriptions, 
+# - a general base description for all other variables,  
+# - variable labels for all variables.  
+base_info <- base_information(
+  data = df,
+  general_base = "Asked of all respondents", 
+  specific_bases = var_descriptions
+)
+
+# The resulting object has four components: 
+
+# Part 1 - the general base description
+base_info[[1]]
+
+# Part 2 - the specific base descriptions
+base_info[[2]]
+
+# Part 3 - the labels of variables with specific base descriptions
+base_info[[3]]
+
+#  Part 4 - the labels of all variables
+base_info[[4]]
+
+```
+
+<br>
+
+## Examples of footnotes 
+
+```{r}
+
+tbl <- df %>% tables(variables = "skipmeal", crossbreaks = "RSex", 
+                     bases = base_info, 
+                     source = "The British Social Attitudes survey", 
+                     footnotes = "Optional other footnotes")
+tbl
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

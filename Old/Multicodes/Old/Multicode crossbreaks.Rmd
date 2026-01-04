@@ -1,0 +1,522 @@
+---
+title: "Multicode crossbreaks"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+```
+
+<br>
+
+# Load additional binary data
+
+<br>
+
+The code below loads some additional data, for use in multicoded tables. 
+
+```{r}
+
+load("/Users/joecrowley/R/Data/ESS_UK/ESS_UK_R_data_file.RData")
+
+# Use set of variables on location people can access internet from
+ess %>% select(starts_with("acc")) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+# Identify variable names
+int_loc <- ess %>% select(starts_with("acc")) %>% names
+int_loc <- int_loc[3:10]
+int_loc
+
+ess %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+ess10 %>% select(ctzcntr, brncntr,feethngr) %>% look_for() %>% convert_list_columns_to_character() %>% flextable
+
+```
+
+# gtsummary style crossbreak
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+ess2 %>% count(base_size, acchome)
+
+var_label(ess2$base_size) <- ""
+
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    by = gndr,
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ "Marked",
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>% 
+  add_overall() %>% 
+  add_p %>%
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**Unweighted percentages**"), 
+                stat_0 ~ "**Total**") %>% 
+  modify_footnote(everything() ~ NA)
+
+```
+
+<br>
+
+# gtsummary style crossbreak function
+
+```{r}
+
+# Requires yes/no or 0/1 variables
+
+.gsmulti_cbreak <- function(
+    data,
+    outcomes,
+    predictor
+    ) { 
+  
+  data_int <- data %>%
+  mutate(base_size = case_when(!is.na(.data[[outcomes[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+var_label(data_int$base_size) <- ""
+
+table <- 
+  data_int %>%
+  tbl_summary(
+    include = all_of(c(outcomes, "base_size")),
+    by = .data[[predictor]],
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>% 
+  add_overall() %>% 
+  add_p %>%
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**Unweighted percentages**"), 
+                stat_0 ~ "**Total**") %>% 
+  modify_footnote(everything() ~ NA)
+
+return(table)
+  
+}
+
+levels(ess2$acchome)
+
+ess %>%
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Yes" = "Marked", "No" = "Not marked"))) %>% 
+  .gsmulti_cbreak(outcomes = int_loc, predictor = "gndr")  
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".gsmulti_cbreak <- ", # Assignment needs to be added manually
+  deparse(.gsmulti_cbreak)), # Extract function code
+  paste0(ddir,"/.gsmulti_cbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Proper multicode crossbreak
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  # Factorise variables
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>% 
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(ess2$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(ess2 %>% select(all_of(int_loc)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- ess %>% select(all_of(int_loc)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(int_loc)) {
+  stems <- append(stems, str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(ess2[[int_loc[i]]]) <- 
+    str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+ess2 %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- ess2 %>% 
+  select(all_of(int_loc)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    by = gndr,
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     all_categorical() ~ "{p}",
+                     base_size ~ "{n}"), 
+    digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  add_overall() %>% 
+  add_p(include = -base_size) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "**Total**") %>%
+  modify_footnote(all_stat_cols() ~ level_reported) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(ess2[["gndr"]]),"**")) 
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+
+
+```
+
+<br>
+
+# Proper multicode crossbreak function
+
+```{r}
+
+.multi_cbreak <- function(
+                    data, # data frame
+                    outcomes, # Vector of variables which identify the outcomes
+                    predictor
+                    ) { 
+    
+data <- 
+  data %>%
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[outcomes[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(data$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(data %>% select(all_of(outcomes)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- data %>% select(all_of(outcomes)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(outcomes)) {
+  stems <- append(stems, str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(data[[outcomes[i]]]) <- 
+    str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+data %>% select(all_of(outcomes)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- data %>% 
+  select(all_of(outcomes)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+
+# Ensure all variables have the same two levels and reattach variable labels  
+for(yyy in outcomes)  {
+retain_label <- var_label(data[yyy])
+data <- data %>% mutate(across(all_of(yyy), ~factor(.x, levels = the_levels)))
+var_label(data[yyy]) <- retain_label
+}
+  
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+level_reported <- ""
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "Yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+table <- data %>%
+  tbl_summary(
+    include = all_of(c(outcomes, "base_size")),
+    by = .data[[predictor]],
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     all_categorical() ~ "{p}",
+                     base_size ~ "{n}"), 
+    digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  add_overall %>% 
+  add_p(include = -base_size) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "**Total**") %>%
+  modify_footnote(everything() ~ NA) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(data[[predictor]]),"**")) 
+
+# Add footnote explaining level reported if is non-standard (e.g. not yes/no etc)
+if (level_reported != "") { 
+  table <- table %>%
+  modify_footnote(all_stat_cols() ~ level_reported)
+}
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+# return(list(table, the_levels, chosen_level, values_standard_binaries))
+
+return(table)
+
+  }
+
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Yes" = "Marked", "No" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "yes" = "Marked", "no" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "1" = "Marked", "0" = "Not marked"))) %>% 
+    mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess2 <- ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+      mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  mutate(across(all_of(int_loc), ~case_when(.x == "Marked" ~ 1, .x == "Not marked" ~ 0), .names = "{.col}_2")) 
+
+for (x in 1:length(int_loc)) {
+  
+  var_label(ess2[paste0(int_loc[x], "_2")]) <- var_label(ess[int_loc[x]]) %>% unlist
+}
+
+ess2 %>% count(accref_2)
+int_loc2 <- paste0(int_loc,"_2")
+int_loc2
+ess2 %>% 
+  .multi_cbreak(outcomes = int_loc2, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~as_factor(.x))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Selected" = "Marked", "Not selected" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".multi_cbreak <- ", # Assignment needs to be added manually
+  deparse(.multi_cbreak)), # Extract function code
+  paste0(ddir,"/.multi_cbreak.R")) # File name is just the function name 
+
+```
+
+<br>

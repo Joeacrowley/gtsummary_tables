@@ -1,0 +1,502 @@
+---
+title: "Put gtsummary in Excel"
+output:
+  html_document:
+    df_print: tibble
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+```{r set up, collapse=T}
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+library(huxtable)
+library(openxlsx)
+library(haven)
+
+# Load BSA teaching data
+df <- read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+
+ddir <- paste0(getwd(), "/")
+
+look_for(df)
+df %>% count(skipmeal)
+df %>% count(RSex)
+
+df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
+df %>% count(skipmeal)
+df %>% count(RSex)
+df %>% count(HEdQual3)
+
+
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir)) %>% 
+  grep("_interim", ., value =T, invert = T) # Drop interim functions, not used.
+
+# Set of functions to be loaded. 
+file_paths
+
+```
+
+<br>
+
+## Load functions
+```{r, results='hide'}
+
+# Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))
+
+```
+
+<br> 
+
+```{r function}
+
+tables
+
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br> 
+
+```{r crossbreak}
+
+tbl <- df %>% tables(variables = "skipmeal", crossbreak = "RSex")
+tbl
+
+```
+
+<br> 
+
+# Set up huxtable styling
+
+Uses NatCen blue colour palette. 
+
+```{r colour palette}
+
+blue_pal <- c("#7082d4", "#8f99de", "#abb5e5", "#c7cced", "#e3e5f5")
+
+```
+
+# gtsummary table components
+
+```{r}
+tbl %>% names
+```
+
+<br>
+
+```{r}
+
+# Identify number of footnotes rows as:
+
+# - Total number of rows in huxtable, 
+# - Minus number of header rows and number of rows in table body.
+
+tbl[["table_body"]]
+
+```
+
+<br>
+
+```{r}
+# Can't see where the footnote content is found
+tbl[["table_styling"]] %>% names
+tbl[["table_styling"]][["footnote_body"]]
+
+```
+
+<br>
+
+```{r}
+tbl[["call_list"]]
+```
+
+<br>
+
+```{r}
+tbl[["tbls"]]
+```
+
+<br> 
+
+For whatever reason the code to format the caption does not work. It's annoying but not the end of the world, when adding to Excel I do it manually. 
+
+```{r huxtable}
+
+# df <- tbl
+# align = 1
+
+style_hux_df <- function(df, align = 1) {
+  
+  whether_any_sample_sizes_below_table <- df[["table_body"]] %>% pull(label) == "Unweighted sample sizes"
+  starting_row_for_base_sizes <- which(whether_any_sample_sizes_below_table) - 1
+
+  if(any(whether_any_sample_sizes_below_table)){
+    df <- df %>% modify_table_body(~.x %>% mutate(label =
+        case_when(row_number() == starting_row_for_base_sizes ~ " ", TRUE ~ label))
+    )
+  }
+  
+  # Extract raw caption text.
+  temp_capt <- df[["table_styling"]]$caption %>% str_split_i(., "\\>", 2) %>% str_split_i(., "\\<", 1) %>% trimws()
+  if(length(temp_capt) == 0){temp_capt <- " "}
+  
+  ht <- as_hux_table(df)   # Convert gtsummary table to huxtable
+  caption(ht) <- NA # Remove caption text
+  
+  # Set font and size
+  font(ht) <- "Arial"
+  font_size(ht) <- 11
+  
+  # Identify header and footnote rows
+  header_row_num <- ht %>% header_rows() %>% sum
+  number_of_body_rows <- nrow(df[["table_body"]])
+  first_body_row <- header_row_num + 1
+  final_body_row <- header_row_num + number_of_body_rows
+  first_footer_row <- final_body_row + 1
+  final_footer_row <- nrow(ht)
+  starting_row_for_base_sizes_ht <- starting_row_for_base_sizes + header_row_num
+  
+  header_rows <- 1:header_row_num
+  body_rows <- first_body_row:final_body_row
+  footer_rows <- first_footer_row:final_footer_row
+
+  # Remove background fill
+  ht <- map_background_color(ht, by_rows("#f5f7fa", "#ffffff")) %>%
+    set_background_color(row = 1:header_row_num, value = "grey90") %>% 
+    set_background_color(row = footer_rows, value = "white")
+
+  # Bold headers
+  # ht <- set_bold(ht, 1, everywhere, TRUE)
+  ht <- set_bold(ht, 1:header_row_num, everywhere, TRUE)
+  # ht <- set_background_color(ht, 1, everywhere, "#8f99de")
+  
+  # if (header_row_num > 1){
+  #   ht <- set_background_color(ht, 2, everywhere, "#abb5e5")
+  # }
+  # 
+  # if (header_row_num > 2){
+  #   ht <- set_background_color(ht, 3, everywhere, "#c7cced")
+  # }
+
+  # Set border widths
+  ht <- set_top_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
+  ht <- set_bottom_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
+  ht <- set_left_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
+  ht <- set_right_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
+  ht <- set_top_border(ht, row = c(1, first_body_row), col = everywhere, value = 2)
+  ht <- set_bottom_border(ht, row = c(final_body_row, starting_row_for_base_sizes_ht), col = everywhere, value = 2)
+  
+  # Set padding 
+  if(any(whether_any_sample_sizes_below_table)){
+    ht <- set_top_padding(ht, row = starting_row_for_base_sizes + header_row_num, value = 5)
+    ht <- set_bottom_padding(ht, row = starting_row_for_base_sizes + header_row_num, value = 5)
+  }
+  
+  rows_to_pad <- which(df[["table_body"]]["row_type"] == "label") + 2
+  ht <- set_top_padding(ht, row = rows_to_pad, value = 3)
+  ht <- set_bottom_padding(ht, row = rows_to_pad, value = 3)
+  
+  # Alignment: left-align columns 1 to `align`, right-align the rest
+  # Alteration - Maybe start after col 2?
+  align_vec <- ifelse(seq_along(df) <= align, "left", "right")
+  for (col in seq_along(align_vec)) {
+    ht <- set_align(ht, everywhere, col, align_vec[col])
+  }
+  
+  na_string(ht) <- "" 
+  
+  # This requires a little more thinking about, may need more decimal places for mean, SD etc. 
+  # ht <- set_number_format(ht, everywhere, value = fmt_pretty(digits = 1)) 
+  
+  # Add caption (if one present)
+  if(temp_capt != " "){
+  # Create a matrix of empty strings with the same number of rows
+  empty_cols <- matrix("", nrow = 1, ncol = ncol(ht))
+  
+  # Convert to huxtable
+  empty_hux <- as_hux(empty_cols)
+  empty_hux[1,1] <- temp_capt
+  empty_hux <- empty_hux %>% merge_across(1, everywhere)
+  empty_hux <- set_header_rows(empty_hux, 1, T)
+  
+  ht <- rbind(empty_hux, ht)
+  
+  # Set font and size of caption
+  ht <- set_font(ht, 1, everywhere, "Arial")
+  ht <- set_font_size(ht, 1, everywhere, 13)
+  ht <- set_bold(ht, 1, everywhere, TRUE)
+  ht <- set_align(ht, 1, everywhere, "left")
+  ht <- set_bottom_border(ht, row = 1, col = everywhere, value = 2)
+  }
+  
+  # Set border colors
+  top_border_color(ht)    <- "grey50"
+  bottom_border_color(ht) <- "grey50"
+  left_border_color(ht)   <- "grey50"
+  right_border_color(ht)  <- "grey50"
+  
+  return(ht)
+}
+
+```
+
+```{r}
+
+writeLines(
+  c("style_hux_df <- ", # Assignment needs to be added manually
+  deparse(style_hux_df)), # Extract function code
+  paste0(ddir, "/style_hux_df.R")) # File name is just the function name 
+
+```
+
+
+<br>
+
+## Trial with crossbreak
+
+```{r huxtable formatting with crossbreaks}
+
+huxxed <- tbl %>% style_hux_df() 
+tbl %>% style_hux_df()  %>% as_flextable()
+
+```
+
+<br> 
+
+## With nested tables? 
+
+```{r huxtable formatting with nested crossbreaks}
+
+source(paste0(ddir, "nested_tables.R"))
+
+nested_tables
+
+```
+
+<br>
+
+```{r}
+
+ntbl <- 
+  df %>% nested_tables(
+  variables_int = "skipmeal", 
+  crossbreak = "RSex", 
+  nest = "HEdQual3"
+)
+
+ntbl %>% style_hux_df() 
+ntbl %>% style_hux_df() %>% as_flextable()
+
+```
+
+<br> 
+
+# Adding tables into Excel 
+
+## Trial 1
+
+This is fairly successful but the auto width function in openxlsx is just not that good.
+
+```{r huxtable to excel function}
+
+# Set max/min column widths-----------------------------------------------------
+# Set outside of function. 
+options("openxlsx.minWidth" = 10) 
+options("openxlsx.maxWidth" = 15) 
+
+addh <- function(
+    ht, 
+    workbook, 
+    sheet
+    ) {
+  
+# Convert huxtable to workbook (starts on row 2 and col 2)
+workbook_interim <- ht |> as_Workbook(Workbook = workbook, start_row = 2, start_col = 2, sheet = sheet)
+
+# Excel cell locations
+end_row <- 1 + nrow(ht)  
+end_col <- 1 + ncol(ht)
+
+# Sheet background
+showGridLines(workbook_interim, sheet, showGridLines = FALSE)
+# addStyle(workbook_interim, sheet = sheet, style = createStyle(fgFill = "lightgrey"), rows = 1:1000, cols = 1:1000, gridExpand = TRUE, stack = TRUE)
+# 
+# # Table background (could also fill the huxtable...)
+# addStyle(workbook_interim, sheet = sheet, style = createStyle(fgFill = "white"), 
+#          rows = 2:end_row, 
+#          cols = 2:end_col, 
+#          gridExpand = TRUE, stack = TRUE)
+
+# Required to remove row heights set by as_Workbook() - these are problematic
+removeRowHeights(workbook_interim, sheet, rows = 2:end_row) 
+
+# Wrap cells -------------------------------------------------------------------
+
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T), 
+         cols = 2:end_col, 
+         rows = 2:end_row, 
+         gridExpand = TRUE, 
+         stack = T)
+
+# Remove huxtable defined column widths and apply openxlsx standards
+removeColWidths(workbook_interim, sheet, cols = 2:end_col)
+setColWidths(workbook_interim, sheet, cols = 2:end_col, widths = "auto")
+
+return(workbook_interim)
+
+}
+
+wb <- createWorkbook()
+
+wb <- ntbl %>% style_hux_df %>% addh(sheet = "nested table", workbook = wb)
+# Save out workbook
+saveWorkbook(wb, file = paste0(ddir, "3.1. Example, not working.xlsx"), overwrite = TRUE)
+
+```
+
+<br>
+
+## Trial 2
+
+The code below fairly successfully sets a sensible column width for tables. 
+
+It's still a little hard to navigate larger tables, but perhaps there's nothing to be done on that. 
+
+When merging 5 separate cross-break tables it might be possible to do something with colour or borders to indicate breaks between them better. 
+
+```{r manually set col_widths}
+
+huxt = tbl%>% style_hux_df 
+rm(huxt)
+
+.col_width <- function(huxt) { 
+  
+  # Identify number of header rows in gtsummary table
+  no_of_header_rows <- huxt %>% header_rows %>% sum
+  header_row <- no_of_header_rows
+  
+  # Extract first row of huxtable
+  header_row_char_length <- huxt[header_row,] %>% as_vector() %>% map_int(., str_length)
+  
+  # Extract outcome variable length. 
+  header_row_char_length[1] <- huxt[header_row+1,1] %>% as_vector() %>% map_int(., str_length)
+
+  # Multiple by number of pixels per character
+  header_proposed_width <- header_row_char_length + 3
+
+  # Cut off of 30 imposed, and lower bound of 10. 
+  header_proposed_width_cut_off <- ifelse(header_proposed_width > 30, 30, header_proposed_width)
+  header_proposed_width_cut_off <- ifelse(header_proposed_width_cut_off < 10, 10, header_proposed_width_cut_off)
+
+  # For column 1, cut off increased to 50
+  if (header_proposed_width[1] > 30) {
+    header_proposed_width_cut_off[1] <- ifelse(header_proposed_width[1] > 50, 50, header_proposed_width[1])
+  }
+  
+  # And lower bound of 20. 
+  if (header_proposed_width[1] < 20) {
+  header_proposed_width_cut_off[1] <- ifelse(header_proposed_width_cut_off[1] < 20, 20, header_proposed_width_cut_off[1])
+  }
+  
+return(header_proposed_width_cut_off)
+
+} 
+
+tbl %>% style_hux_df() %>% .col_width()
+
+
+
+
+addh <- function(
+    ht, 
+    workbook, 
+    sheet
+    ) {
+  
+# Convert huxtable to workbook (starts on row 2 and col 2)
+workbook_interim <- ht |> as_Workbook(Workbook = workbook ,start_row = 2, start_col = 2, sheet = sheet)
+
+# Excel cell locations
+end_row <- 1 + nrow(ht)  
+end_col <- 1 + ncol(ht)
+
+# Sheet background
+showGridLines(workbook_interim, sheet, showGridLines = FALSE)
+
+# Required to remove row heights set by as_Workbook() - these are problematic
+removeRowHeights(workbook_interim, sheet, rows = 2:end_row) 
+
+# Wrap cells -------------------------------------------------------------------
+
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T), 
+         cols = 2:end_col, 
+         rows = 2:end_row, 
+         gridExpand = TRUE, 
+         stack = T)
+
+# Remove huxtable defined column widths and apply openxlsx standards
+removeColWidths(workbook_interim, sheet, cols = 2:end_col)
+col_widths <- ht %>% .col_width()
+setColWidths(workbook_interim, sheet, cols = 2:end_col, widths = col_widths)
+setColWidths(workbook_interim, sheet, cols = 1, widths = 4)
+
+# Format caption... 
+addStyle(workbook_interim, 
+         sheet, 
+         style = createStyle(wrapText = T, fontName = "Arial", fontSize = 13, textDecoration = "bold"), 
+         cols = 2:end_col, 
+         rows = 2, 
+         gridExpand = TRUE, 
+         stack = T)
+setRowHeights(workbook_interim, sheet, rows = 2, heights = 30)
+
+return(workbook_interim)
+
+}
+
+wb <- createWorkbook()
+
+wb <- ntbl %>% style_hux_df %>% addh(sheet = "nested table", workbook = wb)
+wb <- tbl %>% style_hux_df %>% addh(sheet = "table", workbook = wb)
+
+# Save out workbook
+saveWorkbook(wb, file = paste0(ddir, "3.2. Example, working.xlsx"), overwrite = TRUE)
+
+```
+
+ <br>
+
+```{r}
+writeLines(
+  c("addh <- ", # Assignment needs to be added manually
+  deparse(addh)), # Extract function code
+  paste0(ddir, "addh.R")) # File name is just the function name 
+
+writeLines(
+  c(".col_width <- ", # Assignment needs to be added manually
+  deparse(.col_width)), # Extract function code
+  paste0(ddir, ".col_width.R")) # File name is just the function name 
+
+```
+
+
