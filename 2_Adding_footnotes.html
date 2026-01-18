@@ -1,0 +1,4603 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>6 Base notes</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<h2 id="toc-title">Table of Contents</h2>
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gtsummary tables</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">6 Base notes</h1>
+
+</div>
+
+
+<div id="set-up" class="section level1">
+<h1>Set up</h1>
+<pre class="r"><code># Easiest to copy all these packages into a script using these functions
+library(tidyverse)
+library(labelled)
+library(gtsummary)
+library(huxtable)
+library(openxlsx)
+library(haven)
+library(srvyr)
+</code></pre>
+<p><br></p>
+<p>Typical theme for gtsummary()</p>
+<pre class="r"><code># For all I use the compact theme.
+theme_gtsummary_compact()</code></pre>
+<pre><code>## Setting theme &quot;Compact&quot;</code></pre>
+<p><br></p>
+<p>Load Round 10 UK European Social Survey dataset.</p>
+<pre class="r"><code># Load BSA teaching data
+df &lt;- read_sav(&#39;/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav&#39;, user_na = T)
+df &lt;- df %&gt;% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
+
+glimpse(df)</code></pre>
+<pre><code>## Rows: 3,224
+## Columns: 26
+## $ Sserial          &lt;dbl+lbl&gt; 310001, 310002, 310003, 310004, 310005, 310006, 310007, 310008, 310009, 310010, 310011, 31…
+## $ WtFactor         &lt;dbl+lbl&gt; 0.9119594, 0.4439626, 1.2182741, 1.5839969, 0.4743091, 1.1363125, 0.8259778, 0.9606518, 1.…
+## $ RSex             &lt;fct&gt; Female, Female, Female, Male, Male, Male, Male, Female, Male, Male, Male, Female, Female, Male…
+## $ RAgeCat          &lt;dbl+lbl&gt; 6, 3, 4, 2, 6, 4, 2, 4, 4, 1, 7, 1, 7, 3, 3, 7, 7, 3, 6, 3, 7, 7, 2, 6, 6, 4, 5, 3, 7, 7, …
+## $ eq_inc_quintiles &lt;dbl+lbl&gt; -1,  5, -1,  4, -1,  1,  5, -1, -1, -1, -1,  2, -1,  5,  2,  4, -1,  5,  1,  1, -1,  1,  4…
+## $ RClassGp         &lt;dbl+lbl&gt; 1, 1, 1, 1, 5, 3, 1, 1, 1, 5, 3, 5, 5, 1, 3, 2, 1, 1, 5, 1, 5, 5, 1, 5, 5, 3, 5, 1, 1, 1, …
+## $ HEdQual3         &lt;fct&gt; Higher educ below degree/A level, Higher educ below degree/A level, O level or equiv/CSE, High…
+## $ Married          &lt;dbl+lbl&gt; 1, 2, 1, 4, 4, 1, 4, 1, 1, 4, 1, 4, 4, 1, 1, 1, 3, 4, 3, 1, 1, 2, 1, 1, 4, 1, 2, 2, 1, 1, …
+## $ ChildHh          &lt;dbl+lbl&gt; 2, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 2, 1, 2, 1, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, …
+## $ skipmeal         &lt;fct&gt; NA, Never, NA, NA, Never, NA, Never, Never, Never, NA, Never, Less than once a month, NA, Neve…
+## $ paptype          &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, …
+## $ SMNews           &lt;dbl+lbl&gt; 8, 1, 2, 2, 8, 3, 1, 4, 8, 8, 8, 7, 8, 8, 3, 8, 1, 8, 8, 2, 8, 5, 4, 8, 8, 8, 6, 1, 8, 8, …
+## $ PartyId2         &lt;dbl+lbl&gt; 8, 8, 4, 2, 3, 2, 2, 8, 3, 8, 1, 5, 2, 5, 3, 8, 2, 4, 3, 5, 1, 2, 2, 8, 1, 8, 2, 2, 4, 8, …
+## $ Politics         &lt;dbl+lbl&gt; 4, 3, 4, 3, 5, 3, 1, 1, 1, 5, 1, 4, 3, 3, 3, 2, 3, 2, 3, 3, 1, 3, 1, 4, 3, 3, 4, 3, 4, 1, …
+## $ SocTrust         &lt;dbl+lbl&gt;  1, -1,  2,  1, -1,  2, -1, -1, -1,  2, -1, -1,  1, -1, -1, -1, -1, -1, -1,  1, -1,  2, -1…
+## $ Spend1           &lt;dbl+lbl&gt;  3, -1,  3,  3, -1,  9, -1, -1, -1,  3, -1, -1,  8, -1, -1, -1, -1, -1, -1,  4, -1,  3, -1…
+## $ Dole             &lt;dbl+lbl&gt; 3, 2, 2, 3, 2, 2, 1, 8, 2, 2, 3, 1, 3, 1, 2, 3, 2, 2, 1, 2, 8, 1, 3, 2, 1, 3, 1, 1, 1, 2, …
+## $ TaxSpend         &lt;dbl+lbl&gt; 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3, 3, 2, 3, 3, 2, 3, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 3, 2, …
+## $ MuchPov          &lt;dbl+lbl&gt; 8, 2, 2, 2, 1, 1, 2, 2, 2, 8, 1, 2, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 1, 2, 8, 2, 2, 2, 1, …
+## $ Poverty1         &lt;dbl+lbl&gt; 2, 2, 2, 2, 2, 1, 1, 1, 1, 8, 2, 2, 1, 1, 2, 1, 8, 2, 2, 2, 2, 2, 8, 2, 1, 2, 2, 2, 2, 2, …
+## $ Poverty2         &lt;dbl+lbl&gt; 1, 2, 2, 1, 1, 1, 1, 1, 1, 8, 2, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 2, 2, 1, …
+## $ NatFrEst         &lt;dbl+lbl&gt;   5,  30,  50,  50,  50,  10,   1, 998,   5,  50,  60,  25,  30,   3,  25,  10,  80,   5, …
+## $ incdiffs         &lt;dbl+lbl&gt; -1,  2, -1, -1,  4, -1,  2,  1,  1, -1,  3,  2, -1,  3,  2,  2,  1,  2,  1, -1, -1, -1,  1…
+## $ welfare2         &lt;dbl+lbl&gt;  2.500000,  3.125000,  3.125000,  2.250000,  3.375000,  2.875000,  2.000000,  2.750000,  1…
+## $ leftrigh         &lt;dbl+lbl&gt;  2.4,  2.0,  2.2,  3.2,  1.6,  1.8,  2.4,  2.0,  1.8,  2.8,  3.4,  2.2,  9.0,  2.8,  3.0, …
+## $ libauth          &lt;dbl+lbl&gt;  3.500000,  3.833333,  4.166667,  2.166667,  4.666667,  3.666667,  2.333333,  2.666667,  2…</code></pre>
+<pre class="r"><code>svy_df &lt;- df %&gt;% as_survey_design(weights = WtFactor)</code></pre>
+<p><br></p>
+</div>
+<div id="load-other-functions" class="section level1">
+<h1>Load other functions</h1>
+<p><br></p>
+<div id="produce-testing-table" class="section level2">
+<h2>Produce testing table</h2>
+<pre class="r"><code># Show function code... 
+tables</code></pre>
+<pre><code>## function (data, variables, crossbreaks = NULL, stats_cat = &quot;{p}&quot;, 
+##     stats_num = &quot;{mean}&quot;, ci = NULL, num_digits = 2, split_num = F, 
+##     sig = NULL, caption = NULL, bases = NULL, source = NULL, 
+##     footnotes = NULL) 
+## {
+##     if (is.null(crossbreaks)) {
+##         crossbreaks &lt;- list(NULL)
+##     }
+##     tables_int &lt;- map(crossbreaks, ~data %&gt;% totals(variables_int = variables, 
+##         crossbreak = .x, stats_cat_int = stats_cat, stats_num_int = stats_num, 
+##         ci_int = ci, num_digits_int = num_digits, split_num_int = split_num, 
+##         sig_int = sig))
+##     if (length(tables_int) &gt; 1) {
+##         for (i in 2:length(tables_int)) {
+##             tables_int[[i]] &lt;- tables_int[[i]] %&gt;% modify_table_body(~.x %&gt;% 
+##                 select(!contains(&quot;stat_0&quot;)) %&gt;% select(!contains(&quot;stat_label&quot;)))
+##         }
+##         variable_labels &lt;- data %&gt;% select(all_of(crossbreaks)) %&gt;% 
+##             var_label(unlist = T) %&gt;% paste0(&quot;**&quot;, ., &quot;**&quot;)
+##         tables &lt;- tbl_merge(tables_int, tab_spanner = variable_labels) %&gt;% 
+##             modify_spanning_header(contains(&quot;stat_label&quot;) ~ NA, 
+##                 contains(&quot;stat_0&quot;) ~ NA)
+##     }
+##     else {
+##         tables &lt;- tables_int[[1]]
+##     }
+##     if (!is.null(crossbreaks)) {
+##         bases_variables &lt;- c(variables, crossbreaks)
+##     }
+##     footnotes &lt;- gtsummary_table_notes(bases_info = bases, vars = bases_variables, 
+##         source_note = source, other_footnotes = footnotes)
+##     if (footnotes != &quot;&quot;) {
+##         tables &lt;- tables %&gt;% modify_source_note(source_note = footnotes, 
+##             text_interpret = &quot;html&quot;)
+##     }
+##     if (!is.null(caption)) {
+##         tables &lt;- tables %&gt;% modify_caption(paste0(&quot;&lt;div style=&#39;text-align: left; font-weight: bold; color: black&#39;&gt;&quot;, 
+##             caption, &quot;&lt;/div&gt;&quot;))
+##     }
+##     if (class(data) %&gt;% grep(&quot;survey.design&quot;, ., value = T) %&gt;% 
+##         length() &gt; 0) {
+##         stat_types &lt;- &quot;All statistics shown in this table are weighted.&quot;
+##     }
+##     else {
+##         stat_types &lt;- &quot;All statistics shown in this table are unweighted.&quot;
+##     }
+##     tables &lt;- tables %&gt;% modify_footnote_header(stat_types, columns = contains(&quot;stat_label&quot;), 
+##         replace = F)
+##     return(tables)
+## }</code></pre>
+<pre class="r"><code># Create test table
+tbl &lt;- df %&gt;% tables(variables = &quot;skipmeal&quot;, crossbreaks = &quot;RSex&quot;)
+
+tbl</code></pre>
+<div id="mlycqrhosk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#mlycqrhosk table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#mlycqrhosk thead, #mlycqrhosk tbody, #mlycqrhosk tfoot, #mlycqrhosk tr, #mlycqrhosk td, #mlycqrhosk th {
+  border-style: none;
+}
+
+#mlycqrhosk p {
+  margin: 0;
+  padding: 0;
+}
+
+#mlycqrhosk .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#mlycqrhosk .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#mlycqrhosk .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#mlycqrhosk .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#mlycqrhosk .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#mlycqrhosk .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#mlycqrhosk .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#mlycqrhosk .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#mlycqrhosk .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#mlycqrhosk .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#mlycqrhosk .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mlycqrhosk .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#mlycqrhosk .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#mlycqrhosk .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#mlycqrhosk .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mlycqrhosk .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#mlycqrhosk .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#mlycqrhosk .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#mlycqrhosk .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mlycqrhosk .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#mlycqrhosk .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mlycqrhosk .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#mlycqrhosk .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mlycqrhosk .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mlycqrhosk .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mlycqrhosk .gt_left {
+  text-align: left;
+}
+
+#mlycqrhosk .gt_center {
+  text-align: center;
+}
+
+#mlycqrhosk .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#mlycqrhosk .gt_font_normal {
+  font-weight: normal;
+}
+
+#mlycqrhosk .gt_font_bold {
+  font-weight: bold;
+}
+
+#mlycqrhosk .gt_font_italic {
+  font-style: italic;
+}
+
+#mlycqrhosk .gt_super {
+  font-size: 65%;
+}
+
+#mlycqrhosk .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#mlycqrhosk .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#mlycqrhosk .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#mlycqrhosk .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#mlycqrhosk .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#mlycqrhosk .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#mlycqrhosk .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#mlycqrhosk .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#mlycqrhosk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+</div>
+<div id="manual-source-note" class="section level2">
+<h2>Manual source note</h2>
+<pre class="r"><code>tbl %&gt;% modify_source_note(
+  source_note = &quot;&lt;b&gt;text:&lt;/b&gt; &lt;br&gt; text &lt;br&gt;&lt;br&gt; Double the break symbol for a double space.&quot;, 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="dvqsqoqule" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dvqsqoqule table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#dvqsqoqule thead, #dvqsqoqule tbody, #dvqsqoqule tfoot, #dvqsqoqule tr, #dvqsqoqule td, #dvqsqoqule th {
+  border-style: none;
+}
+
+#dvqsqoqule p {
+  margin: 0;
+  padding: 0;
+}
+
+#dvqsqoqule .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#dvqsqoqule .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#dvqsqoqule .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#dvqsqoqule .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#dvqsqoqule .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#dvqsqoqule .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#dvqsqoqule .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#dvqsqoqule .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#dvqsqoqule .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#dvqsqoqule .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#dvqsqoqule .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#dvqsqoqule .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#dvqsqoqule .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#dvqsqoqule .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#dvqsqoqule .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dvqsqoqule .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#dvqsqoqule .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#dvqsqoqule .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#dvqsqoqule .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dvqsqoqule .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#dvqsqoqule .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dvqsqoqule .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#dvqsqoqule .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dvqsqoqule .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dvqsqoqule .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dvqsqoqule .gt_left {
+  text-align: left;
+}
+
+#dvqsqoqule .gt_center {
+  text-align: center;
+}
+
+#dvqsqoqule .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#dvqsqoqule .gt_font_normal {
+  font-weight: normal;
+}
+
+#dvqsqoqule .gt_font_bold {
+  font-weight: bold;
+}
+
+#dvqsqoqule .gt_font_italic {
+  font-style: italic;
+}
+
+#dvqsqoqule .gt_super {
+  font-size: 65%;
+}
+
+#dvqsqoqule .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#dvqsqoqule .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#dvqsqoqule .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#dvqsqoqule .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#dvqsqoqule .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#dvqsqoqule .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#dvqsqoqule .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#dvqsqoqule .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#dvqsqoqule div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"><b>text:</b> <br> text <br><br> Double the break symbol for a double space.</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+</div>
+</div>
+<div id="functions-to-set-up-base-sizes" class="section level1">
+<h1>Functions to set up base sizes</h1>
+<p>These are functions from elsewhere and are really more complex than
+they need to be. They work though, so live with it.</p>
+<p><br></p>
+<div id="function-1---generate-an-object-containing-base-information"
+class="section level2">
+<h2>Function 1 - generate an object containing base information</h2>
+<pre class="r"><code># Takes a named vector containing variable names and associated base descriptions, 
+# a character vector of variables to return the base description for, and returns 
+# the description as a character vector. 
+
+base_information &lt;- function(
+    data, 
+    general_base, 
+    specific_bases
+    ) {
+  
+  everything_else &lt;- general_base
+  var_descriptions &lt;- specific_bases
+  
+  # Check whether survey data or not (T = survey; F = data frame)
+  whether_survey_data &lt;- if(
+     class(data) %&gt;% 
+      grep(&quot;survey.design&quot;, ., value = T) %&gt;% 
+      length() &gt; 0
+  ){T} else {F}
+  data2 &lt;- if(whether_survey_data == T){data[[&quot;variables&quot;]]} else {data}
+
+  variable_labels &lt;- data2 %&gt;% select(names(var_descriptions)) %&gt;% var_label(unlist = T, null_action = &quot;fill&quot;)
+  all_variable_labels &lt;- data2 %&gt;% var_label(unlist = T, null_action = &quot;fill&quot;)
+  
+  base_descriptions &lt;- list(everything_else, var_descriptions, variable_labels, all_variable_labels)
+  return(base_descriptions)
+  
+}
+
+writeLines(
+  c(&quot;base_information &lt;- &quot;, # Assignment needs to be added manually
+  deparse(base_information)), # Extract function code
+  paste0(ddir,&quot;base_information.R&quot;)) # File name is just the function name </code></pre>
+<p><br></p>
+<p>The resulting function takes as it’s main argument a named vector
+containing the base descriptions to be used as well as…</p>
+<ul>
+<li>general_base, which is a description for all other base notes,
+besides those in the named vector.<br />
+</li>
+<li>data, the data frame being used for the tables.</li>
+</ul>
+<pre class="r"><code>var_descriptions &lt;- 
+  c(
+    Spend1 = &quot;Subsample A&quot;, 
+    SocTrust = &quot;Subsample A&quot; 
+  )
+
+var_descriptions</code></pre>
+<pre><code>##        Spend1      SocTrust 
+## &quot;Subsample A&quot; &quot;Subsample A&quot;</code></pre>
+<pre class="r"><code>example_of_base_information &lt;- base_information(
+  data = df,
+  general_base = &quot;Asked of all respondents&quot;, 
+  specific_bases = var_descriptions
+)
+
+example_of_base_information</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;Asked of all respondents&quot;
+## 
+## [[2]]
+##        Spend1      SocTrust 
+## &quot;Subsample A&quot; &quot;Subsample A&quot; 
+## 
+## [[3]]
+##                                                                                                                        Spend1 
+##                                                               &quot;Which would be your highest priority for extra govt spending?&quot; 
+##                                                                                                                      SocTrust 
+## &quot;Generally speaking, would you say that most people can be trusted, or that you can`t be too careful in dealing with people?&quot; 
+## 
+## [[4]]
+##                                                                                                                                           Sserial 
+##                                                                                                                                  &quot;Archive Serial&quot; 
+##                                                                                                                                          WtFactor 
+##                                                                                                                                &quot;Final BSA weight&quot; 
+##                                                                                                                                              RSex 
+##                                                                                                                               &quot;Sex of respondent&quot; 
+##                                                                                                                                           RAgeCat 
+##                                                                                                       &quot;Age of respondent(grouped)&lt;7 category&gt; dv&quot; 
+##                                                                                                                                  eq_inc_quintiles 
+##                       &quot;Quintiles of total equivalised household income, net of tax, NI, disability benefits and housing costs (missings removed)&quot; 
+##                                                                                                                                          RClassGp 
+##                                                                                              &quot;NS-SEC analytic classes [respondent] 6 category dv&quot; 
+##                                                                                                                                          HEdQual3 
+##                                                                                                          &quot;Highest educational qual obtained - dv&quot; 
+##                                                                                                                                           Married 
+##                                                                                                                &quot;Marital status &lt;4 categories&gt; dv&quot; 
+##                                                                                                                                           ChildHh 
+##                                                                                            &quot;Whether respondent has any children in household: dv&quot; 
+##                                                                                                                                          skipmeal 
+##                            &quot;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C&quot; 
+##                                                                                                                                           paptype 
+##                                                                                                                  &quot;Newspaper readership (grouped)&quot; 
+##                                                                                                                                            SMNews 
+##                                                &quot;How often, if at all, do you read the news via a social media site, such as Facebook or Twitter?&quot; 
+##                                                                                                                                          PartyId2 
+##                                                                                                              &quot;Party political id (compressed) dv&quot; 
+##                                                                                                                                          Politics 
+##                                                                                                      &quot;How much interest do you have in politics?&quot; 
+##                                                                                                                                          SocTrust 
+##                     &quot;Generally speaking, would you say that most people can be trusted, or that you can`t be too careful in dealing with people?&quot; 
+##                                                                                                                                            Spend1 
+##                                                                                   &quot;Which would be your highest priority for extra govt spending?&quot; 
+##                                                                                                                                              Dole 
+##                                        &quot;Opinions differ about the level of benefits for unemployed people - Which comes closest to your own view&quot; 
+##                                                                                                                                          TaxSpend 
+##                                                      &quot;If it had to choose, should govt reduce/increase/maintain levels of taxation and spending?&quot; 
+##                                                                                                                                           MuchPov 
+##        &quot;Some people say there is very little real poverty in Britain today - Others say there is quite a lot -  Which comes closest to your view&quot; 
+##                                                                                                                                          Poverty1 
+## &quot;Is someone in Britain in poverty if they had enough to buy the things they really needed, but not enough to buy the things most people take for&quot; 
+##                                                                                                                                          Poverty2 
+##                             &quot;Is someone in Britain in poverty if they had enough to eat and live, but not enough to buy other things they needed&quot; 
+##                                                                                                                                          NatFrEst 
+##         &quot;Out of every 100 people receiving benefits in Britain, how many have broken the law by giving false information to support their claim?&quot; 
+##                                                                                                                                          incdiffs 
+##                                                                                             &quot;Differences in income in GB are too large?: SC B, C&quot; 
+##                                                                                                                                          welfare2 
+##                                                                                                       &quot;Welfarism scale (welfhelp to proudwlf) dv&quot; 
+##                                                                                                                                          leftrigh 
+##                                                                                                       &quot;Left-right scale (redistrb to indust4) dv&quot; 
+##                                                                                                                                           libauth 
+##                                                                                         &quot;Libertarian-authoritarian scale (TradVals to censor) dv&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="function-2---create-base-descriptions-for-a-table"
+class="section level2">
+<h2>Function 2 - create base descriptions for a table</h2>
+<pre class="r"><code>create_bases &lt;- function(
+    base_info,
+    variables
+){
+  
+  names_of_variables_with_specific_bases &lt;- base_info[[2]] %&gt;% names
+  bases_to_use &lt;- names_of_variables_with_specific_bases %in% variables
+  variable_labels_to_use &lt;- base_info[[3]][bases_to_use]
+  bases_to_use &lt;- base_info[[2]][bases_to_use] 
+  
+  if(length(bases_to_use) &gt; 0){list_of_bases &lt;- paste0(bases_to_use, &quot;:-  &quot;, variable_labels_to_use)} else {list_of_bases &lt;- c()}
+  
+  variables_using_default_description &lt;- variables[!variables %in% names_of_variables_with_specific_bases]
+  
+  if(length(variables_using_default_description) &gt; 0){
+    labels_of_variables_using_default_description &lt;- base_info[[4]][variables_using_default_description]
+    default_base_description &lt;- paste0(base_info[[1]],  &quot;:-  &quot;, labels_of_variables_using_default_description)
+    list_of_bases &lt;- c(list_of_bases, default_base_description)
+  } 
+  
+  list_of_bases &lt;- list_of_bases %&gt;% paste0(., collapse = &quot; X &quot;)
+  
+  return(list_of_bases)
+  
+}
+
+writeLines(
+  c(&quot;create_bases &lt;- &quot;, # Assignment needs to be added manually
+  deparse(create_bases)), # Extract function code
+  paste0(ddir,&quot;create_bases.R&quot;)) # File name is just the function name </code></pre>
+<p><br></p>
+<p>Arguments are:</p>
+<ul>
+<li>base_info: The object created by <code>base_information</code>
+function,<br />
+</li>
+<li>variables: A character vector of outcome variables.</li>
+</ul>
+<pre class="r"><code>base_example &lt;- create_bases(example_of_base_information, c(&quot;libauth&quot;,&quot;leftrigh&quot;, &quot;RSex&quot;, &quot;Spend1&quot;))
+base_example</code></pre>
+<pre><code>## [1] &quot;Subsample A:-  Which would be your highest priority for extra govt spending? X Asked of all respondents:-  Libertarian-authoritarian scale (TradVals to censor) dv X Asked of all respondents:-  Left-right scale (redistrb to indust4) dv X Asked of all respondents:-  Sex of respondent&quot;</code></pre>
+<p><br></p>
+</div>
+<div id="function-3-formatting-base-note" class="section level2">
+<h2>Function 3, formatting base note</h2>
+<p>This takes the output of create_bases and formats it ready for use.
+It has one argument, the output of <code>create_bases</code>.</p>
+<pre class="r"><code>prepare_base_for_table &lt;- function(bases_for_table) {
+  
+  base_results &lt;- list()
+  
+  bases &lt;- bases_for_table %&gt;% str_split_1(., &quot; X &quot;) %&gt;% unique
+  base_descriptions &lt;- bases %&gt;% str_split_i(., &quot;:-  &quot;, 1)
+  variables &lt;- bases %&gt;% str_split_i(., &quot;:-  &quot;, 2)
+  
+  unique_base_descriptions &lt;- unique(base_descriptions)
+  if(length(unique_base_descriptions) == 1){
+    base_results &lt;- append(base_results ,list(unique_base_descriptions))
+  } else {
+    
+    most_common_base_description &lt;- data.frame(base_descriptions = base_descriptions) %&gt;% 
+      count(base_descriptions) %&gt;% 
+      mutate(max_n = max(n)) %&gt;% 
+      filter(n == max_n) %&gt;% 
+      pull(base_descriptions) %&gt;% 
+      unique
+    
+    if(length(most_common_base_description) &gt; 1){most_common_base_description &lt;- most_common_base_description[1]}
+    
+    base_results[[1]] &lt;- most_common_base_description %&gt;% paste(&quot;All other variables:- &quot;, ., collapse = &quot;&quot;) 
+    #%&gt;% str_to_sentence()
+    
+    unique_base_descriptions &lt;- unique_base_descriptions[!unique_base_descriptions %in% most_common_base_description]
+    
+    for (xxx in unique_base_descriptions){
+      
+      index &lt;- which(base_descriptions %in% xxx) 
+      variable_list &lt;- paste0(variables[index], collapse = &quot;, &quot;) 
+      variable_description &lt;- paste0(xxx, &quot;:- &quot;, variable_list) 
+      base_results &lt;- append(base_results, variable_description)
+      
+    }
+    
+  }
+  
+  base_results &lt;- rev(base_results)
+  
+  # Comment back in to bold first part of base descriptions
+  #base_results_part1 &lt;- map(base_results, ~str_split_i(., &quot;:-&quot;, 1)) 
+  #base_results_part1_replacement &lt;- base_results_part1 %&gt;% paste0(&quot;&lt;b&gt;&quot;, ., &quot;&lt;/b&gt;&quot;)
+  #base_results &lt;- pmap(list(base_results, base_results_part1, base_results_part1_replacement), 
+  #                     function(base, base1, base1_replace)
+  #                       str_replace(base, base1, base1_replace))
+  
+  base_results &lt;- str_replace_all(base_results, &quot;:-&quot;, &quot;:&quot;)
+  
+  if(length(base_results) &gt; 1){
+  base_results &lt;- paste0(base_results, collapse = &quot;&lt;br&gt;&lt;br&gt;&quot;)
+  base_results &lt;- paste0(&quot;&lt;br&gt;&lt;b&gt;Variable base descriptions:&lt;/b&gt;&lt;br&gt;&quot;, base_results)
+  } else {
+  base_results &lt;- paste0(&quot;&lt;br&gt;&lt;b&gt;Base:&lt;/b&gt; &quot;, base_results)
+  }
+  
+  return(base_results)
+  
+}
+
+writeLines(
+  c(&quot;prepare_base_for_table &lt;- &quot;, # Assignment needs to be added manually
+  deparse(prepare_base_for_table)), # Extract function code
+  paste0(ddir,&quot;prepare_base_for_table.R&quot;)) # File name is just the function name </code></pre>
+<p><br></p>
+<p>Here is it being used and the results added to a
+<code>tbl_summary</code> table.</p>
+<pre class="r"><code>base_note &lt;- prepare_base_for_table(base_example)
+base_note</code></pre>
+<pre><code>## [1] &quot;&lt;br&gt;&lt;b&gt;Variable base descriptions:&lt;/b&gt;&lt;br&gt;Subsample A: Which would be your highest priority for extra govt spending?&lt;br&gt;&lt;br&gt;All other variables:  Asked of all respondents&quot;</code></pre>
+<pre class="r"><code>tbl %&gt;% modify_source_note(
+  source_note = base_note, 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="gfokukvzcb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gfokukvzcb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#gfokukvzcb thead, #gfokukvzcb tbody, #gfokukvzcb tfoot, #gfokukvzcb tr, #gfokukvzcb td, #gfokukvzcb th {
+  border-style: none;
+}
+
+#gfokukvzcb p {
+  margin: 0;
+  padding: 0;
+}
+
+#gfokukvzcb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#gfokukvzcb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#gfokukvzcb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#gfokukvzcb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#gfokukvzcb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#gfokukvzcb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#gfokukvzcb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#gfokukvzcb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#gfokukvzcb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#gfokukvzcb .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#gfokukvzcb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#gfokukvzcb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#gfokukvzcb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#gfokukvzcb .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#gfokukvzcb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gfokukvzcb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#gfokukvzcb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#gfokukvzcb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#gfokukvzcb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gfokukvzcb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#gfokukvzcb .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gfokukvzcb .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#gfokukvzcb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gfokukvzcb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#gfokukvzcb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#gfokukvzcb .gt_left {
+  text-align: left;
+}
+
+#gfokukvzcb .gt_center {
+  text-align: center;
+}
+
+#gfokukvzcb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#gfokukvzcb .gt_font_normal {
+  font-weight: normal;
+}
+
+#gfokukvzcb .gt_font_bold {
+  font-weight: bold;
+}
+
+#gfokukvzcb .gt_font_italic {
+  font-style: italic;
+}
+
+#gfokukvzcb .gt_super {
+  font-size: 65%;
+}
+
+#gfokukvzcb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#gfokukvzcb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#gfokukvzcb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#gfokukvzcb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#gfokukvzcb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#gfokukvzcb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#gfokukvzcb .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#gfokukvzcb .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#gfokukvzcb div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"><br><b>Variable base descriptions:</b><br>Subsample A: Which would be your highest priority for extra govt spending?<br><br>All other variables:  Asked of all respondents</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+</div>
+<div id="function-4---draws-together-function-2-and-3"
+class="section level2">
+<h2>Function 4 - draws together function 2 and 3</h2>
+<p>This function has four arguments and can add different types of table
+notes. At the moment there is no default for ‘bases_info’ where no
+‘bases_info’ is actually provided, I need to do something about
+that.</p>
+<pre class="r"><code># Also need some capacity to add a source description, or several I suppose, ideally. 
+gtsummary_table_notes &lt;- function(
+    bases_info = NULL, # The object with base descriptions (from base_information() function)
+    vars, # Character vector of variable names
+    source_note = NULL, # A string describing the data source
+    other_footnotes = NULL# Other character strings as footnotes, each on its own line. 
+  ){
+  
+  if(!is.null(bases_info)){
+  base_notes &lt;- 
+    create_bases(
+      base_info = bases_info, variables = vars
+      ) %&gt;% 
+      prepare_base_for_table() 
+  } else {
+    base_notes &lt;- &quot;&quot;
+  }
+  
+  if (!is.null(source_note)){base_notes &lt;- paste0(base_notes, &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Source:&lt;/b&gt; &quot;, source_note)}
+  
+  if(!is.null(other_footnotes)){
+    other_footnotes &lt;- paste0(other_footnotes, collapse = &quot;&lt;br&gt;&lt;br&gt;&quot;)
+    base_notes &lt;- paste0(base_notes, &quot;&lt;br&gt;&lt;br&gt;&lt;b&gt;Footnotes:&lt;/b&gt;&lt;br&gt;&quot;, other_footnotes)
+      }
+  
+  return(base_notes)
+  
+}
+
+writeLines(
+  c(&quot;gtsummary_table_notes &lt;- &quot;, # Assignment needs to be added manually
+  deparse(gtsummary_table_notes)), # Extract function code
+  paste0(ddir,&quot;gtsummary_table_notes.R&quot;)) # File name is just the function name </code></pre>
+<p><br></p>
+<pre class="r"><code>note_with_source &lt;- gtsummary_table_notes(bases_info = example_of_base_information, vars = c(&quot;RSex&quot;, &quot;Spend1&quot;))
+note_with_source</code></pre>
+<pre><code>## [1] &quot;&lt;br&gt;&lt;b&gt;Variable base descriptions:&lt;/b&gt;&lt;br&gt;Subsample A: Which would be your highest priority for extra govt spending?&lt;br&gt;&lt;br&gt;All other variables:  Asked of all respondents&quot;</code></pre>
+<pre class="r"><code>tbl %&gt;% modify_source_note(
+  source_note = note_with_source, 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="qvyjgvtiix" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qvyjgvtiix table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qvyjgvtiix thead, #qvyjgvtiix tbody, #qvyjgvtiix tfoot, #qvyjgvtiix tr, #qvyjgvtiix td, #qvyjgvtiix th {
+  border-style: none;
+}
+
+#qvyjgvtiix p {
+  margin: 0;
+  padding: 0;
+}
+
+#qvyjgvtiix .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qvyjgvtiix .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qvyjgvtiix .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qvyjgvtiix .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qvyjgvtiix .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qvyjgvtiix .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qvyjgvtiix .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qvyjgvtiix .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qvyjgvtiix .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qvyjgvtiix .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qvyjgvtiix .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qvyjgvtiix .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qvyjgvtiix .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qvyjgvtiix .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qvyjgvtiix .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qvyjgvtiix .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qvyjgvtiix .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qvyjgvtiix .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qvyjgvtiix .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qvyjgvtiix .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qvyjgvtiix .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qvyjgvtiix .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qvyjgvtiix .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qvyjgvtiix .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qvyjgvtiix .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qvyjgvtiix .gt_left {
+  text-align: left;
+}
+
+#qvyjgvtiix .gt_center {
+  text-align: center;
+}
+
+#qvyjgvtiix .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qvyjgvtiix .gt_font_normal {
+  font-weight: normal;
+}
+
+#qvyjgvtiix .gt_font_bold {
+  font-weight: bold;
+}
+
+#qvyjgvtiix .gt_font_italic {
+  font-style: italic;
+}
+
+#qvyjgvtiix .gt_super {
+  font-size: 65%;
+}
+
+#qvyjgvtiix .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qvyjgvtiix .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qvyjgvtiix .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qvyjgvtiix .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qvyjgvtiix .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qvyjgvtiix .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qvyjgvtiix .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#qvyjgvtiix .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#qvyjgvtiix div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"><br><b>Variable base descriptions:</b><br>Subsample A: Which would be your highest priority for extra govt spending?<br><br>All other variables:  Asked of all respondents</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+<pre class="r"><code>tbl %&gt;% modify_source_note(
+  source_note = gtsummary_table_notes(vars = c(&quot;RSex&quot;)), 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="ujczhorlvj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ujczhorlvj table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ujczhorlvj thead, #ujczhorlvj tbody, #ujczhorlvj tfoot, #ujczhorlvj tr, #ujczhorlvj td, #ujczhorlvj th {
+  border-style: none;
+}
+
+#ujczhorlvj p {
+  margin: 0;
+  padding: 0;
+}
+
+#ujczhorlvj .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ujczhorlvj .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ujczhorlvj .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ujczhorlvj .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ujczhorlvj .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ujczhorlvj .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ujczhorlvj .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ujczhorlvj .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ujczhorlvj .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ujczhorlvj .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ujczhorlvj .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ujczhorlvj .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ujczhorlvj .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ujczhorlvj .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ujczhorlvj .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ujczhorlvj .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ujczhorlvj .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ujczhorlvj .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ujczhorlvj .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ujczhorlvj .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ujczhorlvj .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ujczhorlvj .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ujczhorlvj .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ujczhorlvj .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ujczhorlvj .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ujczhorlvj .gt_left {
+  text-align: left;
+}
+
+#ujczhorlvj .gt_center {
+  text-align: center;
+}
+
+#ujczhorlvj .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ujczhorlvj .gt_font_normal {
+  font-weight: normal;
+}
+
+#ujczhorlvj .gt_font_bold {
+  font-weight: bold;
+}
+
+#ujczhorlvj .gt_font_italic {
+  font-style: italic;
+}
+
+#ujczhorlvj .gt_super {
+  font-size: 65%;
+}
+
+#ujczhorlvj .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ujczhorlvj .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ujczhorlvj .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ujczhorlvj .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ujczhorlvj .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ujczhorlvj .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ujczhorlvj .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ujczhorlvj .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ujczhorlvj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"></td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+<pre class="r"><code>tbl %&gt;% modify_source_note(
+  source_note = gtsummary_table_notes(vars = c(&quot;RSex&quot;), 
+                                      source_note = &quot;Source note with no base note.&quot;), 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="tzqhftslkg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tzqhftslkg table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tzqhftslkg thead, #tzqhftslkg tbody, #tzqhftslkg tfoot, #tzqhftslkg tr, #tzqhftslkg td, #tzqhftslkg th {
+  border-style: none;
+}
+
+#tzqhftslkg p {
+  margin: 0;
+  padding: 0;
+}
+
+#tzqhftslkg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tzqhftslkg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tzqhftslkg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tzqhftslkg .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tzqhftslkg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tzqhftslkg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tzqhftslkg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tzqhftslkg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tzqhftslkg .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tzqhftslkg .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tzqhftslkg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tzqhftslkg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tzqhftslkg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tzqhftslkg .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tzqhftslkg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tzqhftslkg .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tzqhftslkg .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tzqhftslkg .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tzqhftslkg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tzqhftslkg .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tzqhftslkg .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tzqhftslkg .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tzqhftslkg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tzqhftslkg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tzqhftslkg .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tzqhftslkg .gt_left {
+  text-align: left;
+}
+
+#tzqhftslkg .gt_center {
+  text-align: center;
+}
+
+#tzqhftslkg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tzqhftslkg .gt_font_normal {
+  font-weight: normal;
+}
+
+#tzqhftslkg .gt_font_bold {
+  font-weight: bold;
+}
+
+#tzqhftslkg .gt_font_italic {
+  font-style: italic;
+}
+
+#tzqhftslkg .gt_super {
+  font-size: 65%;
+}
+
+#tzqhftslkg .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tzqhftslkg .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tzqhftslkg .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tzqhftslkg .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tzqhftslkg .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tzqhftslkg .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tzqhftslkg .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#tzqhftslkg .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#tzqhftslkg div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"><br><br><b>Source:</b> Source note with no base note.</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p><br></p>
+<pre class="r"><code>note_with_source &lt;- gtsummary_table_notes(bases_info = example_of_base_information, vars = c(&quot;RSex&quot;, &quot;Spend1&quot;), 
+                      source_note = &quot;The source is&quot;, 
+                      other_footnotes = c(&quot;Text for other footnotes.&quot;, &quot;Second footnote.&quot;))
+
+tbl %&gt;% modify_source_note(
+  source_note = note_with_source, 
+  text_interpret = &quot;html&quot;
+)</code></pre>
+<div id="fttwnfrqvs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#fttwnfrqvs table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#fttwnfrqvs thead, #fttwnfrqvs tbody, #fttwnfrqvs tfoot, #fttwnfrqvs tr, #fttwnfrqvs td, #fttwnfrqvs th {
+  border-style: none;
+}
+
+#fttwnfrqvs p {
+  margin: 0;
+  padding: 0;
+}
+
+#fttwnfrqvs .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#fttwnfrqvs .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#fttwnfrqvs .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#fttwnfrqvs .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#fttwnfrqvs .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#fttwnfrqvs .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#fttwnfrqvs .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#fttwnfrqvs .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#fttwnfrqvs .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#fttwnfrqvs .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#fttwnfrqvs .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fttwnfrqvs .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#fttwnfrqvs .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#fttwnfrqvs .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#fttwnfrqvs .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fttwnfrqvs .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#fttwnfrqvs .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#fttwnfrqvs .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#fttwnfrqvs .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fttwnfrqvs .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#fttwnfrqvs .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fttwnfrqvs .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#fttwnfrqvs .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fttwnfrqvs .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fttwnfrqvs .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fttwnfrqvs .gt_left {
+  text-align: left;
+}
+
+#fttwnfrqvs .gt_center {
+  text-align: center;
+}
+
+#fttwnfrqvs .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#fttwnfrqvs .gt_font_normal {
+  font-weight: normal;
+}
+
+#fttwnfrqvs .gt_font_bold {
+  font-weight: bold;
+}
+
+#fttwnfrqvs .gt_font_italic {
+  font-style: italic;
+}
+
+#fttwnfrqvs .gt_super {
+  font-size: 65%;
+}
+
+#fttwnfrqvs .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#fttwnfrqvs .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#fttwnfrqvs .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#fttwnfrqvs .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#fttwnfrqvs .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#fttwnfrqvs .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#fttwnfrqvs .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#fttwnfrqvs .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#fttwnfrqvs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="label"><span class='gt_from_md'><strong>Variable</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_label"><span class='gt_from_md'><strong>Statistic</strong></span><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="stat_0"><span class='gt_from_md'><strong>Total</strong></span></th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="level 1; stat_1">
+        <div class="gt_column_spanner"><span class='gt_from_md'><strong>Sex of respondent</strong></span></div>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_1"><span class='gt_from_md'><strong>Male</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_2"><span class='gt_from_md'><strong>Female</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Never</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">84.9</td>
+<td headers="stat_1" class="gt_row gt_center">84.3</td>
+<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Less than once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">4.7</td>
+<td headers="stat_1" class="gt_row gt_center">4.6</td>
+<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.9</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a month</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">3.2</td>
+<td headers="stat_1" class="gt_row gt_center">3.2</td>
+<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Once a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">2.4</td>
+<td headers="stat_1" class="gt_row gt_center">3.0</td>
+<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Several times a week</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.8</td>
+<td headers="stat_1" class="gt_row gt_center">1.4</td>
+<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Every day</td>
+<td headers="stat_label" class="gt_row gt_center">%</td>
+<td headers="stat_0" class="gt_row gt_center">1.1</td>
+<td headers="stat_1" class="gt_row gt_center">1.1</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"><br /></td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left" style="font-weight: bold;">Unweighted sample sizes</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td>
+<td headers="stat_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
+<td headers="stat_label" class="gt_row gt_center"><br /></td>
+<td headers="stat_0" class="gt_row gt_center">1,657</td>
+<td headers="stat_1" class="gt_row gt_center">759</td>
+<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5"><br><b>Variable base descriptions:</b><br>Subsample A: Which would be your highest priority for extra govt spending?<br><br>All other variables:  Asked of all respondents<br><br><b>Source:</b> The source is<br><br><b>Footnotes:</b><br>Text for other footnotes.<br><br>Second footnote.</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="5"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;line-height:0;"><sup>1</sup></span> <span class='gt_from_md'>All statistics shown in this table are unweighted.</span></td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

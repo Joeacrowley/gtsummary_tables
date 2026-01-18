@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Frequencies</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<h2 id="toc-title">Table of Contents</h2>
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">gtsummary tables</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Frequencies</h1>
+
+</div>
+
+
+<div id="set-up" class="section level1">
+<h1>Set up</h1>
+<pre class="r"><code>library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)</code></pre>
+<p><br></p>
+<p>Typical theme for gtsummary()</p>
+<pre class="r"><code># For all I use the compact theme.
+theme_gtsummary_compact()</code></pre>
+<pre><code>## Setting theme &quot;Compact&quot;</code></pre>
+<p><br></p>
+<p>Load Round 10 UK European Social Survey dataset.</p>
+<pre class="r"><code>ddir &lt;- paste0(getwd())
+load(paste0(ddir,&quot;/ESS_UK_snippet_Round 10.RData&quot;))
+glimpse(ess10)</code></pre>
+<pre><code>## Rows: 1,149
+## Columns: 39
+## $ idno         &lt;dbl&gt; 50002, 50008, 50021, 50023, 50033, 50052, 50100, 50129, 50191, 50242, 50297, 50344, 50347, 50378, …
+## $ anweight     &lt;dbl&gt; 2.215882, 4.085495, 3.973622, 8.731745, 3.137663, 2.000416, 4.206257, 1.966309, 1.802065, 6.647645…
+## $ stratum      &lt;dbl&gt; 1463, 1428, 1501, 1478, 1450, 1456, 1412, 1393, 1491, 1465, 1372, 1473, 1398, 1430, 1410, 1380, 14…
+## $ psu          &lt;dbl&gt; 10279, 10236, 10327, 10300, 10387, 10102, 10263, 10413, 10150, 10115, 10208, 10287, 10118, 10401, …
+## $ atchctr      &lt;fct&gt; 7, Very emotionally attached, 7, 4, 7, 6, 2, 8, 8, Not at all emotionally attached, 9, Very emotio…
+## $ stflife      &lt;fct&gt; 8, 8, 7, 8, 5, 6, 6, 8, 8, 8, Extremely satisfied, 9, 7, 7, 6, 5, 8, 7, 7, 4, 5, Extremely satisfi…
+## $ stfgov       &lt;fct&gt; 2, 7, 4, 4, 3, Extremely dissatisfied, 3, 5, 1, Extremely dissatisfied, 5, 5, 3, 2, 1, 4, 8, 5, 1,…
+## $ psppsgva     &lt;fct&gt; Very little, Some, Very little, Some, Very little, Very little, Very little, Very little, Very lit…
+## $ actrolga     &lt;fct&gt; Quite able, Not at all able, Not at all able, A little able, Not at all able, A little able, Quite…
+## $ cptppola     &lt;fct&gt; Not at all confident, Not at all confident, Not at all confident, A little confident, A little con…
+## $ lrscale      &lt;fct&gt; 5, 9, 5, 2, 6, 5, 6, 4, 4, 4, 5, 4, 2, 2, 3, 5, 6, 5, 2, 5, 5, 7, 3, NA, 3, NA, NA, 6, 4, 8, 5, 5,…
+## $ gincdif      &lt;fct&gt; Disagree, Disagree, Neither agree nor disagree, Agree, Agree, Agree, Agree strongly, Agree, Agree …
+## $ ppltrst      &lt;fct&gt; 7, 8, 4, 4, 6, 2, 6, 9, 7, 6, 4, 4, 7, 4, 7, 5, 6, 5, 8, 5, 4, 5, 8, 5, 6, 5, 5, 7, 8, 3, 3, 8, 8,…
+## $ trstplt      &lt;fct&gt; 2, 7, 3, 2, No trust at all, 1, No trust at all, 6, 4, 7, 3, 1, 5, 2, 5, 3, 7, 5, 2, 5, No trust a…
+## $ imwbcnt      &lt;fct&gt; 7, 3, 6, Better place to live, 4, 5, 9, 5, 7, 9, 7, 6, 8, 8, 8, 5, 5, 9, 9, 5, 6, 3, 8, 8, 6, 8, W…
+## $ sclmeet      &lt;fct&gt; Once a month, Several times a month, Less than once a month, Several times a week, Once a month, N…
+## $ gndr         &lt;fct&gt; Male, Female, Male, Female, Female, Female, Female, Male, Female, Male, Male, Female, Female, Male…
+## $ agea         &lt;dbl&gt; 72, 83, 69, 21, 64, 70, 51, 86, 41, 57, 62, 67, 72, 19, 46, 37, 55, 73, 27, 28, 52, 15, 70, 44, 76…
+## $ hincfel      &lt;fct&gt; Living comfortably on present income, Living comfortably on present income, Coping on present inco…
+## $ ctzcntr      &lt;fct&gt; Yes, Yes, Yes, No, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes,…
+## $ brncntr      &lt;fct&gt; Yes, Yes, Yes, No, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes,…
+## $ feethngr     &lt;fct&gt; Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Yes, No, Yes, Yes, Yes, No, Yes, Yes, Yes, Yes, Yes, Yes, …
+## $ rlgblg       &lt;fct&gt; No, No, Yes, No, No, Yes, No, No, No, No, No, No, No, Yes, No, No, Yes, No, No, No, No, No, Yes, Y…
+## $ rlgblge      &lt;fct&gt; No, Yes, NA, Yes, No, NA, No, No, No, Yes, No, Yes, No, NA, No, No, NA, No, Yes, No, No, Yes, NA, …
+## $ vote         &lt;fct&gt; Yes, Yes, Yes, No, Yes, No, Yes, Yes, Yes, Yes, Yes, Yes, Yes, Not eligible to vote, Yes, Yes, Yes…
+## $ prtvtdgb     &lt;fct&gt; Labour, Conservative, Conservative, NA, NA, NA, Liberal Democrat, Labour, Labour, Scottish Nationa…
+## $ mainact      &lt;fct&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, &quot;Retired&quot;, NA, &quot;Paid work&quot;, NA, &quot;Education&quot;, NA, &quot;Paid work&quot;, …
+## $ mnactic      &lt;fct&gt; &quot;Retired&quot;, &quot;Retired&quot;, &quot;Retired&quot;, &quot;Education&quot;, &quot;Paid work&quot;, &quot;Retired&quot;, &quot;Paid work&quot;, &quot;Retired&quot;, &quot;Pai…
+## $ atchctr_num  &lt;dbl&gt; 7, 10, 7, 4, 7, 6, 2, 8, 8, 0, 9, 10, 10, 4, 4, 8, 10, 10, 5, 10, 7, 5, 10, 8, 2, 5, 10, 3, 7, 8, …
+## $ stflife_num  &lt;dbl&gt; 8, 8, 7, 8, 5, 6, 6, 8, 8, 8, 10, 9, 7, 7, 6, 5, 8, 7, 7, 4, 5, 10, 9, 7, 3, 3, 10, 2, 4, 8, 6, 5,…
+## $ stfgov_num   &lt;dbl&gt; 2, 7, 4, 4, 3, 0, 3, 5, 1, 0, 5, 5, 3, 2, 1, 4, 8, 5, 1, 5, 0, 7, 3, 7, 0, 2, 3, 1, 8, 7, 3, 2, 4,…
+## $ psppsgva_num &lt;dbl&gt; 2, 3, 2, 3, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 4, 4, 3, 2, 3, 2, 3, 2, 2, 3, 3, 1, 2, 1, 2, 2, 2, 4,…
+## $ actrolga_num &lt;dbl&gt; 3, 1, 1, 2, 1, 2, 3, 4, 3, 3, 2, 1, 2, 1, 2, 4, 4, 3, 2, 1, 1, 3, 3, 1, 2, 2, 2, 1, 1, 2, 2, 3, 4,…
+## $ cptppola_num &lt;dbl&gt; 1, 1, 1, 2, 2, 1, 4, 4, 4, 4, 3, 1, 3, 1, 3, 3, 4, 2, 3, 1, 1, 3, 3, 2, 2, 5, 2, 1, 1, 4, 1, 4, 4,…
+## $ lrscale_num  &lt;dbl&gt; 5, 9, 5, 2, 6, 5, 6, 4, 4, 4, 5, 4, 2, 2, 3, 5, 6, 5, 2, 5, 5, 7, 3, NA, 3, NA, NA, 6, 4, 8, 5, 5,…
+## $ gincdif_num  &lt;dbl&gt; 4, 4, 3, 2, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 2, 4, 3, 3, 1, 5, 2, 1, 3, 3, 1, 3, 2,…
+## $ ppltrst_num  &lt;dbl&gt; 7, 8, 4, 4, 6, 2, 6, 9, 7, 6, 4, 4, 7, 4, 7, 5, 6, 5, 8, 5, 4, 5, 8, 5, 6, 5, 5, 7, 8, 3, 3, 8, 8,…
+## $ trstplt_num  &lt;dbl&gt; 2, 7, 3, 2, 0, 1, 0, 6, 4, 7, 3, 1, 5, 2, 5, 3, 7, 5, 2, 5, 0, 5, 6, 4, 1, 0, 0, 0, 3, 2, 2, 3, 5,…
+## $ imwbcnt_num  &lt;dbl&gt; 7, 3, 6, 10, 4, 5, 9, 5, 7, 9, 7, 6, 8, 8, 8, 5, 5, 9, 9, 5, 6, 3, 8, 8, 6, 8, 0, 3, 2, 7, 5, 7, 9…</code></pre>
+<pre class="r"><code>ess10 &lt;- ess10 %&gt;% 
+  mutate(across(all_of(c(&quot;lrscale&quot;,&quot;atchctr&quot;,&quot;psppsgva&quot;,&quot;hincfel&quot;)), ~fct_drop(.x))) 
+
+svy_df &lt;- ess10 %&gt;% as_survey_design(weights = anweight)
+
+# List all .R files in ddir 
+file_paths &lt;- list.files(path = ddir, pattern = &quot;\\.R$&quot;, full.names = TRUE, all.files = T) %&gt;% 
+  map_chr(., ~str_remove(.x, ddir)) %&gt;% 
+  grep(&quot;_interim&quot;, ., value =T, invert = T) # Drop interim functions, not used.
+
+# Set of functions to be loaded. 
+file_paths</code></pre>
+<pre><code>##  [1] &quot;/.col_width.R&quot;             &quot;/addh.R&quot;                   &quot;/base_information.R&quot;       &quot;/bases_equal.R&quot;           
+##  [5] &quot;/create_bases.R&quot;           &quot;/gtsummary_table_notes.R&quot;  &quot;/mtotals.R&quot;                &quot;/multicodes.R&quot;            
+##  [9] &quot;/nest_multicodes.R&quot;        &quot;/nested_tables.R&quot;          &quot;/prepare_base_for_table.R&quot; &quot;/revise_labels.R&quot;         
+## [13] &quot;/splitter_present.R&quot;       &quot;/style_hux_df.R&quot;           &quot;/tables.R&quot;                 &quot;/totals.R&quot;</code></pre>
+<p><br></p>
+<div id="load-functions" class="section level2">
+<h2>Load functions</h2>
+<pre class="r"><code># Load all functions (make sure no other .R files in this location)
+map(file_paths, ~source(paste0(ddir,.x)))</code></pre>
+<p><br></p>
+</div>
+</div>
+<div id="the-function" class="section level1">
+<h1>The function</h1>
+<p>This calculates percentages for factor variables with the same levels
+and then merges them together for a quick overview of similar
+questions.</p>
+<p>In my original version I imposed a requirement that all levels be
+equal, in the end I removed this because it was causing issues with
+overly strictness - preventing it running when really it was fine to do
+so. However, it may give odd results.</p>
+<pre class="r"><code>outcome_vars &lt;- list(&quot;stflife&quot;, &quot;stfgov&quot;)
+
+mtotals &lt;- function(
+  outcomes, # Vector of outcomes
+  data, # Data frame
+  caption = NULL, 
+  bases = NULL, # The object with base descriptions (from base_information() function)
+  source = NULL, # A string describing the data source
+  footnotes = NULL # Other character strings as footnotes, each on its own line. 
+  ) {
+  
+  whether_survey_data &lt;- if(class(data) %&gt;% grep(&quot;survey.design&quot;, ., value = T) %&gt;% length() &gt; 0){T} else {F}
+  
+  if(whether_survey_data == T){n_statistic &lt;- &quot;{n_unweighted}&quot;} else {n_statistic &lt;- &quot;{n}&quot;}
+  
+  result &lt;- map(outcomes, function(outcome){
+    
+    data2 &lt;- data %&gt;% mutate(
+      across(all_of(outcome), ~fct_drop(.x), .names = &quot;the_merging_variable&quot;), 
+      across(all_of(outcome), ~case_when(!is.na(.x) ~ &quot;Unweighted base&quot;), .names = &quot;base&quot;)
+      ) 
+    
+    if(whether_survey_data == T){
+      var_label(data2[[&quot;variables&quot;]][&quot;base&quot;]) &lt;- &quot;&quot;
+      outcome_variable_label &lt;- data[[&quot;variables&quot;]] %&gt;% pull(outcome) %&gt;% var_label() %&gt;% as.vector()
+      } else {
+      var_label(data2[&quot;base&quot;]) &lt;- &quot;&quot;
+      outcome_variable_label &lt;- data %&gt;% pull(outcome) %&gt;% var_label() %&gt;% as.vector()
+      }
+    
+    if(whether_survey_data == T){
+      summary_fun &lt;- tbl_svysummary
+      } else {summary_fun &lt;- tbl_summary
+      }
+
+    result &lt;- 
+      summary_fun(
+          data = data2,
+          include = c(the_merging_variable, base),  
+          statistic = list(all_categorical() ~ &quot;{p}&quot;, base ~ n_statistic),
+          label = list(the_merging_variable ~ &quot; &quot;), 
+          missing = &quot;no&quot;, 
+          digits = everything() ~ 0
+      ) %&gt;% 
+        modify_header(stat_0 = paste0(&quot;**&quot;, outcome_variable_label, &quot;**&quot;), label = &quot;&quot;) %&gt;% 
+        modify_footnote(everything() ~ NA)
+    
+    return(result)
+  
+    })
+
+  result &lt;- tbl_merge(result, tab_spanner=F) 
+
+  result &lt;- 
+    result %&gt;%
+    modify_table_body(
+      ~ .x %&gt;%
+        dplyr::mutate(row_id = row_number()) %&gt;%
+        dplyr::mutate(across(starts_with(&quot;stat_&quot;), ~case_when(row_id == 1 ~ &quot;%&quot;, TRUE ~ .x))) %&gt;% 
+        dplyr::select(-row_id) 
+        )
+
+  if(!is.null(caption)){result &lt;- result %&gt;% modify_caption(
+    paste0(&quot;&lt;div style=&#39;text-align: left; font-weight: bold; color: black&#39;&gt;&quot;, caption, &quot;&lt;/div&gt;&quot;))
+    }
+    
+  footnotes &lt;- gtsummary_table_notes(
+    bases_info = bases, 
+    vars = outcomes, 
+    source_note = source, 
+    other_footnotes = footnotes
+    )
+  
+  if(whether_survey_data == T){
+    stat_types &lt;- &quot;All statistics shown in this table are weighted.&quot;
+    } else {stat_types &lt;- &quot;All statistics shown in this table are unweighted.&quot;
+    }
+  
+  footnotes &lt;- paste0(stat_types,&quot;&lt;br&gt;&quot;,footnotes)
+
+  if (footnotes != &quot;&quot;){
+    result &lt;- result %&gt;% modify_source_note(
+    source_note = footnotes, 
+    text_interpret = &quot;html&quot;)
+  }
+
+  return(result)
+  
+}
+
+
+writeLines(
+  c(&quot;mtotals &lt;- &quot;, # Assignment needs to be added manually
+  deparse(mtotals)), # Extract function code
+  paste0(ddir,&quot;/mtotals.R&quot;)) # File name is just the function name </code></pre>
+<p><br></p>
+<div id="examples" class="section level2 tabset">
+<h2 class="tabset">Examples</h2>
+<div id="example-1" class="section level3">
+<h3>Example 1</h3>
+<pre class="r"><code>tbl &lt;- ess10 %&gt;% mtotals(outcomes = outcome_vars)
+tbl</code></pre>
+<div id="tioirytiim" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tioirytiim table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tioirytiim thead, #tioirytiim tbody, #tioirytiim tfoot, #tioirytiim tr, #tioirytiim td, #tioirytiim th {
+  border-style: none;
+}
+
+#tioirytiim p {
+  margin: 0;
+  padding: 0;
+}
+
+#tioirytiim .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tioirytiim .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tioirytiim .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tioirytiim .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tioirytiim .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tioirytiim .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tioirytiim .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tioirytiim .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tioirytiim .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tioirytiim .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tioirytiim .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tioirytiim .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tioirytiim .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tioirytiim .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tioirytiim .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tioirytiim .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tioirytiim .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tioirytiim .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tioirytiim .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tioirytiim .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tioirytiim .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tioirytiim .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tioirytiim .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tioirytiim .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tioirytiim .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tioirytiim .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tioirytiim .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tioirytiim .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tioirytiim .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tioirytiim .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tioirytiim .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tioirytiim .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tioirytiim .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tioirytiim .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tioirytiim .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tioirytiim .gt_left {
+  text-align: left;
+}
+
+#tioirytiim .gt_center {
+  text-align: center;
+}
+
+#tioirytiim .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tioirytiim .gt_font_normal {
+  font-weight: normal;
+}
+
+#tioirytiim .gt_font_bold {
+  font-weight: bold;
+}
+
+#tioirytiim .gt_font_italic {
+  font-style: italic;
+}
+
+#tioirytiim .gt_super {
+  font-size: 65%;
+}
+
+#tioirytiim .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tioirytiim .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tioirytiim .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tioirytiim .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tioirytiim .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tioirytiim .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tioirytiim .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#tioirytiim .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#tioirytiim div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="label"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_1"><span class='gt_from_md'><strong>How satisfied with life as a whole</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_2"><span class='gt_from_md'><strong>How satisfied with the national government</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left"> </td>
+<td headers="stat_0_1" class="gt_row gt_center">%</td>
+<td headers="stat_0_2" class="gt_row gt_center">%</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely dissatisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">2</td>
+<td headers="stat_0_2" class="gt_row gt_center">16</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    1</td>
+<td headers="stat_0_1" class="gt_row gt_center">1</td>
+<td headers="stat_0_2" class="gt_row gt_center">10</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    2</td>
+<td headers="stat_0_1" class="gt_row gt_center">2</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    3</td>
+<td headers="stat_0_1" class="gt_row gt_center">4</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    4</td>
+<td headers="stat_0_1" class="gt_row gt_center">4</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    5</td>
+<td headers="stat_0_1" class="gt_row gt_center">8</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    6</td>
+<td headers="stat_0_1" class="gt_row gt_center">10</td>
+<td headers="stat_0_2" class="gt_row gt_center">10</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    7</td>
+<td headers="stat_0_1" class="gt_row gt_center">20</td>
+<td headers="stat_0_2" class="gt_row gt_center">9</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    8</td>
+<td headers="stat_0_1" class="gt_row gt_center">24</td>
+<td headers="stat_0_2" class="gt_row gt_center">4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    9</td>
+<td headers="stat_0_1" class="gt_row gt_center">15</td>
+<td headers="stat_0_2" class="gt_row gt_center">2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely satisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">11</td>
+<td headers="stat_0_2" class="gt_row gt_center">1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"></td>
+<td headers="stat_0_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_0_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unweighted base</td>
+<td headers="stat_0_1" class="gt_row gt_center">1,148</td>
+<td headers="stat_0_2" class="gt_row gt_center">1,146</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">All statistics shown in this table are unweighted.<br></td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+<div id="example-2" class="section level3">
+<h3>Example 2</h3>
+<pre class="r"><code>svy_tbl &lt;- svy_df %&gt;% mtotals(outcomes = outcome_vars)
+svy_tbl</code></pre>
+<div id="onisptmwvc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#onisptmwvc table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#onisptmwvc thead, #onisptmwvc tbody, #onisptmwvc tfoot, #onisptmwvc tr, #onisptmwvc td, #onisptmwvc th {
+  border-style: none;
+}
+
+#onisptmwvc p {
+  margin: 0;
+  padding: 0;
+}
+
+#onisptmwvc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#onisptmwvc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#onisptmwvc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#onisptmwvc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#onisptmwvc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#onisptmwvc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#onisptmwvc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#onisptmwvc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#onisptmwvc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#onisptmwvc .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#onisptmwvc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#onisptmwvc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#onisptmwvc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#onisptmwvc .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#onisptmwvc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#onisptmwvc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#onisptmwvc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#onisptmwvc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#onisptmwvc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#onisptmwvc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#onisptmwvc .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#onisptmwvc .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#onisptmwvc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#onisptmwvc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#onisptmwvc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#onisptmwvc .gt_left {
+  text-align: left;
+}
+
+#onisptmwvc .gt_center {
+  text-align: center;
+}
+
+#onisptmwvc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#onisptmwvc .gt_font_normal {
+  font-weight: normal;
+}
+
+#onisptmwvc .gt_font_bold {
+  font-weight: bold;
+}
+
+#onisptmwvc .gt_font_italic {
+  font-style: italic;
+}
+
+#onisptmwvc .gt_super {
+  font-size: 65%;
+}
+
+#onisptmwvc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#onisptmwvc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#onisptmwvc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#onisptmwvc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#onisptmwvc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#onisptmwvc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#onisptmwvc .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#onisptmwvc .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#onisptmwvc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="label"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_1"><span class='gt_from_md'><strong>How satisfied with life as a whole</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_2"><span class='gt_from_md'><strong>How satisfied with the national government</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left"> </td>
+<td headers="stat_0_1" class="gt_row gt_center">%</td>
+<td headers="stat_0_2" class="gt_row gt_center">%</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely dissatisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">1</td>
+<td headers="stat_0_2" class="gt_row gt_center">15</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    1</td>
+<td headers="stat_0_1" class="gt_row gt_center">1</td>
+<td headers="stat_0_2" class="gt_row gt_center">9</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    2</td>
+<td headers="stat_0_1" class="gt_row gt_center">2</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    3</td>
+<td headers="stat_0_1" class="gt_row gt_center">4</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    4</td>
+<td headers="stat_0_1" class="gt_row gt_center">3</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    5</td>
+<td headers="stat_0_1" class="gt_row gt_center">8</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    6</td>
+<td headers="stat_0_1" class="gt_row gt_center">9</td>
+<td headers="stat_0_2" class="gt_row gt_center">10</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    7</td>
+<td headers="stat_0_1" class="gt_row gt_center">21</td>
+<td headers="stat_0_2" class="gt_row gt_center">8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    8</td>
+<td headers="stat_0_1" class="gt_row gt_center">27</td>
+<td headers="stat_0_2" class="gt_row gt_center">4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    9</td>
+<td headers="stat_0_1" class="gt_row gt_center">15</td>
+<td headers="stat_0_2" class="gt_row gt_center">2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely satisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">10</td>
+<td headers="stat_0_2" class="gt_row gt_center">1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"></td>
+<td headers="stat_0_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_0_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unweighted base</td>
+<td headers="stat_0_1" class="gt_row gt_center">1,148</td>
+<td headers="stat_0_2" class="gt_row gt_center">1,146</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">All statistics shown in this table are weighted.<br></td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+<div id="example-3" class="section level3">
+<h3>Example 3</h3>
+<pre class="r"><code>svy_tbl_captioned &lt;- svy_df %&gt;% mtotals(outcomes = outcome_vars, caption = &quot;Satisfaction, of kinds various, I suppose&quot;)
+svy_tbl_captioned</code></pre>
+<div id="kmhinnwsaf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#kmhinnwsaf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#kmhinnwsaf thead, #kmhinnwsaf tbody, #kmhinnwsaf tfoot, #kmhinnwsaf tr, #kmhinnwsaf td, #kmhinnwsaf th {
+  border-style: none;
+}
+
+#kmhinnwsaf p {
+  margin: 0;
+  padding: 0;
+}
+
+#kmhinnwsaf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 13px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#kmhinnwsaf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#kmhinnwsaf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#kmhinnwsaf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#kmhinnwsaf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#kmhinnwsaf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#kmhinnwsaf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#kmhinnwsaf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#kmhinnwsaf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#kmhinnwsaf .gt_group_heading {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#kmhinnwsaf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#kmhinnwsaf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#kmhinnwsaf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#kmhinnwsaf .gt_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#kmhinnwsaf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kmhinnwsaf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#kmhinnwsaf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#kmhinnwsaf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#kmhinnwsaf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kmhinnwsaf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#kmhinnwsaf .gt_last_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kmhinnwsaf .gt_first_grand_summary_row {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_last_grand_summary_row_top {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#kmhinnwsaf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kmhinnwsaf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#kmhinnwsaf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#kmhinnwsaf .gt_left {
+  text-align: left;
+}
+
+#kmhinnwsaf .gt_center {
+  text-align: center;
+}
+
+#kmhinnwsaf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#kmhinnwsaf .gt_font_normal {
+  font-weight: normal;
+}
+
+#kmhinnwsaf .gt_font_bold {
+  font-weight: bold;
+}
+
+#kmhinnwsaf .gt_font_italic {
+  font-style: italic;
+}
+
+#kmhinnwsaf .gt_super {
+  font-size: 65%;
+}
+
+#kmhinnwsaf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#kmhinnwsaf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#kmhinnwsaf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#kmhinnwsaf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#kmhinnwsaf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#kmhinnwsaf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#kmhinnwsaf .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#kmhinnwsaf .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#kmhinnwsaf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <caption><span class='gt_from_md'><div style='text-align: left; font-weight: bold; color: black'>Satisfaction, of kinds various, I suppose</div>
+</span></caption>
+  <thead>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="label"></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_1"><span class='gt_from_md'><strong>How satisfied with life as a whole</strong></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="stat_0_2"><span class='gt_from_md'><strong>How satisfied with the national government</strong></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left"> </td>
+<td headers="stat_0_1" class="gt_row gt_center">%</td>
+<td headers="stat_0_2" class="gt_row gt_center">%</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely dissatisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">1</td>
+<td headers="stat_0_2" class="gt_row gt_center">15</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    1</td>
+<td headers="stat_0_1" class="gt_row gt_center">1</td>
+<td headers="stat_0_2" class="gt_row gt_center">9</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    2</td>
+<td headers="stat_0_1" class="gt_row gt_center">2</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    3</td>
+<td headers="stat_0_1" class="gt_row gt_center">4</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    4</td>
+<td headers="stat_0_1" class="gt_row gt_center">3</td>
+<td headers="stat_0_2" class="gt_row gt_center">13</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    5</td>
+<td headers="stat_0_1" class="gt_row gt_center">8</td>
+<td headers="stat_0_2" class="gt_row gt_center">12</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    6</td>
+<td headers="stat_0_1" class="gt_row gt_center">9</td>
+<td headers="stat_0_2" class="gt_row gt_center">10</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    7</td>
+<td headers="stat_0_1" class="gt_row gt_center">21</td>
+<td headers="stat_0_2" class="gt_row gt_center">8</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    8</td>
+<td headers="stat_0_1" class="gt_row gt_center">27</td>
+<td headers="stat_0_2" class="gt_row gt_center">4</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    9</td>
+<td headers="stat_0_1" class="gt_row gt_center">15</td>
+<td headers="stat_0_2" class="gt_row gt_center">2</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Extremely satisfied</td>
+<td headers="stat_0_1" class="gt_row gt_center">10</td>
+<td headers="stat_0_2" class="gt_row gt_center">1</td></tr>
+    <tr><td headers="label" class="gt_row gt_left"></td>
+<td headers="stat_0_1" class="gt_row gt_center"><br /></td>
+<td headers="stat_0_2" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unweighted base</td>
+<td headers="stat_0_1" class="gt_row gt_center">1,148</td>
+<td headers="stat_0_2" class="gt_row gt_center">1,146</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="3">All statistics shown in this table are weighted.<br></td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
