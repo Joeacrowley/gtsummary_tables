@@ -1,0 +1,7 @@
+---
+title: "index"
+output: html_document
+date: "2026-01-18"
+---
+
+I don't know why I need this index page, apparently I do though, fine. Fine. 
