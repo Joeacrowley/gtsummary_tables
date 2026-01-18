@@ -1,0 +1,392 @@
+---
+title: "2. Testing gtsummary functions - ESS data"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+library(haven)
+
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r gtsummary function set up}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+# File location
+ddir <- "/Users/joecrowley/R/Tables/gtsummary/"
+
+# Available files
+# List all .R files in ddir 
+list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir))
+
+# source nested cross
+source("/Users/joecrowley/R/Tables/gtsummary/.cbreak.R")
+source("/Users/joecrowley/R/Tables/gtsummary/.nums2_cbreak.R")
+source("/Users/joecrowley/R/Tables/gtsummary/.freq.R")
+source("/Users/joecrowley/R/Tables/gtsummary/.mfreq.R")
+source("/Users/joecrowley/R/Tables/gtsummary/.nums2_ncbreak.R")
+source("/Users/joecrowley/R/Tables/gtsummary/.nums.R")
+
+
+```
+
+<br> 
+
+# Load ESS data
+
+```{r load ess}
+
+load("/Users/joecrowley/R/Data/ESS_UK/ESS_UK_R_data_file.RData")
+
+glimpse(ess)
+
+look_for(
+  ess, 
+  details = "none"
+)
+
+```
+
+<br> 
+
+There's clearly loads of missing data, I think this is all variables in ESS - *across all countries*, need to remove non-UK variables. 
+
+```{r remove vars with all missing data, error=TRUE}
+
+vars_where_all_are_missing <- ess %>% map_lgl(., ~sum(is.na(.x)) == nrow(ess)) %>% unname()
+vars_where_not_all_are_missing <- names(ess)[!vars_where_all_are_missing]
+
+vars_where_not_all_are_missing %>% length == vars_where_not_all_are_missing %>% unique() %>% length()
+
+# In RMarkdown this new object 'ess2' gives me a weird error message that is not
+#  present when printing in the console. I suspect it will be resolved by updating
+# packages and Rstudio. Do that later. 
+
+ess2 <- ess %>% select(all_of(vars_where_not_all_are_missing))
+ess2 %>% head()
+
+```
+
+<br> 
+
+# Variables of interest 
+
+
+```{r review variable long list}
+ess2 %>% look_for(details = "none") %>% flextable() %>% autofit()
+
+look_for(ess2) %>%
+  lookfor_to_long_format() %>%
+  convert_list_columns_to_character() %>% 
+  filter(grepl("age", label, ignore.case = T))
+
+look_for(ess2, details = "none") %>%
+  lookfor_to_long_format() %>%
+  convert_list_columns_to_character() %>% 
+  filter(grepl("year", label, ignore.case = T)) %>% flextable() %>% autofit()
+
+```
+
+<br> 
+
+## Life satisfaction
+
+```{r}
+
+# results as LONG dataframe
+look_for(ess2, c("sofrdst", "sofrpr", "sofrprv", "sofrwrk", "topinfr", "wltdffr")) %>%
+  lookfor_to_long_format() %>%
+  convert_list_columns_to_character() %>% 
+  flextable() %>% autofit() %>% merge_v(j = 3, target = 1:5, part = "body") %>% border(border = fp_border(color = "grey "))
+
+```
+
+<br> 
+
+# Areas covered
+
+## Fairness in distribution of wealth
+
+```{r fair wealth distribution}
+
+fairness <- c("sofrdst", "sofrpr", "sofrprv", "sofrwrk")
+
+ess2 %>% 
+  select(all_of(fairness)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes = fairness)
+  
+```
+
+<br>
+
+## Cheating
+
+```{r cheating}
+
+cheating <- c("flgvbnf", "flinsr", "kptchng", "musdocm", "payavtx", "pboafvr", "pbofvr",
+              "slcnsfl")
+
+ess2 %>% 
+  select(all_of(cheating)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes  = cheating)
+
+cheated <- c("bnkfldl", "rprochg", "scndhfl", "fodcncl", "pboafvr")
+
+ess2 %>% 
+  select(all_of(cheated)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes  = cheated)
+
+```
+
+<br> 
+
+## Wrongness of cheating
+
+```{r Wrongness of cheating}
+
+wrong_cheat1 <- c("ignrlaw", "mnyacth", "olwmsop", "scbevts")
+wrong_cheat2 <- c("flinsrw", "pbofvrw", "pyavtxw", "slcnflw")
+
+ess2 %>% 
+  select(all_of(wrong_cheat1)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes  = wrong_cheat1)
+  # .freq(variables = wrong_cheat1)
+
+ess2 %>% 
+  select(all_of(wrong_cheat2)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes  = wrong_cheat2)
+  # .freq(variables = wrong_cheat1)
+
+```
+
+<br> 
+
+## Trust
+
+```{r Trust}
+
+trust <- c("ppltrst", "trstep",  "trstlgl", "trstplc", "trstplt", 
+                  "trstprl", "trstprt", "trstun")
+
+trust2 <- c("tstfnch", "tstpboh", "tstrprh", "trstsci", "gvimpc19")
+
+ess2 %>% 
+  select(all_of(trust2)) %>% 
+  mutate(across(everything(), ~to_factor(.x, 
+                                         # levels = "values", 
+                                         user_na_to_na = T))) %>%
+  .freq(variables = trust2)
+
+# High values equal high trust, low values equal low trust
+ess2 %>% 
+  select(all_of(trust)) %>% 
+  mutate(across(everything(), ~to_factor(.x, levels = "values", user_na_to_na = T))) %>%
+  .mfreq(outcomes  = trust, caption = "Low scores equal low trust")
+  # .freq(variables = wrong_cheat1)
+
+```
+
+<br> 
+
+### Trust by round
+
+```{r}
+
+tbl <- ess2 %>% 
+  select(all_of(trust), essround) %>% 
+  mutate(essround = as_factor(essround)) %>%
+  mutate(across(everything(), ~zap_labels(.x))) %>%
+  .nums2_cbreak(outcomes  = trust,
+                predictor = "essround"
+                # caption = "Low scores equal low trust"
+                ) %>% 
+  modify_caption("Trust crosstabulated by ESS round") 
+
+tbl
+
+tbl[["table_body"]] 
+
+tbl[["table_body"]]  %>% 
+  filter(label == "Mean") %>% 
+  select(var_label, starts_with("stat_")) %>% 
+  rename_with(~str_remove(.x, "stat_"), .cols = starts_with("stat_")) %>% 
+  pivot_longer(cols = -var_label, names_to = "Round", values_to = "Trust") %>% 
+  mutate(Trust = as.numeric(Trust), Round = as.numeric(Round)) %>% 
+  ggplot(aes(x = Round, y = Trust, group = var_label, colour = var_label)) + 
+  geom_line() + geom_point() + 
+  theme(legend.position = "bottom")
+ 
+```
+
+
+<br> 
+
+## Life markers
+
+```{r}
+
+child <- c("nbthcld", "ngchld")
+
+ess2 %>%
+  mutate(essround = as_factor(essround)) %>% 
+  mutate(across(all_of(child), ~zap_labels(.x))) %>%
+  .nums2_cbreak(predictor = "essround", outcomes = c(child))
+
+ess2 <- ess2 %>%
+  mutate(lvpntyr2 = lvpntyr - yrbrn, 
+         lvpntyr2 = case_when(lvpntyr2 <= 0 ~ NA, TRUE ~ lvpntyr2), 
+         
+         lvptnyr2 = lvptnyr - yrbrn, 
+         lvptnyr2 = case_when(lvptnyr2 <= 0 ~ NA, TRUE ~ lvptnyr2),
+         
+         pdempyr2 = pdempyr - yrbrn, 
+         pdempyr2 = case_when(pdempyr2 <= 0 ~ NA, TRUE ~ pdempyr2), 
+         
+         maryr2 = maryr - yrbrn, 
+         maryr2 = case_when(maryr2 <= 0 ~ NA, TRUE ~ maryr2)
+         ) %>% 
+  set_variable_labels(
+    lvpntyr2 = "Age first left parents for 2 months or more", 
+    lvptnyr2 = "Age lived with spouse / partner for 3 monhts or more", 
+    maryr2 = "Age first married", 
+    pdempyr2 = "Age first started working"
+  )
+
+ess2 %>% select(lvpntyr2, lvptnyr2, maryr2, pdempyr2) %>% 
+  pivot_longer(cols = everything()) %>%
+  ggplot() + 
+  geom_histogram(aes(x = value))  + 
+  facet_wrap(~name)
+
+life_markers <- c("lvpntyr2", "lvptnyr2", "maryr2", "pdempyr2")
+ideal_life_markers <- c("iaglptn", "iaglvmr", "iagpnt")
+
+ess2 %>%
+  mutate(essround = as_factor(essround)) %>% 
+  mutate(across(all_of(c(life_markers, ideal_life_markers)), ~zap_labels(.x))) %>%
+  .nums2_cbreak(predictor = "essround", outcomes = c(life_markers, ideal_life_markers))
+
+```
+
+<br> 
+
+### Life markers by age
+
+```{r life markers x age}
+
+ess2 %>% count(age)
+hist(ess2$age)
+sort(unique(ess2$age))
+     
+ess2 <- ess2 %>% mutate(age2 = cut(agea, breaks = seq(from = 15, to = 105, by = 30), 
+                                    include.lowest = T, 
+                                    right = T),
+                        age2 = factor(age2, labels = c("15-45","45-75","Over 75"))) %>% 
+  set_variable_labels(age2 = "Age")
+ess2 %>% count(age2)
+
+ess2 %>% 
+  filter(essround %in% c(3,9)) %>%
+  mutate(essround = as_factor(essround)) %>% 
+  mutate(across(all_of(c(life_markers, ideal_life_markers)), ~zap_labels(.x))) %>%
+  .nums2_ncbreak(outcomes = c(life_markers, ideal_life_markers), 
+           predictor = "essround", 
+           nvar = "age2", 
+           caption = "Nested crosstabulation of life markers by age and ESS round")
+
+
+```
+
+<br> 
+
+## Satisfaction with country
+
+```{r country satisfaction}
+
+satis <- c("stfdem", "stfeco", "stfgov", "stflife")
+ess2 %>% select(all_of(satis)) %>% 
+  mutate(across(everything(), ~to_factor(.x, 
+                                         # levels = "values", 
+                                         user_na_to_na = T))) %>%
+  .mfreq(outcomes = satis)
+
+c("stfhlth", "stfedu")
+  
+```
+
+## Ongoing education
+
+```{r ongoing education}
+
+ess2 %>% 
+  mutate(edul12m = zap_labels(edul12m)) %>% 
+  .nums2_cbreak(outcomes = "edul12m", predictor = "age2")
+
+ess2 %>% 
+  mutate(edupdem = fct_drop(to_factor(edupdem))) %>% 
+  .cbreak(outcome = "edupdem", crossbreak = "age2")
+  
+```
+
+## Housework
+
+```{r disagreements with partner}
+
+partner_disagreements <- c("dsgrhwk","dsgrmny","dsgrmnya","dsgrpwk")
+
+ess2 %>% 
+  select(all_of(partner_disagreements)) %>% 
+  mutate(across(everything(), ~to_factor(.x, user_na_to_na = T))) %>%
+  .mfreq(outcomes  = partner_disagreements, caption = "Partner disagreemetns")
+  # .freq(variables = wrong_cheat1)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

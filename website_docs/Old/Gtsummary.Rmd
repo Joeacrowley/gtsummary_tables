@@ -1,0 +1,3156 @@
+---
+title: "Gtsummary"
+author: "Joe Crowley"
+date: "2024-10-19"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+load("./ESS_UK_snippet_Round 10.RData")
+glimpse(ess10)
+
+```
+
+<br>
+
+# Overview
+
+```{r}
+
+data.frame(
+  `1` = c("Frequencies - unweighted", "-", "tbc", "-", ".freq"), 
+  `2` = c("Frequencies - weighted", "-", "tbc", "-", ".svy_freq"), 
+  `3` = c("Proportion - unweighted (da)", "-", "tbc", "-", "in .freq"), 
+  `4` = c("Proportion - weighted (da)", "-", "tbc", "-", "in .svy_freq"), 
+  `5` = c("Crossbreaks (stacked) - unweighted - gtsummary style", "done", "tbc", "tbc", ".gt_cbreak"),
+  `6` = c("Crossbreaks (stacked) - unweighted - NatCen style", "done", "tbc", "tbc", ".cbreak"),
+  `7` = c("Crossbreaks (separate) - unweighted - NatCen style", "done", "tbc", "tbc", ".cbreaks"),
+  `8` = c("Crossbreaks (stacked) - weighted - gtsummary style", "done", "tbc", "tbc", ".svy_gt_cbreak"),
+  `9` = c("Crossbreaks (stacked) - weighted - NatCen style", "done", "tbc", "tbc", ".svy_cbreak"),
+  `10` = c("Crossbreaks (separate) - weighted - NatCen style", "done", "tbc", "tbc", ".svy_cbreaks"),
+  `11` = c("Numerics - one line - unweighted", "-", "tbc", "-", ".nums"), 
+  `12` = c("Numerics - multi-line - unweighted", "-", "tbc", "-", ".nums2"), 
+  `13` = c("Numeric crossbreaks - multi-line - unweighted", "tbc", "tbc", "tbc", ".nums2_cbreak"), 
+  `14` = c("Numerics - one line - unweighted", "-", "tbc", "-", "tbc - .svy_nums"), 
+  `15` = c("Numerics - multi-line - unweighted", "-", "tbc", "-", "tbc - .svy_nums2"), 
+  `16` = c("Numeric crossbreaks - multi-line - unweighted", "tbc", "tbc", "tbc", "tbc - .svy_nums2_cbreak"), 
+  `17` = c("Binaries unweighted", "-", "tbc", "-", ".multi"),
+  `17` = c("Binaries weighted", "-", "tbc", "-", "tbc - .svy_multi"),
+  `17` = c("Binaries unweighted - crossbreak", "tbc", "tbc", "tbc", "tbc - .multi_cbreak"),
+  `17` = c("Binaries weighted - crossbreak", "tbc", "tbc", "tbc", ".tbc - svy_multi_cbreak"),
+  `18` = c("Merged frequencies- unweighted", "-", "-", "-", ".mfreq"), 
+  `18` = c("Merged frequencies- weighted", "-", "-", "-", "tbc - .svy_mfreq"),
+  `19` = c("Nested - crossbreaks (stacked) - unweighted - gtsummary style", "tbc", "tbc", "tbc", ".gt_ncbreak")
+    ) %>% 
+  t() %>% as.data.frame %>% 
+  mutate(N = row_number()) %>% 
+  relocate(N) %>%
+  flextable() %>% autofit() %>% 
+  set_header_labels(V1 = "Table", 
+                    V2 = "p-value", 
+                    V3 = "CI", 
+                    V4 = "Difference", 
+                    V5 = "Function name") %>% 
+  bg(i = ~ grepl("tbc", V2), j = 3, bg="#fabfd4") %>% 
+  bg(i = ~ grepl("tbc", V3), j = 4, bg="#fabfd4") %>% 
+  bg(i = ~ grepl("tbc", V4), j = 5, bg="#fabfd4") %>% 
+  bg(i = ~ grepl("tbc", V5), j = 6, bg="#fabfd4") %>%
+  bg(i = ~ grepl("(da)", V1), j = 2, bg="lightgrey") %>% 
+  add_footer_lines(value = as_paragraph("(da) indicates decided against. tbc - to be completed"), top = FALSE)
+
+```
+
+<br>
+
+# Gtsummary general
+
+```{r}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+# To see column names
+
+ess10 %>% tbl_summary(include = mnactic) %>% show_header_names()
+
+```
+
+<br>
+
+## Duplicate variable names
+
+When an outcome variable is also in the 'by' argument it is silently dropped.
+
+```{r}
+
+ess10 %>% tbl_summary(include = all_of(c("feethngr", "rlgblge","vote","gndr")), 
+                      by = gndr)
+
+```
+
+<br>
+
+## Merging gtsummary tables
+
+```{r}
+
+vars <- c("feethngr", "rlgblge","vote","gndr")
+
+mrg_tab1 <- 
+  ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(include = all_of(vars), by = gndr)
+
+mrg_tab2 <- 
+  ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(include = all_of(vars), by = vote)
+
+tbl_merge(list(mrg_tab1, mrg_tab2))
+
+```
+
+<br>
+
+# Frequency table {.tabset}
+
+## Standard gtsummary code  
+
+For one outcome.
+
+```{r}
+
+vars <- c("atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), # adjust to "{n}" for count. 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+  modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+```{r}
+# Note the number of cases valid for atchctr - matches n produced by add_n()
+ess10 %>% count(atchctr) %>% group_by(is.na(atchctr)) %>% mutate(sum_n = sum(n))
+```
+
+<br>
+
+For multiple outcomes. 
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), # adjust to "{n}" for count. 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+ modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+## A function
+
+```{r}
+
+.freq <- function(data, # a dataframe
+                  variables, # a vector of variable names (prefers, perhaps requires, factors)
+                  stat = "{p}" # character vector for statistic - takes "{n}" and "{p}" 
+                  ) { 
+
+statistic_label <- ifelse(stat == "{p}", " (%)", "") %>% paste0("**{level}", .,"**")
+footnot_text <- ifelse(stat == "{p}", "Unweighted percentages. Base size shown in column N", "Unweighted count. Base size shown in column N")
+caption <- ifelse(stat == "{p}", "Unweighted percentages", "Unweighted count")
+
+ table <- 
+  data %>% 
+  tbl_summary(
+  include = all_of(variables), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ stat), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ statistic_label, label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption,"</div>")) %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+ modify_footnote(all_stat_cols() ~ footnot_text)
+  
+  return(table)
+  
+}
+
+ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale","atchctr","psppsgva","hincfel"))
+
+ess10 %>% 
+  mutate(across(all_of(c("lrscale")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale"), stat = "{n}")
+
+```
+
+```{r}
+
+writeLines(
+  c(".freq <- ", # Assignment needs to be added manually
+  deparse(.freq)), # Extract function code
+  "./.freq.R") # File name is just the function name 
+
+```
+
+
+<br>
+
+## add_stat
+
+Adding an extra column with user defined stats...
+
+```{r}
+
+# Note, include ... in function even if not really planning to use (the unused arguments are still passed)
+n_maker <- function(data, variable, ...) {
+  data %>% filter(!is.na(.data[[variable]])) %>% count(.data[[variable]]) %>% pull(n) 
+}
+
+n_maker(ess10, "atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  add_stat(location = everything() ~ "level", fns = everything() ~ n_maker)  %>%
+  modify_header(add_stat_1 = "", all_stat_cols() ~ "**{level} (%)**") %>% 
+  add_n(last=TRUE)
+
+  # Cannot format the resulting unweighted counts. 
+
+```
+
+<br>
+
+# Weighted frequencies {.tabset}
+
+## Standard code
+
+```{r}
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+svy_df %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_svysummary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+  modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+## A function
+
+```{r}
+
+.svy_freq <- function(data, # a survey design object
+                  variables, # a vector of variable names (prefers, perhaps requires, factors)
+                  stat = "{p}" # character vector for statistic - takes "{n}" and "{p}" 
+                  ) { 
+
+statistic_label <- ifelse(stat == "{p}", " (%)", "") %>% paste0("**{level}", .,"**")
+footnot_text <- ifelse(stat == "{p}", "Weighted percentages. Base size shown in column N", "Weighted count. Base size shown in column N")
+caption <- ifelse(stat == "{p}", "Weighted percentages", "Weighted count")
+
+ table <- 
+  data %>% 
+    tbl_svysummary(
+    include = all_of(variables), 
+    missing = "no", 
+    statistic = list(all_categorical() ~ stat), 
+    digits = list(all_categorical() ~ 0)
+    ) %>% 
+    modify_header(all_stat_cols() ~ statistic_label, label ~ "**Variable**") %>% 
+    bold_labels() %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption,"</div>")) %>%
+    add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+    modify_footnote(all_stat_cols() ~ footnot_text)
+  
+  return(table)
+  
+}
+
+svy_df %>% 
+    mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  .svy_freq(c("lrscale","atchctr","psppsgva","hincfel"))
+
+
+svy_df %>% 
+  mutate(across(all_of(c("lrscale")), ~fct_drop(.x))) %>%
+  .svy_freq(c("lrscale"), stat = "{n}")
+
+```
+
+<br>
+
+```{r}
+writeLines(
+  c(".svy_freq <- ", # Assignment needs to be added manually
+  deparse(.svy_freq)), # Extract function code
+  "./.svy_freq.R") # File name is just the function name 
+```
+
+<br>
+
+# Crossbreaks {.tabset}
+
+<br>
+
+## gtsummary style {.tabset}
+
+### gtsummary standard code
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(gndr = fct_drop(gndr)) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  by = gndr,
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  add_n(last = TRUE) %>%
+  modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**") %>% 
+  add_p() %>%
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+ modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N") 
+
+```
+
+<br>
+
+### A function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.gt_cbreak <- function(data, # data frame
+                    outcomes,  # Vector of variable names
+                    predictor # Vector with one variable
+) { 
+  
+ table <- 
+  data %>% 
+  tbl_summary(
+  include = all_of(outcomes), 
+  by = .data[[predictor]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  add_n(last = TRUE) %>%
+  modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total (%)**") %>% 
+  add_p() %>%
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+ modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N") 
+
+  return(table)
+  
+}
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(gndr = fct_drop(gndr)) %>%
+  .gt_cbreak(outcomes = vars, predictor = "gndr")
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".gt_cbreak <- ", # Assignment needs to be added manually
+  deparse(.gt_cbreak)), # Extract function code
+  "./.gt_cbreak.R") # File name is just the function name 
+
+```
+
+
+<br>
+
+### Weighted crossbreak
+
+```{r}
+
+svy_df %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(gndr = fct_drop(gndr)) %>%
+  tbl_svysummary(
+  include = all_of(vars), 
+  by = gndr,
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total (%)**") %>% 
+  add_p() %>%
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+ modify_footnote(all_stat_cols() ~ "Weighted percentages. Base size shown in column N") 
+
+
+```
+
+<br>
+
+### Weighted crossbreak function
+
+```{r}
+
+.svy_gt_cbreak <- function(
+    data, # Survey design object
+    outcomes, # Vector with outcome variable names
+    predictor # Vector of length 1 with predictor.
+    ) { 
+  
+  data %>% 
+  tbl_svysummary(
+  include = all_of(outcomes), 
+  by = .data[[predictor]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total (%)**") %>% 
+  add_p() %>%
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+ modify_footnote(all_stat_cols() ~ "Weighted percentages. Base size shown in column N") 
+
+}
+
+svy_df %>%   
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .svy_gt_cbreak(outcomes = vars, predictor ="gndr")
+
+
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".svy_gt_cbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_gt_cbreak)), # Extract function code
+  "./.svy_gt_cbreak.R") # File name is just the function name 
+
+```
+
+<br> 
+
+## NatCen style bases {.tabset}  
+
+### gtsummary standard code  
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+base_name <- paste0("base_size",i)
+
+df_tmp <- ess10 %>% 
+  select(all_of(c(vars, by_var))) %>%
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>% 
+  mutate(across(all_of(c(vars, by_var)), ~fct_drop(.x))) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+  tbl_summary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name))
+
+cross_break[[i]] <- perc
+
+}
+
+cross_break %>% tbl_stack() %>% 
+  modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  modify_footnote(all_stat_cols() ~ NA) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(ess10[[by_var]]),"**")) 
+
+```
+
+<br>
+
+### A function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.cbreak <- 
+  function(data, # dataframe
+         outcome,  # character vector
+         crossbreak # character vector - length 1
+  ){
+
+cross_break <- list()
+
+for (i in 1:length(outcome)) {
+  
+o_var <- outcome[i]
+by_var <- crossbreak
+base_name <- paste0("base_size",i)
+
+df_tmp <- data %>% 
+  select(all_of(c(outcome, by_var))) %>%
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+  tbl_summary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name))
+
+cross_break[[i]] <- perc
+
+}
+
+table <- 
+  cross_break %>% tbl_stack() %>% 
+  modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  modify_footnote(all_stat_cols() ~ NA) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(data[[by_var]]),"**")) 
+
+return(table)
+
+}
+
+ess10 %>% 
+  mutate(across(all_of(c(vars, "gndr")), ~fct_drop(.x))) %>% 
+  .cbreak(outcome = vars, crossbreak = "gndr")
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".cbreak <- ", # Assignment needs to be added manually
+  deparse(.cbreak)), # Extract function code
+  "./.cbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+### gtsummary standard code - weighted
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+base_name <- paste0("base_size",i)
+
+df_tmp <- svy_df %>% 
+  select(all_of(c(vars, by_var))) %>%
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>%
+  mutate(across(all_of(c(vars, by_var)), ~fct_drop(.x))) 
+
+var_label(df_tmp[["variables"]][[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name))
+
+cross_break[[i]] <- perc
+
+}
+
+cross_break %>% tbl_stack() %>% 
+  modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+  modify_footnote(all_stat_cols() ~ "Weighted percentages. Unweighted base sizes shown below each table. ") %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(svy_df[["variables"]][[by_var]]),"**")) 
+
+```
+
+<br>
+
+### A function - weighted
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.svy_cbreak <- 
+  function(data, # survey design object
+         outcome,  # character vector
+         crossbreak # character vector - length 1
+  ){
+
+cross_break <- list()
+
+for (i in 1:length(outcome)) {
+  
+o_var <- outcome[i]
+by_var <- crossbreak
+base_name <- paste0("base_size",i)
+
+df_tmp <- data %>% 
+  select(all_of(c(outcome, by_var))) %>%
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases"))
+
+var_label(df_tmp[["variables"]][[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name))
+
+cross_break[[i]] <- perc
+
+}
+
+table <- 
+  cross_break %>% tbl_stack() %>% 
+  modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+  modify_footnote(all_stat_cols() ~ "Weighted percentages. Unweighted base sizes shown below each table. ") %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(data[["variables"]][[by_var]]),"**")) 
+
+return(table)
+
+}
+
+svy_df %>% 
+  mutate(across(all_of(c(vars, "gndr")), ~fct_drop(.x))) %>% 
+  .svy_cbreak(outcome = vars, crossbreak = "gndr")
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".svy_cbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_cbreak)), # Extract function code
+  "./.svy_cbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Separate crossbreaks tables {.tabset}
+
+### gtsummary standard code
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+
+df_tmp <- ess10 %>% 
+  select(all_of(c(vars, by_var))) %>%
+  mutate(base_size = case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>% 
+  mutate(across(all_of(c(vars, by_var)), ~fct_drop(.x))) 
+
+var_label(df_tmp$base_size) <- ""
+
+cross_break[[i]] <- 
+  df_tmp %>%
+  tbl_summary(
+  include = all_of(c(o_var,"base_size")), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", 
+                   base_size = "{n}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(
+    label = base_size ~ "",
+    location = "column"
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "") %>% 
+    bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+ modify_footnote(everything() ~ NA) %>%
+    modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(ess10[[by_var]]),"**")) 
+
+}
+
+cross_break[[1]]
+
+```
+
+<br>
+
+### A function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.cbreaks <- function(data, # data frame
+                     predictor,  # character vector with predictor variable, length 1
+                     outcomes # character vector of outcome variables
+                     ) {
+  
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+
+data <- data %>% 
+  select(all_of(c(outcomes, by_var))) %>%
+  mutate(base_size = case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) 
+
+var_label(data$base_size) <- ""
+
+cross_break[[i]] <- 
+  data %>%
+  tbl_summary(
+  include = all_of(c(o_var,"base_size")), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", 
+                   base_size = "{n}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(
+    label = base_size ~ "",
+    location = "column"
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "") %>% 
+    bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+ modify_footnote(everything() ~ NA) %>%
+    modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(data[[by_var]]),"**")) 
+
+}
+
+return(cross_break)
+
+}
+
+tables <- ess10 %>% 
+  mutate(across(all_of(c(vars, "gndr")), ~fct_drop(.x))) %>% 
+  .cbreaks(outcomes = vars, predictor = "gndr")
+
+for (i in 1:length(tables)) {
+  tables[[i]] %>% print()
+}
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".cbreaks <- ", # Assignment needs to be added manually
+  deparse(.cbreaks)), # Extract function code
+  "./.cbreaks.R") # File name is just the function name 
+
+```
+
+<br>
+
+### gtsummary standard code - weighted
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+
+df_tmp <- svy_df %>% 
+  select(all_of(c(vars, by_var))) %>%
+  mutate(base_size = case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>% 
+  mutate(across(all_of(c(vars, by_var)), ~fct_drop(.x))) 
+
+var_label(df_tmp[["variables"]]$base_size) <- ""
+
+cross_break[[i]] <- 
+  df_tmp %>%
+  tbl_svysummary(
+  include = all_of(c(o_var,"base_size")), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", 
+                   base_size = "{N_nonmiss_unweighted}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(
+    label = base_size ~ "",
+    location = "column"
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "") %>% 
+    bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+ modify_footnote(everything() ~ NA) %>%
+    modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(df_tmp[["variables"]][[by_var]]),"**")) 
+
+}
+
+cross_break[[1]]
+
+```
+
+<br>
+
+### A function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.svy_cbreaks <- function(
+    data, # survey design object
+    predictor,  # character vector with predictor variable, length 1
+    outcomes # character vector of outcome variables
+                     ) {
+  
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+
+df_tmp <- data %>% 
+  select(all_of(c(o_var, by_var))) %>%
+  mutate(base_size = case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) 
+
+var_label(df_tmp[["variables"]]$base_size) <- ""
+
+cross_break[[i]] <- 
+  df_tmp %>%
+  tbl_svysummary(
+  include = all_of(c(o_var,"base_size")), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", 
+                   base_size = "{N_nonmiss_unweighted}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(
+    label = base_size ~ "",
+    location = "column"
+  ) %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "") %>% 
+    bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+ modify_footnote(everything() ~ NA) %>%
+    modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(df_tmp[["variables"]][[by_var]]),"**")) 
+
+}
+
+return(cross_break)
+
+}
+
+tables <- 
+  svy_df %>% 
+  mutate(across(all_of(c(vars, "gndr")), ~fct_drop(.x))) %>%
+  .svy_cbreaks(outcomes = vars, predictor = "gndr")
+
+for (i in 1:length(tables)) {
+  tables[[i]] %>% print()
+}
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".svy_cbreaks <- ", # Assignment needs to be added manually
+  deparse(.svy_cbreaks)), # Extract function code
+  "./.svy_cbreaks.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Numerics {.tabset}
+
+<br>
+
+```{r}
+
+ess10 %>% glimpse
+
+ess10 %>% select(atchctr_num, stflife_num, stfgov_num) %>% var_label()
+
+```
+
+<br>
+
+## Single line summary
+
+```{r}
+
+vars <- c("atchctr_num", "stflife_num", "stfgov_num")
+
+ess10 %>%
+  tbl_summary(
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ "{mean} ({sd}) [{min} - {max}]"), 
+      digits = list(all_continuous() ~ 1)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Mean (SD) [Range]**") %>% 
+  modify_footnote(everything() ~ NA) %>%
+  add_n(last=TRUE) # non-missing cases for each variable 
+
+ess10 %>%
+  tbl_summary(
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ "{mean} ({sd})"), 
+      digits = list(all_continuous() ~ 1)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Mean (SD)**") %>% 
+  modify_footnote(everything() ~ NA) %>%
+  add_n(last=TRUE) # non-missing cases for each variable %>% 
+
+```
+
+<br>
+
+## Weighted single line summary
+
+```{r}
+
+svy_df %>%
+  tbl_svysummary(
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ "{mean} ({sd}) [{min} - {max}]"), 
+      digits = list(all_continuous() ~ 1)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Mean (SD) [Range]**") %>% 
+  modify_footnote(everything() ~ NA) %>%
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) # non-missing cases for each variable 
+
+svy_df %>%
+  tbl_svysummary(
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ "{mean} ({sd})"), 
+      digits = list(all_continuous() ~ 1)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Mean (SD)**") %>% 
+  modify_footnote(everything() ~ NA) %>%
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) # non-missing cases for each variable 
+
+```
+
+<br>
+
+## Single line summary function
+
+```{r}
+
+.nums <- function(
+    outcomes, 
+    data, 
+    stats = "{mean} ({sd})",
+    stats_title = "**Mean (SD)**"
+    ) {
+  
+  data %>%
+    tbl_summary(
+        include = all_of(outcomes), 
+        missing = "no",
+        statistic = list(all_continuous() ~ stats), 
+        digits = list(all_continuous() ~ 1)
+    ) %>% 
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ stats_title) %>% 
+    modify_footnote(everything() ~ NA) %>%
+    add_n(last=TRUE) # non-missing cases for each variable %>% 
+}
+
+ess10 %>% .nums(outcomes = vars)
+ess10 %>% .nums(outcomes = vars, 
+                stats = "{mean} ({sd}) [{min} - {max}]", 
+                stats_title = "**Mean (SD) [Range]**")
+
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".nums <- ", # Assignment needs to be added manually
+  deparse(.nums)), # Extract function code
+  "./.nums.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Weighted single line summary function
+
+```{r}
+
+.svy_nums <- function(
+    outcomes, 
+    data, 
+    stats = "{mean} ({sd})",
+    stats_title = "**Mean (SD)**"
+    ) {
+  
+  data %>%
+    tbl_svysummary(
+        include = all_of(outcomes), 
+        missing = "no",
+        statistic = list(all_continuous() ~ stats), 
+        digits = list(all_continuous() ~ 1)
+    ) %>% 
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ stats_title) %>% 
+    modify_footnote(everything() ~ NA) %>%
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) # non-missing cases for each variable 
+}
+
+svy_df %>% .svy_nums(outcomes = vars)
+
+svy_df %>% .svy_nums(outcomes = vars, 
+                     stats = "{mean} ({sd}) [{min} - {max}]", 
+                     stats_title = "**Mean (SD) [Range]**")
+
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_nums <- ", # Assignment needs to be added manually
+  deparse(.svy_nums)), # Extract function code
+  "./.svy_nums.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Multi line summary 
+
+```{r}
+
+ess10 %>%
+  tbl_summary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**",  stat_0 ~ "**Statistics**") %>% 
+  bold_labels()
+
+```
+
+<br>
+
+## Weighted multi line summary 
+
+```{r}
+
+svy_df %>%
+  tbl_svysummary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(vars), 
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**",  stat_0 ~ "**Statistics**") %>% 
+  bold_labels() %>%
+  add_stat_label(label = list(all_continuous() ~ c("Mean", "Median", "SD", "Range", "N (unw.)")))
+
+```
+
+<br>
+
+## Multi line summary function
+
+```{r}
+.nums2 <- function(
+    outcomes, 
+    data, 
+    stats = c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}"),
+    digits = c(1,1,1,1,1,0)
+    ) {
+  
+data %>%
+  tbl_summary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes), 
+      missing = "no",
+      statistic = list(all_continuous() ~ stats), 
+      digits = list(all_continuous() ~ digits)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Statistics**") %>%
+    bold_labels()
+
+}
+
+ess10 %>% .nums2(outcomes = vars)
+
+ess10 %>% .nums2(outcomes = vars, 
+                 stats = c("{mean}", "{median}", "{N_nonmiss}"), 
+                 digits = c(2,2,0))
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".nums2 <- ", # Assignment needs to be added manually
+  deparse(.nums2)), # Extract function code
+  "./.nums2.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Weighted multi line summary function
+
+```{r}
+
+.svy_nums2 <- function(
+    outcomes, 
+    data, 
+    stats = c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}"),
+    digits = c(1,1,1,1,1,0)
+    ) {
+  
+data %>%
+  tbl_svysummary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes), 
+      missing = "no",
+      statistic = list(all_continuous() ~ stats), 
+      digits = list(all_continuous() ~ digits)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "**Variable**", stat_0 ~ "**Statistics**") %>%
+    bold_labels() %>% 
+    modify_table_body(
+    ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label)))
+
+}
+
+svy_df %>% .svy_nums2(outcomes = vars)
+
+svy_df %>% .svy_nums2(outcomes = vars, 
+                 stats = c("{mean}", "{median}", "{N_nonmiss_unweighted}"), 
+                 digits = c(2,2,0))
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_nums2 <- ", # Assignment needs to be added manually
+  deparse(.svy_nums2)), # Extract function code
+  "./.svy_nums2.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Numeric crossbreaks {.tabset}
+
+<br>
+
+## Multi line summary - crossbreak
+
+```{r}
+
+ess10 %>%
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  tbl_summary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(vars),
+      by = gndr,
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "") 
+
+ess10 %>% count(gndr, is.na(atchctr_num))
+
+```
+
+<br>
+
+## Weighted multi line summary - crossbreak
+
+```{r}
+
+svy_df %>%
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  tbl_svysummary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(vars),
+      by = gndr,
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "")  %>% 
+    modify_table_body(
+    ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label)))
+
+ess10 %>% count(gndr, is.na(atchctr_num))
+
+```
+
+<br>
+
+## Multi line summary - crossbreak function
+
+```{r}
+
+.nums2_cbreak <- function(
+    outcomes,
+    predictor,
+    data
+    ) {
+ 
+  data %>%
+  tbl_summary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes),
+      by = all_of(predictor),
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "")  
+  
+}
+
+ess10 %>%  
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  .nums2_cbreak(outcomes = vars, predictor = "gndr")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".nums2_cbreak <- ", # Assignment needs to be added manually
+  deparse(.nums2_cbreak)), # Extract function code
+  "./.nums2_cbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Weighted multi line summary - crossbreak function
+
+```{r}
+
+.svy_nums2_cbreak <- function(
+    outcomes,
+    predictor,
+    data
+    ) {
+ 
+  data %>%
+  tbl_svysummary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes),
+      by = all_of(predictor),
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "") %>% 
+    modify_table_body(
+    ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label)))
+
+}
+
+svy_df %>%
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  .svy_nums2_cbreak(outcomes = vars, predictor = "gndr")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_nums2_cbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_nums2_cbreak)), # Extract function code
+  "./.svy_nums2_cbreak.R") # File name is just the function name 
+
+```
+
+<br> 
+
+# Nested numeric crossbreaks {.tabset}
+
+<br>
+
+## Nested - multi line summary - crossbreak
+
+```{r}
+
+ess10 %>% 
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+        tbl_summary(
+        type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+        include = all_of(vars),
+        by = gndr,
+        missing = "no",
+        statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+        digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+    ) %>% 
+    add_overall(last = T) %>% 
+    add_p() %>%
+    bold_labels() %>%
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ ""), 
+        .header = "**{strata}**, N = {n}", 
+  ) %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(ess10[["gndr"]]),", nested by ", var_label(ess10[["hincfel"]]),".",
+                 "</div>"))
+
+```
+
+<br>
+
+## Nested - weighted multi line summary - crossbreak
+
+```{r}
+
+svy_df %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+            tbl_svysummary(
+          type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+          include = all_of(vars),
+          by = gndr,
+          missing = "no",
+          statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+          digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+      ) %>% 
+      add_overall(last = T) %>% 
+      add_p() %>%
+      bold_labels() %>%
+      modify_header(all_stat_cols() ~ "**{level}**", label ~ "")  %>% 
+        modify_table_body(
+        ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label))), 
+        .header = "**{strata}**, N = {n_unweighted}"
+  ) %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(svy_df[["variables"]][["gndr"]]),", nested by ", var_label(svy_df[["variables"]][["hincfel"]]),".",
+                 "</div>"))
+
+```
+
+<br>
+
+## Nested - multi line summary crossbreak - function
+
+```{r}
+
+.nums2_ncbreak <- function(
+    outcomes,
+    predictor,
+    data, 
+    nvar
+    ) {
+
+table <- 
+  data %>% 
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nvar}}, 
+      ~.x %>%
+        tbl_summary(
+        type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+        include = all_of(outcomes),
+        by = all_of(predictor),
+        missing = "no",
+        statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+        digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+    ) %>% 
+    add_overall(last = T) %>% 
+    add_p() %>%
+    bold_labels() %>%
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ ""), 
+        .header = "**{strata}**, N = {n}", 
+  ) %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(data[[predictor]]),", nested by ", var_label(data[[nvar]]),".",
+                 "</div>")) 
+
+return(table)
+  
+}
+
+ess10 %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .nums2_ncbreak(outcomes = vars, predictor = "gndr", nvar = "hincfel")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".nums2_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.nums2_ncbreak)), # Extract function code
+  "./.nums2_ncbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Nested - weighted multi line summary - crossbreak - function
+
+
+```{r}
+
+.svy_nums2_ncbreak <- function(
+    outcomes,
+    predictor,
+    data, 
+    nvar
+    ) {
+
+table <- 
+  data %>% 
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nvar}}, 
+      ~.x %>%
+            tbl_svysummary(
+          type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+          include = all_of(outcomes),
+          by = all_of(predictor),
+          missing = "no",
+          statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+          digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+      ) %>% 
+  add_overall(last = T) %>%
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "")
+      %>%
+        modify_table_body(
+        ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label))),
+        .header = "**{strata}**, N = {n_unweighted}"
+  ) %>%
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(svy_df[["variables"]][[predictor]]),", nested by ", var_label(svy_df[["variables"]][[nvar]]),".",
+                 "</div>"))
+
+return(table)
+  
+}
+
+svy_df %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .svy_nums2_ncbreak(outcomes = vars, predictor = "gndr", nvar = "hincfel")
+  
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_nums2_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_nums2_ncbreak)), # Extract function code
+  "./.svy_nums2_ncbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Binaries {.tabset}
+
+<br>
+
+The code below loads some additional data, for use in multicoded tables. 
+
+```{r}
+
+load("C:/Users/joeac/OneDrive/Documents/Joe's documents/R stuff/Data/ESS_UK/ESS_UK_R_data_file.RData")
+
+# Use set of variables on location people can access internet from
+ess %>% select(starts_with("acc")) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+# Identify variable names
+int_loc <- ess %>% select(starts_with("acc")) %>% names
+int_loc <- int_loc[3:10]
+int_loc
+
+ess %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+ess10 %>% select(ctzcntr, brncntr,feethngr) %>% look_for() %>% convert_list_columns_to_character() %>% flextable
+
+```
+
+<br>
+
+## gtsummary standard
+
+```{r}
+
+bins <- c("ctzcntr", "brncntr","feethngr")
+ess10 %>%
+  mutate(across(all_of(bins), ~fct_drop(.x))) %>% 
+  tbl_summary(
+    include = all_of(bins),
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}"), 
+      digits = list(all_dichotomous() ~ 1)
+  ) %>%
+  add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_label ~ "")
+
+```
+
+<br>  
+
+## gtsummary standard code - improved
+
+Manual code to produce a proper multicode table.
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+ess2 %>% count(base_size, acchome)
+
+var_label(ess2$base_size) <- ""
+
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ "Marked",
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ paste0("Unweighted percentages"), 
+                stat_0 ~ "%")
+
+```
+
+<br> 
+
+## Full multicode table code
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  # Factorise variables
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(ess2$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(ess2 %>% select(all_of(int_loc)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- ess %>% select(all_of(int_loc)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(int_loc)) {
+  stems <- append(stems, str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(ess2[[int_loc[i]]]) <- 
+    str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+ess2 %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- ess2 %>% 
+  select(all_of(int_loc)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     all_categorical() ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "%") %>%
+  modify_footnote(all_stat_cols() ~ level_reported)
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+
+
+```
+
+<br>
+
+## Full multicode function
+
+```{r}
+
+.multi <- function(
+    data, # data frame
+    outcomes # Vector of variables which identify the outcomes
+    ) { 
+    
+data <- 
+  data %>%
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[outcomes[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(data$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(data %>% select(all_of(outcomes)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- ess %>% select(all_of(outcomes)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(outcomes)) {
+  stems <- append(stems, str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(data[[outcomes[i]]]) <- 
+    str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+data %>% select(all_of(outcomes)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- data %>% 
+  select(all_of(outcomes)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+level_reported <- ""
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "Yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+table <- data %>%
+  tbl_summary(
+    include = all_of(c(outcomes, "base_size")),
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     all_categorical() ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "%") %>%
+  modify_footnote(everything() ~ NA)
+
+# Add footnote explaining level reported if is non-standard (e.g. not yes/no etc)
+if (level_reported != "") { 
+  table <- table %>%
+  modify_footnote(all_stat_cols() ~ level_reported)
+}
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+# return(list(table, the_levels, chosen_level, values_standard_binaries))
+
+return(table)
+
+  }
+
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  .multi(outcomes = int_loc)
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Yes" = "Marked", "No" = "Not marked"))) %>% 
+  .multi(outcomes = int_loc)
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "yes" = "Marked", "no" = "Not marked"))) %>% 
+  .multi(outcomes = int_loc)
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "1" = "Marked", "0" = "Not marked"))) %>% 
+  .multi(outcomes = int_loc)
+
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~case_when(.x == "Marked" ~ 1, .x == "Not marked" ~ 0))) %>% 
+  .multi(outcomes = int_loc)
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Selected" = "Marked", "Not selected" = "Not marked"))) %>% 
+  .multi(outcomes = int_loc)
+
+
+```
+
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".multi <- ", # Assignment needs to be added manually
+  deparse(.multi)), # Extract function code
+  "./.multi.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Multicode crossbreaks {.tabset}  
+
+<br>
+
+## gtsummary style crossbreak
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+ess2 %>% count(base_size, acchome)
+
+var_label(ess2$base_size) <- ""
+
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    by = gndr,
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ "Marked",
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>% 
+  add_overall() %>% 
+  add_p %>%
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**Unweighted percentages**"), 
+                stat_0 ~ "**Total**") %>% 
+  modify_footnote(everything() ~ NA)
+
+```
+
+<br>
+
+## gtsummary style crossbreak function
+
+```{r}
+
+# Requires yes/no or 0/1 variables
+
+.gsmulti_cbreak <- function(
+    data,
+    outcomes,
+    predictor
+    ) { 
+  
+  data_int <- data %>%
+  mutate(base_size = case_when(!is.na(.data[[outcomes[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+var_label(data_int$base_size) <- ""
+
+table <- 
+  data_int %>%
+  tbl_summary(
+    include = all_of(c(outcomes, "base_size")),
+    by = .data[[predictor]],
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 0)
+  ) %>% 
+  add_overall() %>% 
+  add_p %>%
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**Unweighted percentages**"), 
+                stat_0 ~ "**Total**") %>% 
+  modify_footnote(everything() ~ NA)
+
+return(table)
+  
+}
+
+levels(ess2$acchome)
+
+ess %>%
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Yes" = "Marked", "No" = "Not marked"))) %>% 
+  .gsmulti_cbreak(outcomes = int_loc, predictor = "gndr")  
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".gsmulti_cbreak <- ", # Assignment needs to be added manually
+  deparse(.gsmulti_cbreak)), # Extract function code
+  "./.gsmulti_cbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Proper multicode crossbreak
+
+```{r}
+
+ess2 <- 
+  ess %>%
+  # Factorise variables
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>% 
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[int_loc[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(ess2$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(ess2 %>% select(all_of(int_loc)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- ess %>% select(all_of(int_loc)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(int_loc)) {
+  stems <- append(stems, str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(ess2[[int_loc[i]]]) <- 
+    str_split_i(
+      var_label(ess2[[int_loc[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+ess2 %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- ess2 %>% 
+  select(all_of(int_loc)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+ess2 %>%
+  tbl_summary(
+    include = all_of(c(int_loc, "base_size")),
+    by = gndr,
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"),
+      digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  add_overall() %>% 
+  add_p(include = -base_size) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "**Total**") %>%
+  modify_footnote(all_stat_cols() ~ level_reported) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(ess2[["gndr"]]),"**")) 
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+
+
+```
+
+<br>
+
+## Proper multicode crossbreak function
+
+```{r}
+
+.multi_cbreak <- function(
+                    data, # data frame
+                    outcomes, # Vector of variables which identify the outcomes
+                    predictor
+                    ) { 
+    
+data <- 
+  data %>%
+  # Create base equal to 'Unweighted bases' for all non-missing cases on the outcome variable. 
+  mutate(base_size = case_when(!is.na(.data[[outcomes[1]]]) ~ "Unweighted bases", TRUE ~ NA))
+
+# Give unweighted base an empty variable label
+var_label(data$base_size) <- ""
+
+# Is the number of missing values for each variable the same? 
+# TRUE indicates they are the same.
+number_of_missing_values_equal <- length(data %>% select(all_of(outcomes)) %>% map_dbl(., ~sum(is.na(.x))) %>% unique) == 1
+
+# Extract list of variable labels
+labels <- ess %>% select(all_of(outcomes)) %>% map_chr(.,var_label) 
+
+# Do all strings contain only a single instance of ": "
+# FALSE is good, indicates all contain only one instance.
+strings_separator <- sum(str_count(labels, ": ") != 1) > 0 
+
+# If above results in FALSE...
+
+# Stems should all be the same, should return FALSE
+stems_unique <- length(unique(str_split_i(labels, ": ", 1))) > 1
+
+# If the above results in FALSE...
+
+stems <- vector()
+if (stems_unique == F) {
+# Remove the variable label stem, relabel variables with unique component of label
+for (i in 1:length(outcomes)) {
+  stems <- append(stems, str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      1))
+  
+  var_label(data[[outcomes[i]]]) <- 
+    str_split_i(
+      var_label(data[[outcomes[i]]]), 
+      ": ", 
+      2)
+}
+
+stems <- unique(stems) # Variable label stem...
+
+# Review new variable labels
+data %>% select(all_of(outcomes)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+} else {
+  stems <- ""
+}
+
+# Variable levels - should only be two values..
+the_levels <- data %>% 
+  select(all_of(outcomes)) %>% 
+  map(., unique) %>% 
+  unlist %>% 
+  unique %>% 
+  na.omit() %>% 
+  as.vector() %>% 
+  sort
+
+if (length(the_levels) != 2) {
+  print("Problem, variables do not have two levels.")
+} else {
+  
+# If above results in 2, check the values are either 1 and 0 or yes and no. 
+values_standard_binaries <- 
+  sum(c(tolower(the_levels) %in% c("yes","no"),
+      the_levels %in% c("1","0"),
+      the_levels %in% c(1,0)))
+
+# Returns zero when they are not standard
+level_reported <- ""
+if (values_standard_binaries == 0) {
+  
+  # If above equals zero then... select the first of the values of 'the_levels'
+  chosen_level <- the_levels[1] # Chosen level can then be used to select a level to display automatically.
+  
+  level_reported <- paste0("Percentage refers to proportion who selected '", chosen_level,"'. Unreported category is: '", the_levels[2],"'.")
+          
+} else if (sum((the_levels) %in% c("yes","no")) == 2) {
+  chosen_level <- "yes"
+} else if (sum((the_levels) %in% c("Yes","No")) == 2) {
+  chosen_level <- "Yes"
+}  else if (sum((the_levels) %in% c("1","0")) == 2) {
+  chosen_level <- "1"
+}  else if (sum((the_levels) %in% c(1, 0)) == 2) {
+  chosen_level <- 1
+}                                                                       
+
+# Continue to table only if variable levels are 
+if (number_of_missing_values_equal == TRUE) {
+  
+table <- data %>%
+  tbl_summary(
+    include = all_of(c(outcomes, "base_size")),
+    by = .data[[predictor]],
+    type = list(all_categorical() ~ "dichotomous", 
+                base_size ~ "categorical"),
+    value = everything() ~ chosen_level,
+    missing = "no", 
+    statistic = list(all_dichotomous() ~ "{p}", 
+                     base_size ~ "{n}"),
+      digits = list(all_dichotomous() ~ 0)
+  ) %>%
+  add_overall %>% 
+  add_p(include = -base_size) %>%
+  # add_stat_label(location = "column") %>% 
+  modify_header(all_stat_cols() ~ "**{level}** (%)", 
+                label ~ paste0("**",stems,"**"), 
+                stat_0 ~ "**Total**") %>%
+  modify_footnote(everything() ~ NA) %>%
+  modify_spanning_header(all_stat_cols() ~ paste0("**",var_label(ess2[[predictor]]),"**")) 
+
+# Add footnote explaining level reported if is non-standard (e.g. not yes/no etc)
+if (level_reported != "") { 
+  table <- table %>%
+  modify_footnote(all_stat_cols() ~ level_reported)
+}
+  
+} else {
+  
+  print("Number of missing values not equal for all variables. ")
+  
+}
+
+}
+
+# return(list(table, the_levels, chosen_level, values_standard_binaries))
+
+return(table)
+
+  }
+
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Yes" = "Marked", "No" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "yes" = "Marked", "no" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "1" = "Marked", "0" = "Not marked"))) %>% 
+    mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~case_when(.x == "Marked" ~ 1, .x == "Not marked" ~ 0))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, "Selected" = "Marked", "Not selected" = "Not marked"))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".multi_cbreak <- ", # Assignment needs to be added manually
+  deparse(.multi_cbreak)), # Extract function code
+  "./.multi_cbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Nested crossbreaks {.tabset}
+
+## gtsummary standard code
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+          tbl_summary(
+          include = all_of(vars), 
+          by = gndr,
+          missing = "no", 
+          statistic = list(all_categorical() ~ "{p}"), 
+          digits = list(all_categorical() ~ 0)
+          ) %>% 
+          add_overall(last=TRUE) %>% # non-missing cases for each variable 
+          add_n(last = TRUE) %>%
+          modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                        label ~ "**Variable**",
+                        stat_0 ~ "**Total**") %>% 
+          add_p() %>%
+          bold_labels() %>% 
+            modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+         modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N"),
+          .header = "**{strata}**, N = {n}", 
+      ) 
+
+```
+
+## A function 
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.gt_ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+  
+data %>%
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nest}}, 
+      ~.x %>%
+          tbl_summary(
+          include = all_of(outcomes), 
+          by = .data[[predictor]],
+          missing = "no", 
+          statistic = list(all_categorical() ~ "{p}"), 
+          digits = list(all_categorical() ~ 0)
+          ) %>% 
+          add_overall(last=TRUE) %>% # non-missing cases for each variable 
+          add_n(last = TRUE) %>%
+          modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                        label ~ "**Variable**",
+                        stat_0 ~ "**Total**") %>% 
+          add_p() %>%
+          bold_labels() %>% 
+            modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+         modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N"),
+          .header = "**{strata}**, N = {n}", 
+      ) 
+}
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .gt_ncbreak(outcomes = vars, predictor = "gndr", nest = "hincfel")
+  
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".gt_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.gt_ncbreak)), # Extract function code
+  "./.gt_ncbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## Why are some p-value suppression in nested tables
+
+In the nested tables above some p-values are suppressed, even though these are based on quite a large sample size. Re-running below to see if behaviour is linked to using the tbl_strata function or a feature of how the significance test (Fisher's Exact Test) is calcualted. 
+
+The code below duplicates the problem, indicating it is a feature of Fisher's Exact Test, not a bug in tbl_strata.
+
+```{r}
+
+ess10 %>% 
+  mutate(lrscale = fct_drop(lrscale)) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(hincfel == "Living comfortably on present income") %>% # Filter NA in nesting variable
+  tbl_summary(include = lrscale, by = gndr) %>% 
+  add_p
+```
+
+<br>
+
+## .cbreak nested 
+
+Take the code underlying .cbreak(), and nest it within tbl_strata
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+base_name <- paste0("base_size",i)
+nvar <- "hincfel"
+
+df_tmp <- ess10 %>% 
+  select(all_of(c(vars, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>% 
+  mutate(across(all_of(c(vars, by_var, nvar)), ~fct_drop(.x))) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+    tbl_strata(strata = hincfel, 
+  ~.x %>% 
+    tbl_summary(
+      include = all_of(c(o_var, base_name)), 
+      by = .data[[by_var]],
+      missing = "no", 
+      statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+      digits = list(all_categorical() ~ 0)
+      ) %>%
+      add_stat_label(label = {{base_name}} ~ "", location = "column") %>%
+      add_overall(last=TRUE) %>% # non-missing cases for each variable 
+      modify_header(all_stat_cols() ~ "**{level}**", 
+                    label ~ "**Variable**",
+                    stat_0 ~ "**Total**",
+                    stat_label ~ ""
+                    )  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n}"
+    ) # close nested table description
+
+cross_break[[i]] <- perc
+
+}
+
+cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(ess10[[by_var]]),", nested by ", var_label(ess10[[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+```
+
+<br>
+
+## .cbreak nested function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+  
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+base_name <- paste0("base_size",i)
+nvar <- nest
+
+df_tmp <- data %>% 
+  select(all_of(c(o_var, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+    tbl_strata(strata = {{nvar}}, 
+  ~.x %>% 
+    tbl_summary(
+      include = all_of(c(o_var, base_name)), 
+      by = .data[[by_var]],
+      missing = "no", 
+      statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+      digits = list(all_categorical() ~ 0)
+      ) %>%
+      add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+      add_overall(last=TRUE) %>% # non-missing cases for each variable 
+      modify_header(all_stat_cols() ~ "**{level}**", 
+                    label ~ "**Variable**",
+                    stat_0 ~ "**Total**",
+                    stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n}"
+    ) # close nested table description
+
+cross_break[[i]] <- perc
+
+}
+
+table <- cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(data[[by_var]]),", nested by ", var_label(data[[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+return(table)
+
+}
+
+ess10 %>% 
+  mutate(across(all_of(c(vars, "gndr", "hincfel")), ~fct_drop(.x))) %>% 
+  .ncbreak(
+  outcomes = vars, 
+  predictor = "gndr", 
+  nest = "hincfel"
+  )
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".ncbreak <- ", # Assignment needs to be added manually
+  deparse(.ncbreak)), # Extract function code
+  "./.ncbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+## .svy_cbreak nested function
+
+```{r}
+vars <- c("lrscale","atchctr")
+
+.svy_ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+  
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+base_name <- paste0("base_size",i)
+nvar <- nest
+
+df_tmp <- data %>% 
+  select(all_of(c(outcomes, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases"))
+
+var_label(df_tmp[["variables"]][[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%   
+  tbl_strata(strata = {{nvar}}, 
+  ~.x %>% 
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n_unweighted}"
+    ) # close nested table description 
+
+  # For nested svy tables labels are lost, add manually.
+  perc <- perc %>% 
+    modify_table_body(
+    ~ .x %>%
+      dplyr::mutate(label = case_when(
+        label == o_var ~ var_label(data[["variables"]][[o_var]]),
+        label == base_name ~ " ",
+        TRUE ~ label)
+      ))
+
+cross_break[[i]] <- perc
+
+}
+
+table <- cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", 
+                 var_label(data[["variables"]][[by_var]]),", 
+                 nested by ", 
+                 var_label(data[["variables"]][[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+return(table)
+
+}
+
+svy_df %>% 
+  mutate(across(all_of(c(vars, "gndr", "hincfel")), ~fct_drop(.x))) %>% 
+  .svy_ncbreak(
+  outcomes = vars, 
+  predictor = "gndr", 
+  nest = "hincfel"
+  ) 
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_ncbreak)), # Extract function code
+  "./.svy_ncbreak.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Nested multicode crossbreaks 
+
+```{r}
+
+ess %>% count(hincfel)
+
+ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+  mutate(gndr = fct_drop(as_factor(gndr))) %>%
+  .multi_cbreak(outcomes = int_loc, predictor ="gndr")
+
+
+(fct_levels <- levels(fct_drop(as_factor(ess$hincfel))))
+
+tbl_list <- 
+  map(fct_levels, 
+    ~ess %>%  
+      filter(as_factor(hincfel) == .x) %>%
+      mutate(across(all_of(int_loc), ~fct_drop(as_factor(.x)))) %>% 
+      mutate(gndr = fct_drop(as_factor(gndr))) %>%
+      .multi_cbreak(outcomes = int_loc, predictor ="gndr")) 
+  
+tbl_list %>% tbl_merge(tab_spanner = F)
+tbl_list %>% tbl_merge(tab_spanner = paste0("**",fct_levels,"**")) %>% as_flex_table()
+
+```
+
+
+# Multiple frequencies
+
+```{r}
+
+outcome_vars <- list("stflife", "stfgov")
+
+vars <- ess10 %>% select(all_of(unlist(outcome_vars))) %>% map(., unique) 
+
+if (Reduce(setequal, vars) == TRUE) {
+
+result <- map(
+  outcome_vars, 
+  ~ tbl_summary(
+      data = ess10 %>% mutate(across(all_of(.x), ~fct_drop(.x), .names = "the_merging_variable")),
+      include = the_merging_variable,  
+      statistic = list(all_categorical() ~ "{p}"),
+      label = list(the_merging_variable ~ " "), 
+      missing = "no", 
+      digits = everything() ~ 0
+  ) %>% 
+    modify_header(stat_0 = paste0("**", var_label(ess10[[.x]]), "**"), label = "") 
+)
+
+result[[1]] <- result[[1]] %>% 
+  add_stat_label(location = "column") %>% 
+  modify_header(stat_label ~ "")
+
+tbl_merge(result, tab_spanner=F) 
+
+}
+
+
+```
+
+<br>
+
+```{r}
+
+outcome_vars <- list("stflife", "stfgov")
+
+.mfreq <- function(
+  outcomes, # Vector of outcomes
+  data # Data frame
+  ) {
+  vars <- data %>% select(all_of(unlist(outcomes))) %>% map(., unique) 
+
+if (Reduce(setequal, vars) == TRUE) {
+
+result <- map(
+  outcomes, 
+  ~ tbl_summary(
+      data = data %>% mutate(across(all_of(.x), ~fct_drop(.x), .names = "the_merging_variable")),
+      include = the_merging_variable,  
+      statistic = list(all_categorical() ~ "{p}"),
+      label = list(the_merging_variable ~ " "), 
+      missing = "no", 
+      digits = everything() ~ 0
+  ) %>% 
+    modify_header(stat_0 = paste0("**", var_label(data[[.x]]), "**"), label = "") %>% 
+    modify_footnote(everything() ~ NA)
+)
+
+result[[1]] <- result[[1]] %>% 
+  add_stat_label(location = "column") %>% 
+  modify_header(stat_label ~ "")
+
+result <- tbl_merge(result, tab_spanner=F) 
+
+} else { 
+  
+  result <- "Levels don't match"
+  
+}
+  
+ return(result)
+  
+}
+
+ess10 %>% .mfreq(outcomes = outcome_vars)
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".mfreq <- ", # Assignment needs to be added manually
+  deparse(.mfreq)), # Extract function code
+  "./.mfreq.R") # File name is just the function name 
+
+```
+
+<br>
+
+# Flextable 
+
+Converting gtsummary tables to flextables.
+
+```{r}
+
+tbl <- ess10 %>% .freq(c("lrscale","atchctr"))
+
+# Step required as flextable won't accept the div style formatting
+tbl[["table_styling"]][["caption"]]
+            
+title <- str_split_i(tbl[["table_styling"]][["caption"]], "\\>", 2) %>%
+    str_split_i("\\<", 1) %>%
+    str_trim() 
+
+title_remover <- function(x) { 
+  
+title <- str_split_i(x[["table_styling"]][["caption"]], "\\>", 2) %>%
+    str_split_i("\\<", 1) %>%
+    str_trim() 
+
+return(title)
+
+}
+
+title_remover(tbl)
+
+ftbl <- 
+  tbl %>% 
+  modify_caption(title) %>% 
+  as_flex_table()
+
+ftbl <- ftbl %>% set_caption(caption = as_paragraph(as_b(ftbl[["caption"]][["value"]][[1]])), 
+                     fp_p = fp_par(text.align = "left"), 
+                     align_with_table = FALSE)
+
+ftbl
+
+```
+
+<br>
+
+# Huxtable
+
+```{r}
+
+table <- 
+  ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale","atchctr","psppsgva","hincfel"))
+
+table %>% as_hux_xlsx(file = "./Huxtable.xlsx")
+
+h_table <- 
+  table %>% 
+  modify_caption(title_remover(table)) %>%
+  as_hux_table()
+
+table %>% 
+  modify_caption(title_remover(table)) %>%
+  as_hux_xlsx(file = "./Huxtable.xlsx")
+
+```
+
+# B-lochie
+
+```{r}
+
+ess10 %>% names
+
+vars <- c("sclmeet","gincdif")
+vars
+breaks <- c("hincfel","gndr")
+breaks
+
+break_labs <- ess10 %>% select(all_of(breaks)) %>% var_label %>% unlist %>% paste0("**",.,"**")
+
+ess2 <- ess10 %>% 
+  select(all_of(c(vars, breaks))) %>%
+        mutate_at(c(vars, breaks), fct_drop)
+
+map(breaks, ~ess2 %>% .cbreak(outcome = vars, crossbreak = .x)) %>% 
+  tbl_merge(tab_spanner = break_labs)
+
+
+map(breaks, ~ess10 %>% 
+      select(all_of(c(vars, breaks))) %>%
+      mutate_at(c(vars, breaks), fct_drop) %>%  
+      .cbreak(outcome = vars, crossbreak = .x)) %>% 
+  tbl_merge(tab_spanner = break_labs)
+
+
+
+.b_lochie <- function(
+  data, 
+  outcome, 
+  crossbreaks) {
+  
+break_labs <- data %>% select(all_of(crossbreaks)) %>% var_label %>% unlist %>% paste0("**",.,"**")
+
+data_int <- data %>% 
+    select(all_of(c(outcome, crossbreaks))) %>%
+        mutate_at(c(outcome, crossbreaks), fct_drop)
+
+map(breaks, ~data_int %>% .cbreak(outcome = outcome, crossbreak = .x)) %>% 
+  tbl_merge(tab_spanner = break_labs)
+  
+}
+  
+.b_lochie(data = ess10, outcome = vars, crossbreaks = breaks)  
+
+```
+
+<br>
+
+# Export function code
+
+```{r}
+
+.cbreaks
+
+# Write function to a file that can be loaded later....
+writeLines(
+  c(".cbreaks <- ", # Assignment needs to be added manually
+  deparse(.cbreaks)), # Extract function code
+  "./.cbreaks.R") # File name is just the function name 
+
+rm(.cbreaks) # Drop function
+
+source("./.cbreaks.R") # Source saved out function
+
+.cbreaks # Show sourced string
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

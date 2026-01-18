@@ -1,0 +1,171 @@
+---
+title: "Numeric crossbreaks"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+vars <- c("atchctr_num", "stflife_num", "stfgov_num")
+
+```
+
+<br>
+
+## Identify variables to use 
+
+<br>
+
+```{r}
+
+ess10 %>% glimpse
+
+ess10 %>% select(atchctr_num, stflife_num, stfgov_num) %>% var_label()
+
+```
+
+<br>
+
+# Multi line summary - crossbreak function
+
+```{r}
+
+nums2_cbreak <- function(
+    outcomes,
+    predictor,
+    data
+    ) {
+ 
+suppressWarnings({suppressMessages({
+
+  data %>%
+  tbl_summary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes),
+      by = all_of(predictor),
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{sd}", "{median}", "{min} - {max}", "{N_nonmiss}")), 
+      digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "")  
+})})
+  
+}
+
+```
+
+## Example 
+
+```{r}
+
+ess10 %>%  
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  nums2_cbreak(outcomes = vars, predictor = "gndr")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c("nums2_cbreak <- ", # Assignment needs to be added manually
+  deparse(nums2_cbreak)), # Extract function code
+  paste0(ddir,"/nums2_cbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Weighted multi line summary - crossbreak function
+
+```{r}
+
+svy_nums2_cbreak <- function(
+    outcomes,
+    predictor,
+    data
+    ) {
+
+suppressWarnings({suppressMessages({ 
+  
+  data %>%
+  tbl_svysummary(
+      type = all_continuous() ~ "continuous2",
+      include = all_of(outcomes),
+      by = all_of(predictor),
+      missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{mean.std.error}", "{sd}", "{median}",  "{min} - {max}", "{N_nonmiss_unweighted}")), 
+      digits = list(all_continuous() ~ c(1,2,1,1,1,1,0))
+  ) %>% 
+  add_overall(last = T) %>% 
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "") %>% 
+    modify_table_body(
+    ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label)))
+  
+})})
+
+}
+
+```
+
+## Examples 
+
+```{r}
+svy_df %>%
+  mutate(across(all_of("gndr"), ~fct_drop(.x))) %>%
+  svy_nums2_cbreak(outcomes = vars, predictor = "gndr")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c("svy_nums2_cbreak <- ", # Assignment needs to be added manually
+  deparse(svy_nums2_cbreak)), # Extract function code
+  paste0(ddir,"/svy_nums2_cbreak.R")) # File name is just the function name 
+
+```

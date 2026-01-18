@@ -1,0 +1,708 @@
+---
+title: "Multicodes"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+```
+
+<br>
+
+# Load additional binary data
+
+<br>
+
+The code below loads some additional data, for use in multicoded tables. 
+
+```{r}
+
+load("/Users/joecrowley/R/Data/ESS_UK/ESS_UK_R_data_file.RData")
+
+# Use set of variables on location people can access internet from
+ess %>% select(starts_with("acc")) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+# Identify variable names
+int_loc <- ess %>% select(starts_with("acc")) %>% names
+int_loc <- int_loc[3:10]
+int_loc
+
+ess %>% select(all_of(int_loc)) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
+
+ess10 %>% select(ctzcntr, brncntr,feethngr) %>% look_for() %>% convert_list_columns_to_character() %>% flextable
+
+```
+
+<br><br>
+
+# Overview of process
+
+**Some checks**   
+
+ -  all have same base size?
+ -  contains splitter in variable labels? (: )  
+ -  not contains multiple splitters. 
+ 
+**Steps**. 
+
+1. Checks above,  
+2. Relabel variables, store stem
+3. Create unweighted base variable,  
+4. Create vector of variables to use, 
+5. Create table,
+6. Optional, add caption, 
+7. Optional, add CI. 
+
+```{r vars for simple multicode}
+
+ess %>% select(all_of(int_loc)) %>% look_for(details = "none")
+
+```
+
+<br> 
+
+# Checks
+
+## Bases equal
+
+```{r check all variables have same base size}
+
+unique_base_sizes <- 
+  ess %>% 
+  select(all_of(int_loc)) %>% 
+  map_int(., ~sum(is.na(.x))) %>% 
+  unique()
+
+unique_base_sizes
+
+length(unique_base_sizes) == 1
+
+# As function, returns TRUE if equal
+
+bases_equal <- function(
+    df, # data frame
+    vars # character vector of variables
+    ) {
+  
+  unique_base_sizes <- 
+  df %>% 
+  select(all_of(vars)) %>% 
+  map_int(., ~sum(is.na(.x))) %>% 
+  unique()
+
+unique_base_sizes
+
+result <- length(unique_base_sizes) == 1
+
+return(result)
+
+}
+
+bases_equal(ess, int_loc)
+
+```
+
+<br> 
+
+## Labels contain splitter
+
+I combine checks 2 and 3 in the below
+
+```{r check all variable labels contain splitter}
+
+labels_contain_splitter <- 
+  ess %>% 
+  select(all_of(int_loc)) %>%
+  var_label(unlist = T, null_action = "fill") %>% 
+  map_int(., ~str_count(.x, ": "))
+
+labels_contain_splitter
+
+# Check each label contains the splitter
+length(labels_contain_splitter) == sum(labels_contain_splitter)
+
+# Check no label contains the splitter more than once
+max(labels_contain_splitter) == 1
+
+# As a function, returns TRUE if all contain splitter
+splitter_present <- function(
+    df, 
+    vars) { 
+  
+  labels_contain_splitter <- 
+    df %>% 
+    select(all_of(vars)) %>%
+    var_label(unlist = T, null_action = "fill") %>% 
+    map_int(., ~str_count(.x, ": "))
+
+  labels_contain_splitter
+  
+  # Check each label contains the splitter, returns TRUE if they do
+  all_contain_splitter <- length(labels_contain_splitter) == sum(labels_contain_splitter)
+  
+  # Check no label contains the splitter more than once, returns TRUE all equal 1
+  splitter_appears_once_each <- max(labels_contain_splitter) == 1
+  
+  # result is TRUE if both statements equal true. 
+  result <- all_contain_splitter == TRUE & splitter_appears_once_each == TRUE
+  return(result)
+
+}
+
+splitter_present(ess, int_loc)
+
+```
+
+<br> 
+
+## Split variable labels and store stem
+
+```{r split variable labels and store stem}
+
+# Testing data frame
+ess2 <- ess
+
+# Create a list containing the revised variables
+revised_labels_as_list <- 
+  map(int_loc, function(xxx) { 
+  variable_label <- ess %>% select(all_of(xxx)) %>% var_label %>% str_split_i(., ": ", 2)
+  return(variable_label)
+}) 
+names(revised_labels_as_list) <- int_loc # add names
+
+# Revise variable labels
+var_label(ess2) <- revised_labels_as_list
+
+# Review corrected labels...
+ess2 %>% 
+  select(all_of(int_loc)) %>%
+  var_label(unlist = T, null_action = "fill")
+
+# Extract stem - I won't make this a function, it's very simple.
+ess %>% pull(int_loc[1]) %>% var_label() %>% str_split_i(., ": ", 1)
+
+
+# As a function - returns relabelled data frame... 
+revise_labels <- function(
+    df, # data frame
+    vars # character vector of variable names
+    ) {
+  
+  # Create a list containing the revised variables
+  revised_labels_as_list <- 
+    map(vars, function(xxx) { 
+    variable_label <- df %>% select(all_of(xxx)) %>% var_label %>% str_split_i(., ": ", 2)
+    return(variable_label)
+  }) 
+  names(revised_labels_as_list) <- vars # add names
+
+  # Revise variable labels
+  var_label(df) <- revised_labels_as_list
+  return(df)
+  
+}
+
+# Apply function
+ess2 <- revise_labels(ess, int_loc)
+
+# Review corrected labels...
+ess2 %>% 
+  select(all_of(int_loc)) %>%
+  var_label(unlist = T, null_action = "fill")
+
+
+```
+
+<br> 
+
+# Data set up
+
+These functions are just going to expect well managed data. 
+
+You can provide variables which are either:  
+
+- yes / no.  
+- 0 / 1.  
+- TRUE / FALSE   
+
+All variables **must** have those levels, even if not observed for a particular variable. 
+
+```{r data management}
+
+# Variables must be factors, drop unused levels..
+ess3 <- ess %>% 
+  mutate(across(all_of(int_loc), ~fct_drop(to_factor(.x))))
+
+# gtsummary expects yes/no, 0/1 or TRUE/FALSE for dichotomous variables
+ess3$acchome %>% levels # we have 'Not marked' / 'Marked'
+ess3 <- ess3 %>% 
+  mutate(across(all_of(int_loc), ~fct_recode(.x, 
+        "Yes" = "Marked", "No" = "Not marked")))
+
+ess3$acchome %>% levels
+
+# Note they do all need to have the two levels...
+# When adding factor levels remember to use forcats to preserve variable labels
+# If done with factor() variable labels will be dropped. 
+ess3 %>% select(all_of(int_loc)) %>% map(., levels)
+ess3 <- ess3 %>% mutate(across(all_of(int_loc), ~fct_expand(.x, c("Yes", "No")))) 
+ess3 %>%  select(all_of(int_loc)) %>% map(., levels)
+
+var_label(ess %>% select(all_of(int_loc)))
+
+# Age
+ess3 %>% count(age)
+sum(is.na(ess3$age))
+
+ess3 <- ess3 %>% mutate(age30 = fct_drop(to_factor(ageyo30)))
+ess3 %>% count(age30)
+
+# Gender
+ess3 %>% count(gndr)
+sum(is.na(ess3$gndr))
+
+ess3 <- ess3 %>% mutate(gndr2 = fct_drop(to_factor(gndr)))
+ess3 %>% count(gndr2)
+
+# Ethnicity
+ess3 %>% select(contains("pray"))
+ess3 <- ess3 %>% mutate(pray2 = fct_drop(to_factor(pray)))
+ess3 %>% count(pray2)
+```
+
+<br>
+
+# The main function
+
+Applying the function itself. 
+
+```{r simple multicode tables function}
+
+multicodes <- function(
+    
+    df, # data frame 
+    vars, # vars
+    ci = FALSE, # Confidence intervals, set to TRUE
+    caption = "Unweighted percentages", # Replace with caption string
+    breaks = NULL, # character vector of crossbreaks
+    sig = F
+    
+) {
+  
+  # Check variable labels contain ": " and that the base of each variable is equal
+  chk1 <- splitter_present(df, vars)
+  chk2 <- bases_equal(df, vars)
+  
+  # If both checks are TRUE create table
+  if (chk1 == TRUE & chk2 == TRUE) {
+
+  # Add variable reflecting number of non-missing cases
+  df <- df %>% mutate(unweighted_base = case_when(!is.na(df %>% pull(vars[1])) ~ "Unweighted bases", TRUE ~ NA))
+  var_label(df$unweighted_base) <- ""
+
+  # Add unweighted base variable to vector of outcomes
+  var_set <- c(vars, "unweighted_base")
+  
+  # Extract variable labels
+  variable_label_stem <- df %>% pull(vars[1]) %>% var_label() %>% str_split_i(., ": ", 1)
+
+  # Remove stem from variable labels
+  df <- revise_labels(df, vars = vars)
+
+  # Create table
+  tbl <- df %>%
+    tbl_summary(
+      include = all_of(var_set),
+      type = list(unweighted_base ~ "categorical"),
+      missing = "no", 
+      statistic = list(all_dichotomous() ~ "{p}", 
+                        all_categorical() ~ "{p}",
+                        unweighted_base ~ "{n}"), 
+      digits = list(all_dichotomous() ~ 1)
+    ) 
+  
+    # Confidence intervals. 
+  if (ci == TRUE) {
+    tbl <- tbl %>% 
+      add_ci(
+       include = -unweighted_base,
+       statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+       style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1)
+       )
+    }
+  
+  if(!is.null(breaks)){
+    suppressWarnings({suppressMessages({
+    
+     brk_tbls <- map(breaks, 
+        ~df %>%
+          tbl_summary(
+            include = all_of(var_set),
+            by = all_of(.x),
+            type = list(unweighted_base ~ "categorical"),
+            missing = "no", 
+            statistic = list(all_dichotomous() ~ "{p}", 
+                              all_categorical() ~ "{p}",
+                              unweighted_base ~ "{n}"), 
+            digits = list(all_dichotomous() ~ 1)
+          ))
+  
+    if(sig == TRUE){
+      
+      brk_tbls <- map(brk_tbls, 
+                      ~.x %>% 
+          add_p(include = !all_of("unweighted_base"))
+        )
+    } 
+     
+       # Confidence intervals. 
+    if (ci == TRUE) {
+      brk_tbls <- map(brk_tbls, 
+        ~.x %>% 
+          add_ci(
+           include = -unweighted_base,
+           statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+           style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1)
+           )
+        )
+    }
+    
+    brk_tbls <- map2(brk_tbls, breaks, 
+        ~.x %>%
+          modify_spanning_header(
+            all_stat_cols() ~ paste0("**",var_label(df[[.y]]),"**"),
+            # Added to ensure CI + p.value included in spanning headers
+            starts_with("ci_stat") | contains("p.value") ~ paste0("**",var_label(df[[.y]]),"**"), 
+            ) 
+        )
+     
+     tbl <- append(list(tbl), brk_tbls) %>% tbl_merge(tab_spanner = FALSE)
+     
+    })})
+    
+  }
+  
+  # Edit caption when crossbreaks present. 
+  if(!is.null(breaks) & caption == "Unweighted percentages"){
+      caption <- paste0("Crosstabulation of ", variable_label_stem, ". Unweighted percentages.")
+    }
+  
+  tbl <- tbl %>%
+    
+    # Set headers
+    modify_header(all_stat_cols() ~ "**{level}**", 
+                  label ~ paste0("**",variable_label_stem,"**"), 
+                  # stat_0 ~ "**%**"
+                  ) %>% 
+    
+    # Add a caption
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+                        caption,
+                        "</div>")) %>% 
+    
+    # Suppress standard footnotes
+    modify_footnote(all_stat_cols() ~ NA)
+  
+  if (is.null(breaks)){tbl <- tbl %>% modify_header(starts_with("stat_0") ~ "**%**")}
+  
+  return(tbl)
+
+  } else {
+    
+    helpful_error_message <- paste0("Not working: chk1 = ", chk1,", chk2 = ", chk2)
+    return(helpful_error_message)
+    
+  }
+  
+}
+
+```
+
+<br> 
+
+# Examples
+
+## Example 1
+
+```{r}
+multicodes(df = ess3, vars = int_loc)
+```
+
+<br>
+
+## Example 2
+
+```{r}
+multicodes(df = ess3, vars = int_loc, ci = T, caption = "Multicoded table caption") 
+```
+
+<br>
+
+## Example 3
+
+```{r}
+multicodes(df = ess3, vars = int_loc, breaks = c("gndr2"), sig =T)
+
+```
+
+<br>
+
+## Example 4
+
+```{r}
+multicodes(df = ess3, vars = int_loc, breaks = c("gndr2"), ci = T)
+```
+
+<br>
+
+## Example 5
+
+```{r}
+multicodes(df = ess3, vars = int_loc, breaks = c("gndr2","pray2"))
+```
+
+<br>
+
+## Example 6
+
+```{r}
+multicodes(df = ess3, vars = int_loc, breaks = c("gndr2","pray2"), ci =T)
+```
+
+```{r}
+
+writeLines(
+  c("multicodes <- ", # Assignment needs to be added manually
+  deparse(multicodes)), # Extract function code
+  paste0(ddir,"/multicodes.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Weighted multicode
+
+Data set up...
+
+```{r}
+
+svy_df <- ess3 %>% filter(!is.na(anweight)) %>% as_survey_design(weights = anweight)
+
+```
+
+
+```{r}
+
+svy_multicodes <- function(
+    
+    df, # data frame 
+    vars, # vars
+    ci = FALSE, # Confidence intervals, set to TRUE
+    caption = "Unweighted percentages", # Replace with caption string
+    breaks = NULL, # character vector of crossbreaks
+    sig = FALSE
+    
+) {
+  
+  # Check variable labels contain ": " and that the base of each variable is equal
+  chk1 <- splitter_present(df[["variables"]], vars)
+  chk2 <- bases_equal(df[["variables"]], vars)
+  
+  # If both checks are TRUE create table
+  if (chk1 == TRUE & chk2 == TRUE) {
+
+  # Add variable reflecting number of non-missing cases
+  df <- df %>% mutate(unweighted_base = case_when(!is.na(df %>% pull(vars[1])) ~ "Unweighted bases", TRUE ~ NA))
+  var_label(df[["variables"]]$unweighted_base) <- ""
+
+  # Add unweighted base variable to vector of outcomes
+  var_set <- c(vars, "unweighted_base")
+  
+  # Extract variable labels
+  variable_label_stem <- df[["variables"]] %>% pull(vars[1]) %>% var_label() %>% str_split_i(., ": ", 1)
+
+  # Remove stem from variable labels
+  df[["variables"]] <- revise_labels(df[["variables"]], vars = vars)
+
+  # Create table
+  tbl <- df %>%
+    tbl_svysummary(
+      include = all_of(var_set),
+      type = list(unweighted_base ~ "categorical"),
+      missing = "no", 
+      statistic = list(all_dichotomous() ~ "{p}", 
+                        all_categorical() ~ "{p}",
+                        unweighted_base ~ "{n_unweighted}"), 
+      digits = list(all_dichotomous() ~ 1)
+    ) 
+  
+    # Confidence intervals. 
+  if (ci == TRUE) {
+    tbl <- tbl %>% 
+      add_ci(
+       include = -unweighted_base,
+       statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+       style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1)
+       )
+    }
+  
+  if(!is.null(breaks)){
+    suppressWarnings({suppressMessages({
+    
+     brk_tbls <- map(breaks, 
+        ~df %>%
+          filter(!is.na(.data[[.x]])) %>%
+          tbl_svysummary(
+            include = all_of(var_set),
+            by = all_of(.x),
+            type = list(unweighted_base ~ "categorical"),
+            missing = "no", 
+            statistic = list(all_dichotomous() ~ "{p}", 
+                              all_categorical() ~ "{p}",
+                              unweighted_base ~ "{n_unweighted}"), 
+            digits = list(all_dichotomous() ~ 1)
+          ))
+     
+    if(sig == TRUE){
+      
+      brk_tbls <- map(brk_tbls, 
+                      ~.x %>% 
+          add_p(include = !all_of("unweighted_base"))
+        )
+    } 
+     
+       # Confidence intervals. 
+    if (ci == TRUE) {
+      brk_tbls <- map(brk_tbls, 
+        ~.x %>% 
+          add_ci(
+           include = -unweighted_base,
+           statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+           style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1)
+           )
+        )
+    }
+    
+    brk_tbls <- map2(brk_tbls, breaks, 
+        ~.x %>%
+          modify_spanning_header(
+            all_stat_cols() ~ paste0("**",var_label(df[["variables"]][[.y]]),"**"),
+            # Added to ensure CI + p.value included in spanning headers
+            starts_with("ci_stat") | contains("p.value") ~ paste0("**",var_label(df[["variables"]][[.y]]),"**"), 
+            ) 
+        )
+     
+     tbl <- append(list(tbl), brk_tbls) %>% tbl_merge(tab_spanner = FALSE)
+     
+    })})
+    
+  }
+  
+  # Edit caption when crossbreaks present. 
+  if(!is.null(breaks) & caption == "Unweighted percentages"){
+      caption <- paste0("Crosstabulation of ", variable_label_stem, ". Unweighted percentages.")
+    }
+  
+  tbl <- tbl %>%
+    
+    # Set headers
+    modify_header(all_stat_cols() ~ "**{level}**", 
+                  label ~ paste0("**",variable_label_stem,"**"), 
+                  # stat_0 ~ "**%**"
+                  ) %>% 
+    
+    # Add a caption
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+                        caption,
+                        "</div>")) %>% 
+    
+    # Suppress standard footnotes
+    modify_footnote(all_stat_cols() ~ NA)
+  
+  if (is.null(breaks)){tbl <- tbl %>% modify_header(starts_with("stat_0") ~ "**%**")}
+  
+  return(tbl)
+
+  } else {
+    
+    helpful_error_message <- paste0("Not working: chk1 = ", chk1,", chk2 = ", chk2)
+    return(helpful_error_message)
+    
+  }
+  
+}
+
+writeLines(
+  c("svy_multicodes <- ", # Assignment needs to be added manually
+  deparse(svy_multicodes)), # Extract function code
+  paste0(ddir,"/svy_multicodes.R")) # File name is just the function name 
+
+
+```
+
+<br><br>
+
+## Examples
+
+```{r}
+
+svy_multicodes(df = svy_df, vars = int_loc, breaks = c("gndr2","pray2"), ci = F)
+
+```
+
+
+```{r}
+
+svy_multicodes(df = svy_df, vars = int_loc, breaks = c("gndr2"), ci = T, sig = T)
+svy_multicodes(df = svy_df, vars = int_loc[1:5], breaks = c("gndr2"), ci = T, sig = T)
+
+```
+
+
+
+
+
+
+
+
+
+
+
