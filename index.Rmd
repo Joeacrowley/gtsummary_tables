@@ -4,4 +4,20 @@ output: html_document
 date: "2026-01-18"
 ---
 
-I don't know why I need this index page, apparently I do though, fine. Fine. 
+```{r echo=F, include=F, message=F, warning=F}
+library(tidyverse)
+files <- list.files() %>% grep("html", ., value = T) %>% grep("index.html", ., value = T, invert = T)
+
+```
+
+
+# Reports
+
+```{r, results='asis', echo = F}
+
+for(x in files){
+cat(paste0("- [", str_remove_all(x, ".html"), "](",x,")\n"))
+}
+
+```
+
