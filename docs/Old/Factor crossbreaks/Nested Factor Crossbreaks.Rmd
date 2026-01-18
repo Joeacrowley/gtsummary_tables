@@ -1,0 +1,429 @@
+---
+title: "Nested factor crossbreak"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+```
+
+<br>
+
+# Nested crossbreak manual
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+          tbl_summary(
+          include = all_of(vars), 
+          by = gndr,
+          missing = "no", 
+          statistic = list(all_categorical() ~ "{p}"), 
+          digits = list(all_categorical() ~ 0)
+          ) %>% 
+          add_overall(last=TRUE) %>% # non-missing cases for each variable 
+          add_n(last = TRUE) %>%
+          modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                        label ~ "**Variable**",
+                        stat_0 ~ "**Total**") %>% 
+          add_p() %>%
+          bold_labels() %>% 
+            modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+         modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N"),
+          .header = "**{strata}**, N = {n}", 
+      ) 
+
+```
+
+# Nested crossbreak function 
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.gt_ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+
+suppressWarnings({suppressMessages({
+  
+data %>%
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nest}}, 
+      ~.x %>%
+          tbl_summary(
+          include = all_of(outcomes), 
+          by = .data[[predictor]],
+          missing = "no", 
+          statistic = list(all_categorical() ~ "{p}"), 
+          digits = list(all_categorical() ~ 0)
+          ) %>% 
+          add_overall(last=TRUE) %>% # non-missing cases for each variable 
+          add_n(last = TRUE) %>%
+          modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                        label ~ "**Variable**",
+                        stat_0 ~ "**Total**") %>% 
+          add_p() %>%
+          bold_labels() %>% 
+            modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+         modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N"),
+          .header = "**{strata}**, N = {n}", 
+      ) 
+
+})})
+  
+}
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .gt_ncbreak(outcomes = vars, predictor = "gndr", nest = "hincfel")
+  
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".gt_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.gt_ncbreak)), # Extract function code
+  paste0(ddir,"/.gt_ncbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Why are some p-value suppression in nested tables
+
+In the nested tables above some p-values are suppressed, even though these are based on quite a large sample size. Re-running below to see if behaviour is linked to using the tbl_strata function or a feature of how the significance test (Fisher's Exact Test) is calcualted. 
+
+The code below duplicates the problem, indicating it is a feature of Fisher's Exact Test, not a bug in tbl_strata.
+
+```{r}
+
+ess10 %>% 
+  mutate(lrscale = fct_drop(lrscale)) %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(hincfel == "Living comfortably on present income") %>% # Filter NA in nesting variable
+  tbl_summary(include = lrscale, by = gndr) %>% 
+  add_p
+```
+
+<br>
+
+# Proper nested crossbreak manual
+
+Take the code underlying .cbreak(), and nest it within tbl_strata
+
+```{r}
+
+cross_break <- list()
+
+vars <- c("lrscale","atchctr")
+
+for (i in 1:length(vars)) {
+  
+o_var <- vars[i]
+by_var <- c("gndr")
+base_name <- paste0("base_size",i)
+nvar <- "hincfel"
+
+df_tmp <- ess10 %>% 
+  select(all_of(c(vars, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) %>% 
+  mutate(across(all_of(c(vars, by_var, nvar)), ~fct_drop(.x))) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+    tbl_strata(strata = hincfel, 
+  ~.x %>% 
+    tbl_summary(
+      include = all_of(c(o_var, base_name)), 
+      by = .data[[by_var]],
+      missing = "no", 
+      statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+      digits = list(all_categorical() ~ 0)
+      ) %>%
+      add_stat_label(label = {{base_name}} ~ "", location = "column") %>%
+      add_overall(last=TRUE) %>% # non-missing cases for each variable 
+      modify_header(all_stat_cols() ~ "**{level}**", 
+                    label ~ "**Variable**",
+                    stat_0 ~ "**Total**",
+                    stat_label ~ ""
+                    )  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n}"
+    ) # close nested table description
+
+cross_break[[i]] <- perc
+
+}
+
+cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(ess10[[by_var]]),", nested by ", var_label(ess10[[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+```
+
+<br>
+
+# Proper nested crossbreak function
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+.ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+
+suppressWarnings({suppressMessages({
+
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+base_name <- paste0("base_size",i)
+nvar <- nest
+
+df_tmp <- data %>% 
+  select(all_of(c(o_var, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases")) 
+
+var_label(df_tmp[[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%
+    tbl_strata(strata = {{nvar}}, 
+  ~.x %>% 
+    tbl_summary(
+      include = all_of(c(o_var, base_name)), 
+      by = .data[[by_var]],
+      missing = "no", 
+      statistic = list(all_categorical() ~ "{p}", {{base_name}} ~ "{n}"),
+      digits = list(all_categorical() ~ 0)
+      ) %>%
+      add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+      add_overall(last=TRUE) %>% # non-missing cases for each variable 
+      modify_header(all_stat_cols() ~ "**{level}**", 
+                    label ~ "**Variable**",
+                    stat_0 ~ "**Total**",
+                    stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n}"
+    ) # close nested table description
+
+cross_break[[i]] <- perc
+
+}
+
+table <- cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(data[[by_var]]),", nested by ", var_label(data[[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+})})
+
+return(table)
+
+}
+
+ess10 %>% 
+  mutate(across(all_of(c(vars, "gndr", "hincfel")), ~fct_drop(.x))) %>% 
+  .ncbreak(
+  outcomes = vars, 
+  predictor = "gndr", 
+  nest = "hincfel"
+  )
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".ncbreak <- ", # Assignment needs to be added manually
+  deparse(.ncbreak)), # Extract function code
+  paste0(ddir,"/.ncbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Proper nested crossbreak function - weighted
+
+```{r}
+vars <- c("lrscale","atchctr")
+
+.svy_ncbreak <- function(
+  data, 
+  outcomes, 
+  predictor, 
+  nest
+  ) {
+
+suppressWarnings({suppressMessages({
+
+cross_break <- list()
+
+for (i in 1:length(outcomes)) {
+  
+o_var <- outcomes[i]
+by_var <- predictor
+base_name <- paste0("base_size",i)
+nvar <- nest
+
+df_tmp <- data %>% 
+  select(all_of(c(outcomes, by_var, nvar))) %>%
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases"))
+
+var_label(df_tmp[["variables"]][[base_name]]) <- ""
+
+perc <- 
+  df_tmp %>%   
+  tbl_strata(strata = {{nvar}}, 
+  ~.x %>% 
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name)) %>%
+      modify_footnote(all_stat_cols() ~ NA), 
+            .header = "**{strata}**, N = {n_unweighted}"
+    ) # close nested table description 
+
+  # For nested svy tables labels are lost, add manually.
+  perc <- perc %>% 
+    modify_table_body(
+    ~ .x %>%
+      dplyr::mutate(label = case_when(
+        label == o_var ~ var_label(data[["variables"]][[o_var]]),
+        label == base_name ~ " ",
+        TRUE ~ label)
+      ))
+
+cross_break[[i]] <- perc
+
+}
+
+table <- cross_break %>% tbl_stack() %>% 
+  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", 
+                 var_label(data[["variables"]][[by_var]]),", 
+                 nested by ", 
+                 var_label(data[["variables"]][[nvar]]),".",
+                 "</div>")) %>% 
+  # Drop all but first column of percentage labels. 
+  modify_column_hide(contains("stat_label_") & !contains("stat_label_1"))
+
+})})
+  
+return(table)
+
+}
+
+svy_df %>% 
+  mutate(across(all_of(c(vars, "gndr", "hincfel")), ~fct_drop(.x))) %>% 
+  .svy_ncbreak(
+  outcomes = vars, 
+  predictor = "gndr", 
+  nest = "hincfel"
+  ) 
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_ncbreak)), # Extract function code
+  paste0(ddir,"/.svy_ncbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+

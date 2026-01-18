@@ -1,0 +1,275 @@
+---
+title: "Nested numeric crossbreaks"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+vars <- c("atchctr_num", "stflife_num", "stfgov_num")
+
+```
+
+<br>
+
+# Nested - multi line summary - crossbreak
+
+```{r}
+
+ess10 %>% 
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+        tbl_summary(
+        type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+        include = all_of(vars),
+        by = gndr,
+        missing = "no",
+        statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+        digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+    ) %>% 
+    add_overall(last = T) %>% 
+    add_p() %>%
+    bold_labels() %>%
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ ""), 
+        .header = "**{strata}**, N = {n}", 
+  ) %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(ess10[["gndr"]]),", nested by ", var_label(ess10[["hincfel"]]),".",
+                 "</div>"))
+
+```
+
+<br> 
+
+# Nested - weighted multi line summary - crossbreak
+
+```{r}
+
+svy_df %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  filter(!is.na(hincfel)) %>% # Filter NA in nesting variable
+  tbl_strata(strata = hincfel, 
+      ~.x %>%
+            tbl_svysummary(
+          type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+          include = all_of(vars),
+          by = gndr,
+          missing = "no",
+      statistic = list(all_continuous() ~ c("{mean}","{mean.std.error}", "{sd}", "{median}",  "{min} - {max}", "{N_nonmiss_unweighted}")), 
+      digits = list(all_continuous() ~ c(1,2,1,1,1,1,0))
+      ) %>% 
+      add_overall(last = T) %>% 
+      add_p() %>%
+      bold_labels() %>%
+      modify_header(all_stat_cols() ~ "**{level}**", label ~ "")  %>% 
+        modify_table_body(
+        ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label))), 
+        .header = "**{strata}**, N = {n_unweighted}"
+  ) %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>",
+                 "Crosstabulation by ", var_label(svy_df[["variables"]][["gndr"]]),", nested by ", var_label(svy_df[["variables"]][["hincfel"]]),".",
+                 "</div>"))
+
+```
+
+<br>
+
+# Nested - multi line summary crossbreak - function
+
+```{r}
+
+.nums2_ncbreak <- function(
+    outcomes,
+    predictor,
+    data, 
+    nvar, 
+    caption = NULL
+    ) {
+
+suppressWarnings({suppressMessages({
+  
+table <- 
+  data %>% 
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nvar}}, 
+      ~.x %>%
+        tbl_summary(
+        type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+        include = all_of(outcomes),
+        by = all_of(predictor),
+        missing = "no",
+        statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss}")), 
+        digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+    ) %>% 
+    add_overall(last = T) %>% 
+    add_p() %>%
+    bold_labels() %>%
+    modify_header(all_stat_cols() ~ "**{level}**", label ~ ""), 
+        .header = "**{strata}**, N = {n}", 
+  ) 
+
+  if(is.null(caption)) {
+    
+    o_lab <- ""
+    if(length(outcomes) == 1) {o_lab <- paste0("of ", var_label(data[[outcomes]], null_action = "fill"), " ")}
+    capt <- paste0(
+          "<div style='text-align: left; font-weight: bold; color: black'>",
+          "Crosstabulation ", 
+          o_lab,
+          "by ", var_label(data[[predictor]], null_action = "fill"),", nested by ",
+          var_label(data[[nvar]], null_action = "fill"),
+          ".</div>")
+    
+  } else {
+        capt <- caption
+      }
+        
+table <- table %>% modify_caption(capt)
+
+})})
+
+return(table)
+  
+}
+
+ess10 %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .nums2_ncbreak(outcomes = vars, predictor = "gndr", nvar = "hincfel")
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".nums2_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.nums2_ncbreak)), # Extract function code
+  paste0(ddir,"/.nums2_ncbreak.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# Nested - weighted multi line summary - crossbreak - function
+
+```{r}
+
+.svy_nums2_ncbreak <- function(
+    outcomes,
+    predictor,
+    data, 
+    nvar,
+    caption = NULL
+    ) {
+  
+suppressWarnings({suppressMessages({
+
+table <- 
+  data %>% 
+  filter(!is.na(.data[[nvar]])) %>% # Filter NA in nesting variable
+  tbl_strata(strata = {{nvar}}, 
+      ~.x %>%
+            tbl_svysummary(
+          type = list(all_continuous() ~ "continuous2", all_categorical() ~ "continuous2"),
+          include = all_of(outcomes),
+          by = all_of(predictor),
+          missing = "no",
+          statistic = list(all_continuous() ~ c("{mean}","{median}", "{sd}", "{min} - {max}", "{N_nonmiss_unweighted}")), 
+          digits = list(all_continuous() ~ c(1,1,1,1,1,0))
+      ) %>% 
+  add_overall(last = T) %>%
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(all_stat_cols() ~ "**{level}**", label ~ "")
+      %>%
+        modify_table_body(
+        ~ .x %>% dplyr::mutate(label = case_when(label == "N not Missing (unweighted)" ~ "N (unweighted)", TRUE ~ label))),
+        .header = "**{strata}**, N = {n_unweighted}"
+  ) 
+
+  if(is.null(caption)) {
+    
+    o_lab <- ""
+    if(length(outcomes) == 1) {o_lab <- paste0("of ", var_label(svy_df[["variables"]][[outcomes]], null_action = "fill"), " ")}
+    capt <- paste0(
+          "<div style='text-align: left; font-weight: bold; color: black'>",
+          "Crosstabulation ", 
+          o_lab,
+          "by ", var_label(svy_df[["variables"]][[predictor]], null_action = "fill"),", nested by ",
+          var_label(svy_df[["variables"]][[nvar]], null_action = "fill"),
+          ".</div>")
+    
+  } else {
+        capt <- caption
+      }
+        
+table <- table %>% modify_caption(capt)
+
+
+})})
+
+return(table)
+  
+}
+
+svy_df %>%
+  mutate(hincfel = fct_drop(hincfel)) %>%
+  mutate(gndr = fct_drop(gndr)) %>% 
+  .svy_nums2_ncbreak(outcomes = vars, predictor = "gndr", nvar = "hincfel")
+  
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".svy_nums2_ncbreak <- ", # Assignment needs to be added manually
+  deparse(.svy_nums2_ncbreak)), # Extract function code
+  paste0(ddir,"/.svy_nums2_ncbreak.R")) # File name is just the function name 
+
+```
+
+<br>

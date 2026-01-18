@@ -1,0 +1,127 @@
+---
+title: "Testing gtsummary functions"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary/"
+
+# Available files
+# List all .R files in ddir 
+list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir))
+
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+look_for(
+  ess10, 
+  details = "none"
+)
+
+ess10 %>% 
+  select(lrscale, agea, gndr) %>% 
+  look_for()
+
+df <- ess10 %>% 
+  mutate(lrscale2 = fct_drop(to_factor(lrscale, user_na_to_na = T)), 
+         age2 = cut(agea, c(14, 24, 34, 44, 54, 64, 90), 
+                    labels = c("15-24","25-34","35-44","45-54","55-64","65+")), 
+         gender = fct_drop(to_factor(gndr, user_na_to_na = T))
+  )
+var_label(df$age2) <- "Age"
+```
+
+<br>
+
+```{r}
+
+var_set <- c("lrscale2", "age2", "gender")
+
+source(paste0(ddir,".freq.R"))
+.freq
+
+.freq(df, var_set, stat = "{p} ({n})")
+    
+
+```
+
+
+```{r}
+
+var_set <- c("lrscale2", "age2", "gender")
+
+source(paste0(ddir,".cbreak.R"))
+.cbreak
+
+.cbreak(df, outcome = "lrscale2", crossbreak = "age2")
+.cbreak(df, outcome = "lrscale2", crossbreak = "gender")
+
+```
+
+```{r}
+
+var_set <- c("lrscale2", "age2", "gender")
+
+source(paste0(ddir,".ncbreak.R"))
+.ncbreak
+
+.ncbreak(df, outcomes = "lrscale2", predictor  = "age2", nest = "gender")
+
+```
+
+<br> 
+
+```{r}
+
+df <- df %>% mutate(lrscale3 = as.numeric(lrscale2))
+
+source(paste0(ddir,".nums2_ncbreak.R"))
+.nums2_ncbreak
+
+.nums2_ncbreak(df, outcomes = "lrscale3", predictor  = "age2", nvar = "gender")
+
+
+```
+
+
+
+
+
+
+
+
+
+

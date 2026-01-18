@@ -1,0 +1,369 @@
+---
+title: "Frequencies"
+output:  
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+```
+
+<br>
+
+# Frequency table {.tabset}
+
+## Standard gtsummary code  
+
+For one outcome.
+
+```{r}
+
+vars <- c("atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), # adjust to "{n}" for count. 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+  modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+```{r}
+# Note the number of cases valid for atchctr - matches n produced by add_n()
+ess10 %>% count(atchctr) %>% group_by(is.na(atchctr)) %>% mutate(sum_n = sum(n))
+```
+
+<br>
+
+### For multiple outcomes. 
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), # adjust to "{n}" for count. 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+ modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+### Confidence intervals 
+
+```{r}
+
+ess10 %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_summary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), # adjust to "{n}" for count. 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+ modify_footnote(all_stat_cols() ~ "Unweighted percentages. Base size shown in column N") %>% 
+  add_ci(statistic = list(all_categorical() ~ "{conf.low}-{conf.high}"),
+         style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+
+```
+
+<br> 
+
+## A function
+
+```{r}
+
+.freq <- function(data, # a dataframe
+                  variables, # a vector of variable names (prefers, perhaps requires, factors)
+                  stat = "{p}", # character vector for statistic - takes "{n}" and "{p}" 
+                  caption = NULL, # character vector, used if not NULL
+                  ci = NULL # if TRUE then add confidence intervals
+                  ) { 
+
+statistic_label <- ifelse(stat == "{p}", " (%)", "") %>% paste0("**{level}", .,"**")
+footnot_text <- ifelse(stat == "{p}", "Unweighted percentages. Base size shown in column N", "Unweighted count. Base size shown in column N")
+
+if (is.null(caption)) {caption <- ifelse(stat == "{p}", "Unweighted percentages", "Unweighted count")}
+
+ table <- 
+  data %>% 
+  tbl_summary(
+  include = all_of(variables), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ stat), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ statistic_label, label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption,"</div>")) %>%
+  add_n(last=TRUE) %>% # non-missing cases for each variable 
+ modify_footnote(all_stat_cols() ~ footnot_text)
+ 
+ if (!is.null(ci)){
+   
+   table <- table %>% add_ci(statistic = list(all_categorical() ~ "{conf.low}-{conf.high}"),
+         style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+   
+ }
+  
+  return(table)
+  
+}
+
+```
+
+```{r}
+
+ess10 %>% 
+  mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale","atchctr","psppsgva","hincfel"))
+
+ess10 %>% 
+  mutate(across(all_of(c("lrscale")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale"), stat = "{n}", caption = "Unweighted frequencies of left right scale")
+
+```
+
+<br> 
+
+```{r}
+
+ess10 %>% 
+  mutate(across(all_of(c("lrscale")), ~fct_drop(.x))) %>%
+  .freq(c("lrscale"), stat = "{n}", ci = TRUE,
+        caption = "Unweighted frequencies with confidence intervals")
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c(".freq <- ", # Assignment needs to be added manually
+  deparse(.freq)), # Extract function code
+  paste0(ddir,"/.freq.R")) # File name is just the function name 
+
+```
+
+<br><br>
+
+# Weighted frequencies {.tabset}
+
+## Standard code
+
+```{r}
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+svy_df %>% 
+  mutate(across(all_of(vars), ~fct_drop(.x))) %>%
+  tbl_svysummary(
+  include = all_of(vars), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}"), 
+  digits = list(all_categorical() ~ 0)
+  ) %>% 
+  modify_header(all_stat_cols() ~ "**{level} (%)**", label ~ "**Variable**") %>% 
+  bold_labels() %>% 
+    modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+  add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+  modify_footnote(all_stat_cols() ~ "Weighted percentages. Base size shown in column N")
+
+```
+
+<br>
+
+## A function
+
+```{r}
+
+.svy_freq <- function(data, # a survey design object
+                  variables, # a vector of variable names (prefers, perhaps requires, factors)
+                  stat = "{p}", # character vector for statistic - takes "{n}" and "{p}" 
+                  caption = NULL # character vector, used if not NULL
+                  ) { 
+
+statistic_label <- ifelse(stat == "{p}", " (%)", "") %>% paste0("**{level}", .,"**")
+footnot_text <- ifelse(stat == "{p}", "Weighted percentages. Base size shown in column N", "Weighted count. Base size shown in column N")
+if (is.null(caption)) {caption <- ifelse(stat == "{p}", "Weighted percentages", "Weighted count")}
+
+ table <- 
+  data %>% 
+    tbl_svysummary(
+    include = all_of(variables), 
+    missing = "no", 
+    statistic = list(all_categorical() ~ stat), 
+    digits = list(all_categorical() ~ 0)
+    ) %>% 
+    modify_header(all_stat_cols() ~ statistic_label, label ~ "**Variable**") %>% 
+    bold_labels() %>% 
+    modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption,"</div>")) %>%
+    add_n(statistic = "{N_nonmiss_unweighted}", last=TRUE) %>% # non-missing cases for each variable 
+    modify_footnote(all_stat_cols() ~ footnot_text)
+  
+  return(table)
+  
+}
+
+svy_df %>% 
+    mutate(across(all_of(c("lrscale","atchctr","psppsgva","hincfel")), ~fct_drop(.x))) %>%
+  .svy_freq(c("lrscale","atchctr","psppsgva","hincfel"))
+
+
+svy_df %>% 
+  mutate(across(all_of(c("lrscale")), ~fct_drop(.x))) %>%
+  .svy_freq(c("lrscale"), stat = "{n}", caption  = "Weighted counts")
+
+```
+
+<br>
+
+```{r}
+writeLines(
+  c(".svy_freq <- ", # Assignment needs to be added manually
+  deparse(.svy_freq)), # Extract function code
+  paste0(ddir,"/.svy_freq.R")) # File name is just the function name 
+```
+
+<br>
+
+# Multiple frequencies
+
+In my original version I imposed a requirement that all levels be equal, in the end I removed this because it was causing issues with overly strictness - prevening it running when really it was fine to do so. However, it may give odd results. 
+
+```{r}
+
+outcome_vars <- list("stflife", "stfgov")
+
+.mfreq <- function(
+  outcomes, # Vector of outcomes
+  data, # Data frame
+    caption = "Unweighted percentages"
+  ) {
+  
+  # vars <- data %>% select(all_of(unlist(outcomes))) %>% map(., ~unique(levels(.x))) 
+
+# if (Reduce(setequal, vars) == TRUE) {
+
+result <- map(
+  outcomes, 
+  ~ tbl_summary(
+      data = data %>% mutate(across(all_of(.x), ~fct_drop(.x), .names = "the_merging_variable"), 
+                             mutate(across(all_of(.x), ~case_when(!is.na(.x) ~ "Unweighted base"), .names = "base"))) %>% 
+        set_variable_labels(base = " "),
+      include = c(the_merging_variable, base),  
+      statistic = list(all_categorical() ~ "{p}", base ~ "{n}"),
+      label = list(the_merging_variable ~ " "), 
+      missing = "no", 
+      digits = everything() ~ 0
+  ) %>% 
+    modify_header(stat_0 = paste0("**", var_label(data[[.x]]), "**"), label = "") %>% 
+    modify_footnote(everything() ~ NA)
+)
+
+# result[[1]] <- result[[1]] %>% 
+#   add_stat_label(location = "column") %>% 
+#   modify_header(stat_label ~ "")
+
+result <- tbl_merge(result, tab_spanner=F) 
+
+result <- 
+  result %>%
+  modify_table_body(
+    ~ .x %>%
+      dplyr::mutate(row_id = row_number()) %>%
+      dplyr::mutate(across(starts_with("stat_"), ~case_when(row_id == 1 ~ "%", TRUE ~ .x))) %>% 
+      dplyr::select(-row_id) 
+  )
+
+# } else { 
+#   
+#   result <- "Levels don't match"
+#   
+# }
+
+ result <- result %>%  modify_caption(paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+                                 caption, 
+                                 "</div>"))
+  
+ return(result)
+  
+}
+
+tbl <- ess10 %>% .mfreq(outcomes = outcome_vars)
+tbl
+
+
+
+```
+
+<br>
+
+```{r}
+
+writeLines(
+  c(".mfreq <- ", # Assignment needs to be added manually
+  deparse(.mfreq)), # Extract function code
+  paste0(ddir,"/.mfreq.R")) # File name is just the function name 
+
+```

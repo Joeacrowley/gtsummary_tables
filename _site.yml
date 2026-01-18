@@ -4,7 +4,7 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-output_dir: "website_docs"
+output_dir: "docs"
 exclude:
   - Old/
   - "00. Testing / tweaks/"
