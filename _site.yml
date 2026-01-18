@@ -1,0 +1,7 @@
+name: "gtsummary-tables-site"
+navbar:
+  title: "gtsummary tables"
+  left:
+    - text: "Home"
+      href: index.html
+output_dir: "website docs"

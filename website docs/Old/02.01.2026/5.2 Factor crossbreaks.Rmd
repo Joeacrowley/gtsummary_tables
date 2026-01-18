@@ -1,0 +1,518 @@
+---
+title: "Factor crossbreaks"
+output: 
+  html_document:  
+    toc: true   
+    toc_depth: 2  
+    toc_float: true
+toc-title: "Table of Contents"
+---
+
+# Set up
+
+```{r packages, collapse=TRUE}
+library(gtsummary)
+library(tidyverse)
+library(srvyr)
+library(flextable)
+library(officer)
+library(labelled)
+library(rlang)
+```
+
+<br>
+
+Typical theme for gtsummary()
+
+```{r set theme}
+
+# For all I use the compact theme.
+theme_gtsummary_compact()
+
+```
+
+<br>
+
+Load Round 10 UK European Social Survey dataset. 
+
+```{r}
+
+ddir <- "/Users/joecrowley/R/Tables/gtsummary"
+load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+glimpse(ess10)
+
+ess10 <- ess10 %>% mutate(age3 = case_when(agea <= 34 ~ 1, agea <= 54 ~ 2, agea > 54 ~ 3)) %>% 
+  mutate(age3 = factor(age3, levels = c(1,2,3), labels = c("15-34", "35-54", "54+")))
+ess10 %>% count(agea)
+ess10 %>% count(age3)
+var_label(ess10$age3) <- "Age"
+
+vars <- c("lrscale","atchctr")
+ess10 <- ess10 %>% mutate(across(all_of(c(vars, "gndr")), ~fct_drop(.x))) 
+
+ess10 %>% count(prtvtdgb)
+ess10 <- ess10 %>% mutate(prtvtdgb_2 = fct_lump_min(prtvtdgb, min = 30))
+ess10 %>% count(prtvtdgb_2, prtvtdgb)
+var_label(ess10$prtvtdgb_2) <- "Party voted for in last national election, United Kingdom"
+
+svy_df <- ess10 %>% as_survey_design(weights = anweight)
+
+svy_df[["variables"]] %>% count(age3)
+svy_df[["variables"]] %>% count(gndr)
+svy_df[["variables"]] %>% count(lrscale)
+svy_df[["variables"]] %>% count(atchctr)
+svy_df[["variables"]] %>% count(atchctr, age3) %>% pivot_wider(names_from = age3, values_from = n)
+
+# List all .R files in ddir 
+file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = TRUE, all.files = T) %>% 
+  map_chr(., ~str_remove(.x, ddir))
+
+file_paths
+
+# Load support functions 
+source(paste0(ddir,"/base_information.R"))
+source(paste0(ddir,"/create_bases.R"))
+source(paste0(ddir,"/prepare_base_for_table.R"))
+source(paste0(ddir,"/gtsummary_table_notes.R"))
+
+```
+
+<br> 
+
+# cbreak interim
+
+NatCen style bases as a function
+
+```{r}
+
+cbreak_interim <- 
+  function(
+    data, # dataframe
+    outcome,  # character vector
+    crossbreak, # character vector - length 1
+    ci = FALSE # set to TRUE for CI
+    ){
+    
+    # Lists to contain table outputs
+    cross_break <- list()
+    bases <- list()
+    
+    # Loop over vector of outcomes
+    for (i in 1:length(outcome)) {
+      
+      o_var <- outcome[i]
+      by_var <- crossbreak
+      base_name <- paste0("base_size",i)
+      o_lab <- paste0(var_label(data[o_var], null_action = "fill"))
+      
+      df_tmp <- data %>% 
+        select(all_of(c(outcome, by_var))) %>%
+        mutate(!!base_name := case_when(is.na(across(all_of(by_var))) ~ NA, is.na(across(all_of(o_var))) ~ NA, TRUE ~ o_lab)) 
+      
+      var_label(df_tmp[[base_name]]) <- ""
+      
+      if(base_name == "base_size1"){var_label(df_tmp[[base_name]]) <- "Unweighted sample sizes"}
+      
+      perc <- 
+        df_tmp %>%
+        tbl_summary(
+          include = all_of(c(o_var)), 
+          by = .data[[by_var]],
+          missing = "no", 
+          statistic = list(all_categorical() ~ "{p}"),
+          digits = list(all_categorical() ~ 0)
+        ) %>%
+        # add_stat_label(location = "column") %>% 
+        add_overall(last=F) %>% # non-missing cases for each variable 
+        modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                      label ~ "**Variable**",
+                      stat_0 ~ "**Total (%)**",
+                      # stat_label ~ ""
+                      )  %>%
+        bold_labels() %>% 
+        add_p()
+      
+      base_of_table <- 
+        df_tmp %>%
+        tbl_summary(
+          include = all_of(base_name), 
+          by = .data[[by_var]],
+          missing = "no", 
+          statistic = list({{base_name}} ~ "{n}"),
+          digits = list(all_categorical() ~ 0)
+        ) %>%
+        # add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+        add_overall(last=F) %>% # non-missing cases for each variable 
+        modify_header(all_stat_cols() ~ "**{level} (%)**", 
+                      label ~ "**Variable**",
+                      stat_0 ~ "**Total (%)**",
+                      # stat_label ~ ""
+                      )  %>%
+        bold_labels() 
+      
+      if (ci == TRUE) {
+        perc <- perc %>% 
+          add_ci(
+            statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+            style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+      }
+      
+      cross_break[[i]] <- perc
+      bases[[i]] <- base_of_table
+      
+    }
+    
+    table <- 
+      append(cross_break, bases) %>% tbl_stack() %>% 
+      modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Unweighted percentages</div>") %>%
+      modify_footnote(all_stat_cols() ~ NA) %>%
+      modify_spanning_header(
+        all_stat_cols() ~ paste0("**",var_label(data[[by_var]]),"**"),
+        starts_with("ci_stat") ~ paste0("**",var_label(data[[by_var]]),"**"), # Added to ensure CI included in spanning headers
+        ends_with("_0") ~ NA) # suppress spanning header on total column
+    
+    # Identify number of header row starting bases
+    base_break_row <- which(table[["table_body"]] %>% pull(label) == "Unweighted sample sizes")
+    
+    # Remove label rows for bases after base 1.
+    table <- table %>% modify_table_body(
+      ~ .x %>%
+        filter(!(grepl("base_size([2-9]|[1-9][0-9]|100)", variable, ignore.case = T) & label == "")) %>%
+        # Old line just did up to 10 bases... 
+        # filter(!(grepl("^base_size([2-9]|10)$", variable, ignore.case = T) & label == "")) %>%
+        add_row(.before = base_break_row) # Add break between bases and main table
+    )
+    
+    return(table)
+    
+  }
+
+```
+
+<br> 
+
+## Examples
+
+### Example 1
+
+```{r}
+
+ess10 %>% cbreak_interim(outcome = vars, crossbreak = "gndr")
+
+```
+
+### Example 2
+
+```{r}
+
+ess10 %>% cbreak_interim(outcome = vars, crossbreak = "gndr", ci = T) 
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c("cbreak_interim <- ", # Assignment needs to be added manually
+  deparse(cbreak_interim)), # Extract function code
+  paste0(ddir,"/cbreak_interim.R")) # File name is just the function name 
+
+```
+
+<br>
+
+# cbreaks final
+
+```{r}
+
+break_vars <- c("gndr", "age3")
+
+cbreaks <- function(
+    data, # dataframe
+    outcomes,  # character vector
+    crossbreaks, # character vector - length 1
+    ci = FALSE, # set to TRUE for CI
+    bases = NULL, # The object with base descriptions (from base_information() function)
+    source = NULL, # A string describing the data source
+    footnotes = NULL # Other character strings as footnotes, each on its own line. 
+  ){
+
+tables_int <- map(crossbreaks, ~data %>% cbreak_interim(outcome = outcomes, crossbreak = .x, ci = ci))
+
+if(length(tables_int) > 1){
+  
+  for(i in 2:length(tables_int)){
+    
+    tables_int[[i]] <- tables_int[[i]] %>% modify_table_body(~.x %>% select(!contains("stat_0")) %>% select(!contains("stat_label"))) 
+    
+  }
+  
+}
+
+variable_labels <- data %>% select(all_of(crossbreaks)) %>% var_label(unlist = T) %>% paste0("**", ., "**")
+
+tables <- tbl_merge(tables_int, tab_spanner = variable_labels) %>% 
+  modify_spanning_header(contains("stat_label") ~ NA, contains("stat_0") ~ NA)
+
+footnotes <- gtsummary_table_notes(
+  bases_info = bases, 
+  vars = c(outcomes, crossbreaks), 
+  source_note = source, 
+  other_footnotes = footnotes
+)
+
+if (footnotes != ""){
+  tables <- tables %>% modify_source_note(
+  source_note = footnotes, 
+  text_interpret = "html")
+  }
+
+return(tables)
+
+}
+
+```
+
+<br>
+
+## Example
+
+```{r}
+
+var_descriptions <- 
+  c(
+    prtvtdgb_2 = "Asked only of those who voted in last election"
+  )
+
+var_descriptions
+
+example_of_base_information <- base_information(
+  data = ess10,
+  general_base = "Asked of all respondents", 
+  specific_bases = var_descriptions
+)
+
+cbreaks(data = ess10, 
+        outcomes = vars, 
+        crossbreaks = break_vars, 
+        ci = F, 
+        bases = example_of_base_information,
+        source = "European Social Survey", 
+        footnotes = "The p-values in Age are suppressed due to too many low cell counts.")
+
+cbreaks(data = ess10, 
+        outcomes = "prtvtdgb_2", 
+        crossbreaks = break_vars, 
+        ci = F, 
+        bases = example_of_base_information,
+        source = "European Social Survey")
+
+writeLines(
+  c("cbreaks <- ", # Assignment needs to be added manually
+  deparse(cbreaks)), # Extract function code
+  paste0(ddir,"/cbreaks.R")) # File name is just the function name 
+
+```
+
+<br><br>
+
+# svy_cbreak interim
+
+NatCen style bases as a function + weights
+
+Note, have to produce total estimate separate to crossbreak estimate or function crashes, see below. Weird. Surely this can't be right?
+
+```{r, error=T}
+
+svy_df %>% 
+  tbl_svysummary(include = lrscale, by = age3)
+
+```
+
+<br> 
+
+The function..., accounting for issue above. 
+
+```{r}
+
+vars <- c("lrscale","atchctr")
+
+# data <- svy_df
+# outcome <- vars
+# crossbreak <- "age3"
+
+svy_cbreak_interim <- 
+  function(data, # survey design object
+         outcome,  # character vector
+         crossbreak, # character vector - length 1
+         ci = FALSE # set to TRUE for CI
+  ){
+
+cross_break <- list()
+
+for (i in 1:length(outcome)) {
+  
+o_var <- outcome[i]
+by_var <- crossbreak
+base_name <- paste0("base_size",i)
+
+df_tmp <- data %>% 
+  select(all_of(c(o_var, by_var))) %>%
+  mutate(!!base_name := case_when(is.na(.data[[by_var]]) ~ NA, is.na(.data[[o_var]]) ~ NA, TRUE ~ "Unweighted bases"))
+
+var_label(df_tmp[["variables"]][[base_name]]) <- ""
+
+perc_break <- 
+  df_tmp %>%
+  filter(!is.na(.data[[by_var]])) %>%
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  by = .data[[by_var]],
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  # add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**")  %>%
+  bold_labels() %>% 
+  add_p(include = !all_of(base_name))
+
+perc_total <- df_tmp %>%
+  tbl_svysummary(
+  include = all_of(c(o_var, base_name)), 
+  missing = "no", 
+  statistic = list(all_categorical() ~ "{p}", base_name ~ "{n_unweighted}"),
+  digits = list(all_categorical() ~ 0)
+  ) %>%
+  add_stat_label(label = {{base_name}} ~ "", location = "column") %>% 
+  # add_overall(last=TRUE) %>% # non-missing cases for each variable 
+  modify_header(all_stat_cols() ~ "**{level}**", 
+                label ~ "**Variable**",
+                stat_0 ~ "**Total**",
+                stat_label ~ "")  %>%
+  bold_labels()
+
+if (ci == TRUE) {
+perc_total <- perc_total %>% 
+   add_ci(
+     include = -base_name,
+     statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+     style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+
+perc_break <- perc_break %>% 
+   add_ci(
+     include = -base_name,
+     statistic = list(all_categorical() ~ "[{conf.low} - {conf.high}]"),
+     style_fun = all_categorical() ~ label_style_sigfig(scale = 100, digits = 1))
+}
+
+perc <- tbl_merge(list(perc_total, perc_break), tab_spanner = F)
+
+cross_break[[i]] <- perc
+
+}
+
+table <- 
+  cross_break %>% tbl_stack() %>% 
+  modify_caption("<div style='text-align: left; font-weight: bold; color: black'> Weighted percentages</div>") %>%
+  modify_footnote(all_stat_cols() ~ "Weighted percentages. Unweighted base sizes shown below each table. ") %>%
+  modify_spanning_header(
+    all_stat_cols() ~ paste0("**",var_label(svy_df[["variables"]][[by_var]]),"**"),
+    starts_with("ci_stat") ~ paste0("**",var_label(svy_df[["variables"]][[by_var]]),"**"), # Added to ensure CI included in spanning headers
+    ends_with("_0") ~ NA) # suppress spanning header on total column
+
+return(table)
+
+}
+
+```
+
+<br> 
+
+## Examples
+
+### Example 1
+
+```{r}
+
+svy_df %>% svy_cbreak_interim(outcome = vars, crossbreak = "gndr")
+
+svy_df %>% 
+  filter(!is.na(age3)) %>%
+  svy_cbreak_interim(outcome = vars, crossbreak = "age3")
+
+```
+
+### Example 2
+
+```{r}
+
+svy_df %>% svy_cbreak_interim(outcome = vars, crossbreak = "gndr", ci =T)
+
+```
+
+<br> 
+
+```{r}
+
+writeLines(
+  c("svy_cbreak_interim <- ", # Assignment needs to be added manually
+  deparse(svy_cbreak_interim)), # Extract function code
+  paste0(ddir,"/svy_cbreak_interim.R")) # File name is just the function name 
+
+```
+
+<br> 
+
+# svy_cbreaks final
+
+```{r}
+
+break_vars <- c("gndr", "age3")
+
+svy_cbreaks <- function(
+    data, # dataframe
+    outcomes,  # character vector
+    crossbreaks, # character vector - length 1
+    ci = FALSE # set to TRUE for CI
+  ){
+
+tables_int <- map(crossbreaks, ~data %>% svy_cbreak_interim(outcome = outcomes, crossbreak = .x, ci = ci))
+
+if(length(tables_int) > 1){
+  
+  for(i in 2:length(tables_int)){
+    
+    tables_int[[i]] <- tables_int[[i]] %>% modify_table_body(~.x %>% select(!contains("stat_0")) %>% select(!contains("stat_label"))) 
+    
+  }
+  
+}
+
+variable_labels <- data[["variables"]] %>% select(all_of(crossbreaks)) %>% var_label(unlist = T) %>% paste0("**", ., "**")
+
+tables <- tbl_merge(tables_int, tab_spanner = variable_labels) %>% 
+  modify_spanning_header(contains("stat_label") ~ NA, contains("stat_0") ~ NA) 
+
+return(tables)
+
+}
+
+```
+
+<br> 
+
+## Example 
+
+```{r}
+
+svy_cbreaks(data = svy_df, outcomes = vars, crossbreaks = break_vars, ci = F)
+
+writeLines(
+  c("svy_cbreaks <- ", # Assignment needs to be added manually
+  deparse(svy_cbreaks)), # Extract function code
+  paste0(ddir,"/svy_cbreaks.R")) # File name is just the function name 
+
+```
