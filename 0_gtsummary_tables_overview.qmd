@@ -60,7 +60,7 @@ tables
 
 <br> 
 
-## Sourcing functions
+### Sourcing functions
 
 ```{r}
 source_gtsummary_helpers <- function(
