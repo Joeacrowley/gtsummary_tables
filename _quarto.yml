@@ -1,0 +1,26 @@
+project:
+  type: book
+
+book:
+  title: "gtsummary tables"
+  author: "Joe Crowley"
+  chapters:
+    - index.qmd
+    - 0_gtsummary_tables_overview.qmd
+    - 1_Notes_about_gtsummary.qmd
+    - 2_Adding_footnotes.qmd
+    - 3_Add_results_to_Excel.qmd
+    - 4_General_tables.qmd
+    - 5_Nested_tables.qmd
+    - 6_Multicode_tables.qmd
+    - 7_Nested_multicode_tables.qmd
+    - "8_Stack multiple_totals_tables.qmd"
+    - "9_Trialled_long_nested_tables (underlying function cannot yet do survey data).qmd"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 4
+    page-layout: full
+    css: dense-notes.css

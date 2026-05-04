@@ -1,0 +1,23 @@
+---
+title: "index"
+date: "2026-01-18"
+---
+
+```{r echo=F, include=F, message=F, warning=F}
+library(tidyverse)
+files <- list.files() %>% grep("html", ., value = T) %>% grep("index.html", ., value = T, invert = T)
+
+```
+
+
+## Reports
+
+```{r, results='asis', echo = F}
+
+for(x in files){
+cat(paste0("- [", str_remove_all(x, ".html"), "](",x,")\n"))
+}
+
+```
+
+
