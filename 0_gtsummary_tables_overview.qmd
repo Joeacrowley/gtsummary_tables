@@ -60,9 +60,9 @@ tables
 
 <br> 
 
-### Sourcing functions
+### Sourcing functions from GitHub
 
-```{r}
+```{r, error =T}
 source_gtsummary_helpers <- function(
     repo = "Joeacrowley/gtsummary_tables",
     ref  = "main") {
@@ -79,6 +79,27 @@ source_gtsummary_helpers <- function(
 
 source_gtsummary_helpers()
 
+```
+
+<br>
+
+### Sourcing functions at work
+
+```{r}
+load_gtsummary_fns <- function(
+    ddir = "F:/Github/gtsummary_tables/",
+    exclude_pattern = "_interim",
+    verbose = TRUE
+) {
+  file_paths <- list.files(path = ddir, pattern = "\\.R$", full.names = FALSE, all.files = TRUE) %>%
+    grep(exclude_pattern, ., value = TRUE, invert = TRUE)
+  
+  if (verbose) message("Loading ", length(file_paths), " file(s):\n", paste0("  ", file_paths, collapse = "\n"))
+  
+  map(file_paths, ~source(paste0(ddir, .x)))
+  
+  invisible(file_paths)
+}
 ```
 
 
