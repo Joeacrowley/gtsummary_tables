@@ -262,39 +262,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="4.1" class="anchored" data-anchor-id="set-up"><span class="header-section-number">4.1</span> Set up</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Easiest to copy all these packages into a script using these functions</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ dplyr     1.1.4     ✔ readr     2.1.5</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ forcats   1.0.0     ✔ stringr   1.5.1</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ ggplot2   4.0.0     ✔ tibble    3.2.1</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ purrr     1.0.4     </span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## ✖ dplyr::filter() masks stats::filter()</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## ✖ dplyr::lag()    masks stats::lag()</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(huxtable)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## Attaching package: 'huxtable'</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## here() starts at /Users/joecrowley/R/gtsummary_tables</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ dplyr     1.1.4     ✔ readr     2.1.5</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ forcats   1.0.0     ✔ stringr   1.5.1</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ ggplot2   4.0.0     ✔ tibble    3.2.1</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## ✔ purrr     1.0.4</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## ✖ dplyr::filter() masks stats::filter()</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## ✖ dplyr::lag()    masks stats::lag()</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(huxtable)</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:dplyr':</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## Attaching package: 'huxtable'</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">##     add_rownames</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:dplyr':</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:ggplot2':</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">##     add_rownames</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">##     theme_grey</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## Attaching package: 'srvyr'</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:ggplot2':</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">##     theme_grey</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(srvyr)</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:stats':</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## Attaching package: 'srvyr'</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="do">##     filter</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="do">## The following object is masked from 'package:stats':</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">##     filter</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><br></p>
 <p>Typical theme for gtsummary()</p>
@@ -309,39 +311,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Load Round 10 UK European Social Survey dataset.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load BSA teaching data</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">'/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav'</span>, <span class="at">user_na =</span> T)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"synthetic_bsa2019.rds"</span>))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(skipmeal, RSex, HEdQual3), <span class="sc">~</span><span class="fu">fct_drop</span>(<span class="fu">to_factor</span>(.x, <span class="at">user_na_to_na =</span> T))))</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 3,224
 Columns: 26
-$ Sserial          &lt;dbl+lbl&gt; 310001, 310002, 310003, 310004, 310005, 310006, 3…
-$ WtFactor         &lt;dbl+lbl&gt; 0.9119594, 0.4439626, 1.2182741, 1.5839969, 0.474…
-$ RSex             &lt;fct&gt; Female, Female, Female, Male, Male, Male, Male, Femal…
-$ RAgeCat          &lt;dbl+lbl&gt; 6, 3, 4, 2, 6, 4, 2, 4, 4, 1, 7, 1, 7, 3, 3, 7, 7…
-$ eq_inc_quintiles &lt;dbl+lbl&gt; -1,  5, -1,  4, -1,  1,  5, -1, -1, -1, -1,  2, -…
-$ RClassGp         &lt;dbl+lbl&gt; 1, 1, 1, 1, 5, 3, 1, 1, 1, 5, 3, 5, 5, 1, 3, 2, 1…
-$ HEdQual3         &lt;fct&gt; Higher educ below degree/A level, Higher educ below d…
-$ Married          &lt;dbl+lbl&gt; 1, 2, 1, 4, 4, 1, 4, 1, 1, 4, 1, 4, 4, 1, 1, 1, 3…
-$ ChildHh          &lt;dbl+lbl&gt; 2, 2, 1, 2, 2, 1, 2, 1, 1, 2, 2, 2, 1, 2, 1, 2, 2…
-$ skipmeal         &lt;fct&gt; NA, Never, NA, NA, Never, NA, Never, Never, Never, NA…
-$ paptype          &lt;dbl+lbl&gt; 0, 0, 0, 0, 0, 0, 0, 2, 4, 0, 1, 0, 1, 0, 0, 1, 1…
-$ SMNews           &lt;dbl+lbl&gt; 8, 1, 2, 2, 8, 3, 1, 4, 8, 8, 8, 7, 8, 8, 3, 8, 1…
-$ PartyId2         &lt;dbl+lbl&gt; 8, 8, 4, 2, 3, 2, 2, 8, 3, 8, 1, 5, 2, 5, 3, 8, 2…
-$ Politics         &lt;dbl+lbl&gt; 4, 3, 4, 3, 5, 3, 1, 1, 1, 5, 1, 4, 3, 3, 3, 2, 3…
-$ SocTrust         &lt;dbl+lbl&gt;  1, -1,  2,  1, -1,  2, -1, -1, -1,  2, -1, -1,  …
-$ Spend1           &lt;dbl+lbl&gt;  3, -1,  3,  3, -1,  9, -1, -1, -1,  3, -1, -1,  …
-$ Dole             &lt;dbl+lbl&gt; 3, 2, 2, 3, 2, 2, 1, 8, 2, 2, 3, 1, 3, 1, 2, 3, 2…
-$ TaxSpend         &lt;dbl+lbl&gt; 3, 3, 2, 3, 3, 2, 3, 3, 3, 2, 3, 3, 2, 3, 3, 2, 3…
-$ MuchPov          &lt;dbl+lbl&gt; 8, 2, 2, 2, 1, 1, 2, 2, 2, 8, 1, 2, 1, 2, 2, 2, 1…
-$ Poverty1         &lt;dbl+lbl&gt; 2, 2, 2, 2, 2, 1, 1, 1, 1, 8, 2, 2, 1, 1, 2, 1, 8…
-$ Poverty2         &lt;dbl+lbl&gt; 1, 2, 2, 1, 1, 1, 1, 1, 1, 8, 2, 1, 1, 1, 2, 1, 1…
-$ NatFrEst         &lt;dbl+lbl&gt;   5,  30,  50,  50,  50,  10,   1, 998,   5,  50,…
-$ incdiffs         &lt;dbl+lbl&gt; -1,  2, -1, -1,  4, -1,  2,  1,  1, -1,  3,  2, -…
-$ welfare2         &lt;dbl+lbl&gt;  2.500000,  3.125000,  3.125000,  2.250000,  3.37…
-$ leftrigh         &lt;dbl+lbl&gt;  2.4,  2.0,  2.2,  3.2,  1.6,  1.8,  2.4,  2.0,  …
-$ libauth          &lt;dbl+lbl&gt;  3.500000,  3.833333,  4.166667,  2.166667,  4.66…</code></pre>
+$ Sserial          &lt;dbl&gt; 312609, 312369, 311177, 311098, 311252, 313218, 31063…
+$ WtFactor         &lt;dbl&gt; 0.7469367, 1.3365985, 0.5831692, 0.6726622, 1.2260390…
+$ RSex             &lt;fct&gt; Male, Male, Female, Female, Male, Male, Male, Male, F…
+$ RAgeCat          &lt;fct&gt; 65+, 35-44, 65+, 65+, 35-44, 35-44, 65+, 25-34, 65+, …
+$ eq_inc_quintiles &lt;fct&gt; NA, NA, NA, "3rd quintile - More than £269, up to £39…
+$ RClassGp         &lt;fct&gt; Employers in small org; own account workers, Manageri…
+$ HEdQual3         &lt;fct&gt; No qualification, Degree, No qualification, No qualif…
+$ Married          &lt;fct&gt; Married/living as married, Married/living as married,…
+$ ChildHh          &lt;fct&gt; No, No, No, No, Yes, Yes, No, Yes, No, No, Yes, Yes, …
+$ skipmeal         &lt;fct&gt; NA, NA, NA, NA, Never, Never, NA, NA, Never, Less tha…
+$ paptype          &lt;fct&gt; No paper, Quality (inc regional), Popular, No paper, …
+$ SMNews           &lt;fct&gt; Never, Never, Never, Never, Never, Every day, Never, …
+$ PartyId2         &lt;fct&gt; Conservative, None, Conservative, Conservative, Labou…
+$ Politics         &lt;fct&gt; "quite a lot,", "quite a lot,", "not very much,", "qu…
+$ SocTrust         &lt;fct&gt; NA, Most people can be trusted, Can`t be too careful …
+$ Spend1           &lt;fct&gt; NA, Housing, Health, Help for industry, NA, NA, NA, H…
+$ Dole             &lt;fct&gt; "(Neither)", "(Neither)", "(Neither)", "(Neither)", "…
+$ TaxSpend         &lt;fct&gt; "Keep taxes and spending on these services at the sam…
+$ MuchPov          &lt;fct&gt; "... that there is very little real poverty in Britai…
+$ Poverty1         &lt;fct&gt; Was in poverty, Was not, Was not, Was not, Was not, W…
+$ Poverty2         &lt;fct&gt; Was not, Was in poverty, Was in poverty, Was not, Was…
+$ NatFrEst         &lt;dbl&gt; 40, 20, 20, 60, 45, 66, 15, 75, 20, 40, 99, 10, 1, 60…
+$ incdiffs         &lt;fct&gt; NA, NA, NA, NA, "Strongly agree", "Neither agree nor …
+$ welfare2         &lt;dbl&gt; NA, 3.000000, NA, NA, 2.875000, 3.000000, NA, 3.00000…
+$ leftrigh         &lt;dbl&gt; NA, 2.6, NA, NA, 1.6, 2.6, NA, 1.4, 2.2, 2.8, 1.0, 3.…
+$ libauth          &lt;dbl&gt; NA, 2.500000, NA, NA, 4.166667, 3.833333, NA, 3.50000…</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>svy_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">as_survey_design</span>(<span class="at">weights =</span> WtFactor)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -422,23 +424,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tbl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="qilyfeegcx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#qilyfeegcx table {
+<div id="jnbxcsdotq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#jnbxcsdotq table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#qilyfeegcx thead, #qilyfeegcx tbody, #qilyfeegcx tfoot, #qilyfeegcx tr, #qilyfeegcx td, #qilyfeegcx th {
+#jnbxcsdotq thead, #jnbxcsdotq tbody, #jnbxcsdotq tfoot, #jnbxcsdotq tr, #jnbxcsdotq td, #jnbxcsdotq th {
   border-style: none;
 }
 
-#qilyfeegcx p {
+#jnbxcsdotq p {
   margin: 0;
   padding: 0;
 }
 
-#qilyfeegcx .gt_table {
+#jnbxcsdotq .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -464,12 +466,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_caption {
+#jnbxcsdotq .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#qilyfeegcx .gt_title {
+#jnbxcsdotq .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -481,7 +483,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#qilyfeegcx .gt_subtitle {
+#jnbxcsdotq .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -493,7 +495,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#qilyfeegcx .gt_heading {
+#jnbxcsdotq .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -505,13 +507,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_bottom_border {
+#jnbxcsdotq .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_col_headings {
+#jnbxcsdotq .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -526,7 +528,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_col_heading {
+#jnbxcsdotq .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -546,7 +548,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#qilyfeegcx .gt_column_spanner_outer {
+#jnbxcsdotq .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -558,15 +560,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#qilyfeegcx .gt_column_spanner_outer:first-child {
+#jnbxcsdotq .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#qilyfeegcx .gt_column_spanner_outer:last-child {
+#jnbxcsdotq .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#qilyfeegcx .gt_column_spanner {
+#jnbxcsdotq .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -578,11 +580,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#qilyfeegcx .gt_spanner_row {
+#jnbxcsdotq .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#qilyfeegcx .gt_group_heading {
+#jnbxcsdotq .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -608,7 +610,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#qilyfeegcx .gt_empty_group_heading {
+#jnbxcsdotq .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -623,15 +625,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#qilyfeegcx .gt_from_md > :first-child {
+#jnbxcsdotq .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#qilyfeegcx .gt_from_md > :last-child {
+#jnbxcsdotq .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#qilyfeegcx .gt_row {
+#jnbxcsdotq .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -650,7 +652,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#qilyfeegcx .gt_stub {
+#jnbxcsdotq .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -663,7 +665,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#qilyfeegcx .gt_stub_row_group {
+#jnbxcsdotq .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -677,15 +679,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#qilyfeegcx .gt_row_group_first td {
+#jnbxcsdotq .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#qilyfeegcx .gt_row_group_first th {
+#jnbxcsdotq .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#qilyfeegcx .gt_summary_row {
+#jnbxcsdotq .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -695,16 +697,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#qilyfeegcx .gt_first_summary_row {
+#jnbxcsdotq .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_first_summary_row.thick {
+#jnbxcsdotq .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#qilyfeegcx .gt_last_summary_row {
+#jnbxcsdotq .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -714,7 +716,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_grand_summary_row {
+#jnbxcsdotq .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -724,7 +726,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#qilyfeegcx .gt_first_grand_summary_row {
+#jnbxcsdotq .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -734,7 +736,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_last_grand_summary_row_top {
+#jnbxcsdotq .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -744,11 +746,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_striped {
+#jnbxcsdotq .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#qilyfeegcx .gt_table_body {
+#jnbxcsdotq .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -757,7 +759,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_footnotes {
+#jnbxcsdotq .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -771,7 +773,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_footnote {
+#jnbxcsdotq .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -780,7 +782,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#qilyfeegcx .gt_sourcenotes {
+#jnbxcsdotq .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -794,7 +796,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#qilyfeegcx .gt_sourcenote {
+#jnbxcsdotq .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -802,72 +804,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#qilyfeegcx .gt_left {
+#jnbxcsdotq .gt_left {
   text-align: left;
 }
 
-#qilyfeegcx .gt_center {
+#jnbxcsdotq .gt_center {
   text-align: center;
 }
 
-#qilyfeegcx .gt_right {
+#jnbxcsdotq .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#qilyfeegcx .gt_font_normal {
+#jnbxcsdotq .gt_font_normal {
   font-weight: normal;
 }
 
-#qilyfeegcx .gt_font_bold {
+#jnbxcsdotq .gt_font_bold {
   font-weight: bold;
 }
 
-#qilyfeegcx .gt_font_italic {
+#jnbxcsdotq .gt_font_italic {
   font-style: italic;
 }
 
-#qilyfeegcx .gt_super {
+#jnbxcsdotq .gt_super {
   font-size: 65%;
 }
 
-#qilyfeegcx .gt_footnote_marks {
+#jnbxcsdotq .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#qilyfeegcx .gt_asterisk {
+#jnbxcsdotq .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#qilyfeegcx .gt_indent_1 {
+#jnbxcsdotq .gt_indent_1 {
   text-indent: 5px;
 }
 
-#qilyfeegcx .gt_indent_2 {
+#jnbxcsdotq .gt_indent_2 {
   text-indent: 10px;
 }
 
-#qilyfeegcx .gt_indent_3 {
+#jnbxcsdotq .gt_indent_3 {
   text-indent: 15px;
 }
 
-#qilyfeegcx .gt_indent_4 {
+#jnbxcsdotq .gt_indent_4 {
   text-indent: 20px;
 }
 
-#qilyfeegcx .gt_indent_5 {
+#jnbxcsdotq .gt_indent_5 {
   text-indent: 25px;
 }
 
-#qilyfeegcx .katex-display {
+#jnbxcsdotq .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#qilyfeegcx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#jnbxcsdotq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -909,51 +911,51 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">84.9</td>
-<td class="gt_row gt_center" headers="stat_1">84.3</td>
-<td class="gt_row gt_center" headers="stat_2">85.4</td>
+<td class="gt_row gt_center" headers="stat_0">85.0</td>
+<td class="gt_row gt_center" headers="stat_1">87.0</td>
+<td class="gt_row gt_center" headers="stat_2">83.5</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">4.7</td>
-<td class="gt_row gt_center" headers="stat_1">4.6</td>
-<td class="gt_row gt_center" headers="stat_2">4.8</td>
+<td class="gt_row gt_center" headers="stat_0">5.1</td>
+<td class="gt_row gt_center" headers="stat_1">3.7</td>
+<td class="gt_row gt_center" headers="stat_2">6.3</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">1.9</td>
-<td class="gt_row gt_center" headers="stat_1">2.4</td>
-<td class="gt_row gt_center" headers="stat_2">1.6</td>
+<td class="gt_row gt_center" headers="stat_0">1.3</td>
+<td class="gt_row gt_center" headers="stat_1">1.6</td>
+<td class="gt_row gt_center" headers="stat_2">1.1</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">3.2</td>
-<td class="gt_row gt_center" headers="stat_1">3.2</td>
-<td class="gt_row gt_center" headers="stat_2">3.2</td>
+<td class="gt_row gt_center" headers="stat_0">3.1</td>
+<td class="gt_row gt_center" headers="stat_1">2.4</td>
+<td class="gt_row gt_center" headers="stat_2">3.7</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">2.4</td>
-<td class="gt_row gt_center" headers="stat_1">3.0</td>
-<td class="gt_row gt_center" headers="stat_2">1.8</td>
+<td class="gt_row gt_center" headers="stat_0">2.6</td>
+<td class="gt_row gt_center" headers="stat_1">2.8</td>
+<td class="gt_row gt_center" headers="stat_2">2.3</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">1.8</td>
-<td class="gt_row gt_center" headers="stat_1">1.4</td>
-<td class="gt_row gt_center" headers="stat_2">2.1</td>
+<td class="gt_row gt_center" headers="stat_0">1.5</td>
+<td class="gt_row gt_center" headers="stat_1">1.5</td>
+<td class="gt_row gt_center" headers="stat_2">1.6</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td class="gt_row gt_center" headers="stat_label">%</td>
-<td class="gt_row gt_center" headers="stat_0">1.1</td>
-<td class="gt_row gt_center" headers="stat_1">1.1</td>
-<td class="gt_row gt_center" headers="stat_2">1.1</td>
+<td class="gt_row gt_center" headers="stat_0">1.3</td>
+<td class="gt_row gt_center" headers="stat_1">0.9</td>
+<td class="gt_row gt_center" headers="stat_2">1.6</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label"><br>
@@ -982,9 +984,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td class="gt_row gt_left" headers="label">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td class="gt_row gt_center" headers="stat_label"><br>
 </td>
-<td class="gt_row gt_center" headers="stat_0">1,657</td>
-<td class="gt_row gt_center" headers="stat_1">759</td>
-<td class="gt_row gt_center" headers="stat_2">898</td>
+<td class="gt_row gt_center" headers="stat_0">1,638</td>
+<td class="gt_row gt_center" headers="stat_1">737</td>
+<td class="gt_row gt_center" headers="stat_2">901</td>
 </tr>
 </tbody><tfoot class="gt_footnotes">
 <tr class="odd">
@@ -1007,23 +1009,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="zxajkvctge" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zxajkvctge table {
+<div id="nptwvejafr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#nptwvejafr table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zxajkvctge thead, #zxajkvctge tbody, #zxajkvctge tfoot, #zxajkvctge tr, #zxajkvctge td, #zxajkvctge th {
+#nptwvejafr thead, #nptwvejafr tbody, #nptwvejafr tfoot, #nptwvejafr tr, #nptwvejafr td, #nptwvejafr th {
   border-style: none;
 }
 
-#zxajkvctge p {
+#nptwvejafr p {
   margin: 0;
   padding: 0;
 }
 
-#zxajkvctge .gt_table {
+#nptwvejafr .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1049,12 +1051,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_caption {
+#nptwvejafr .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zxajkvctge .gt_title {
+#nptwvejafr .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1066,7 +1068,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#zxajkvctge .gt_subtitle {
+#nptwvejafr .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1078,7 +1080,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#zxajkvctge .gt_heading {
+#nptwvejafr .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1090,13 +1092,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_bottom_border {
+#nptwvejafr .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_col_headings {
+#nptwvejafr .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1111,7 +1113,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_col_heading {
+#nptwvejafr .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1131,7 +1133,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#zxajkvctge .gt_column_spanner_outer {
+#nptwvejafr .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1143,15 +1145,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#zxajkvctge .gt_column_spanner_outer:first-child {
+#nptwvejafr .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zxajkvctge .gt_column_spanner_outer:last-child {
+#nptwvejafr .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zxajkvctge .gt_column_spanner {
+#nptwvejafr .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1163,11 +1165,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#zxajkvctge .gt_spanner_row {
+#nptwvejafr .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zxajkvctge .gt_group_heading {
+#nptwvejafr .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1193,7 +1195,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#zxajkvctge .gt_empty_group_heading {
+#nptwvejafr .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1208,15 +1210,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#zxajkvctge .gt_from_md > :first-child {
+#nptwvejafr .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zxajkvctge .gt_from_md > :last-child {
+#nptwvejafr .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zxajkvctge .gt_row {
+#nptwvejafr .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1235,7 +1237,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#zxajkvctge .gt_stub {
+#nptwvejafr .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1248,7 +1250,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#zxajkvctge .gt_stub_row_group {
+#nptwvejafr .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1262,15 +1264,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#zxajkvctge .gt_row_group_first td {
+#nptwvejafr .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zxajkvctge .gt_row_group_first th {
+#nptwvejafr .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zxajkvctge .gt_summary_row {
+#nptwvejafr .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1280,16 +1282,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#zxajkvctge .gt_first_summary_row {
+#nptwvejafr .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_first_summary_row.thick {
+#nptwvejafr .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zxajkvctge .gt_last_summary_row {
+#nptwvejafr .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1299,7 +1301,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_grand_summary_row {
+#nptwvejafr .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1309,7 +1311,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#zxajkvctge .gt_first_grand_summary_row {
+#nptwvejafr .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1319,7 +1321,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_last_grand_summary_row_top {
+#nptwvejafr .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -1329,11 +1331,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_striped {
+#nptwvejafr .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zxajkvctge .gt_table_body {
+#nptwvejafr .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1342,7 +1344,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_footnotes {
+#nptwvejafr .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1356,7 +1358,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_footnote {
+#nptwvejafr .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -1365,7 +1367,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#zxajkvctge .gt_sourcenotes {
+#nptwvejafr .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1379,7 +1381,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#zxajkvctge .gt_sourcenote {
+#nptwvejafr .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -1387,72 +1389,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#zxajkvctge .gt_left {
+#nptwvejafr .gt_left {
   text-align: left;
 }
 
-#zxajkvctge .gt_center {
+#nptwvejafr .gt_center {
   text-align: center;
 }
 
-#zxajkvctge .gt_right {
+#nptwvejafr .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zxajkvctge .gt_font_normal {
+#nptwvejafr .gt_font_normal {
   font-weight: normal;
 }
 
-#zxajkvctge .gt_font_bold {
+#nptwvejafr .gt_font_bold {
   font-weight: bold;
 }
 
-#zxajkvctge .gt_font_italic {
+#nptwvejafr .gt_font_italic {
   font-style: italic;
 }
 
-#zxajkvctge .gt_super {
+#nptwvejafr .gt_super {
   font-size: 65%;
 }
 
-#zxajkvctge .gt_footnote_marks {
+#nptwvejafr .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zxajkvctge .gt_asterisk {
+#nptwvejafr .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zxajkvctge .gt_indent_1 {
+#nptwvejafr .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zxajkvctge .gt_indent_2 {
+#nptwvejafr .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zxajkvctge .gt_indent_3 {
+#nptwvejafr .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zxajkvctge .gt_indent_4 {
+#nptwvejafr .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zxajkvctge .gt_indent_5 {
+#nptwvejafr .gt_indent_5 {
   text-indent: 25px;
 }
 
-#zxajkvctge .katex-display {
+#nptwvejafr .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#zxajkvctge div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#nptwvejafr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1479,39 +1481,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -1524,9 +1526,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -1815,23 +1817,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="riqoajzexj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#riqoajzexj table {
+<div id="yabzioatox" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#yabzioatox table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#riqoajzexj thead, #riqoajzexj tbody, #riqoajzexj tfoot, #riqoajzexj tr, #riqoajzexj td, #riqoajzexj th {
+#yabzioatox thead, #yabzioatox tbody, #yabzioatox tfoot, #yabzioatox tr, #yabzioatox td, #yabzioatox th {
   border-style: none;
 }
 
-#riqoajzexj p {
+#yabzioatox p {
   margin: 0;
   padding: 0;
 }
 
-#riqoajzexj .gt_table {
+#yabzioatox .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1857,12 +1859,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_caption {
+#yabzioatox .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#riqoajzexj .gt_title {
+#yabzioatox .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1874,7 +1876,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#riqoajzexj .gt_subtitle {
+#yabzioatox .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1886,7 +1888,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#riqoajzexj .gt_heading {
+#yabzioatox .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1898,13 +1900,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_bottom_border {
+#yabzioatox .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_col_headings {
+#yabzioatox .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1919,7 +1921,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_col_heading {
+#yabzioatox .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1939,7 +1941,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#riqoajzexj .gt_column_spanner_outer {
+#yabzioatox .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1951,15 +1953,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#riqoajzexj .gt_column_spanner_outer:first-child {
+#yabzioatox .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#riqoajzexj .gt_column_spanner_outer:last-child {
+#yabzioatox .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#riqoajzexj .gt_column_spanner {
+#yabzioatox .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1971,11 +1973,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#riqoajzexj .gt_spanner_row {
+#yabzioatox .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#riqoajzexj .gt_group_heading {
+#yabzioatox .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2001,7 +2003,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#riqoajzexj .gt_empty_group_heading {
+#yabzioatox .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2016,15 +2018,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#riqoajzexj .gt_from_md > :first-child {
+#yabzioatox .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#riqoajzexj .gt_from_md > :last-child {
+#yabzioatox .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#riqoajzexj .gt_row {
+#yabzioatox .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2043,7 +2045,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#riqoajzexj .gt_stub {
+#yabzioatox .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2056,7 +2058,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#riqoajzexj .gt_stub_row_group {
+#yabzioatox .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2070,15 +2072,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#riqoajzexj .gt_row_group_first td {
+#yabzioatox .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#riqoajzexj .gt_row_group_first th {
+#yabzioatox .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#riqoajzexj .gt_summary_row {
+#yabzioatox .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2088,16 +2090,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#riqoajzexj .gt_first_summary_row {
+#yabzioatox .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_first_summary_row.thick {
+#yabzioatox .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#riqoajzexj .gt_last_summary_row {
+#yabzioatox .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2107,7 +2109,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_grand_summary_row {
+#yabzioatox .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2117,7 +2119,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#riqoajzexj .gt_first_grand_summary_row {
+#yabzioatox .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2127,7 +2129,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_last_grand_summary_row_top {
+#yabzioatox .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2137,11 +2139,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_striped {
+#yabzioatox .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#riqoajzexj .gt_table_body {
+#yabzioatox .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2150,7 +2152,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_footnotes {
+#yabzioatox .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2164,7 +2166,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_footnote {
+#yabzioatox .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -2173,7 +2175,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#riqoajzexj .gt_sourcenotes {
+#yabzioatox .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2187,7 +2189,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#riqoajzexj .gt_sourcenote {
+#yabzioatox .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -2195,72 +2197,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#riqoajzexj .gt_left {
+#yabzioatox .gt_left {
   text-align: left;
 }
 
-#riqoajzexj .gt_center {
+#yabzioatox .gt_center {
   text-align: center;
 }
 
-#riqoajzexj .gt_right {
+#yabzioatox .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#riqoajzexj .gt_font_normal {
+#yabzioatox .gt_font_normal {
   font-weight: normal;
 }
 
-#riqoajzexj .gt_font_bold {
+#yabzioatox .gt_font_bold {
   font-weight: bold;
 }
 
-#riqoajzexj .gt_font_italic {
+#yabzioatox .gt_font_italic {
   font-style: italic;
 }
 
-#riqoajzexj .gt_super {
+#yabzioatox .gt_super {
   font-size: 65%;
 }
 
-#riqoajzexj .gt_footnote_marks {
+#yabzioatox .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#riqoajzexj .gt_asterisk {
+#yabzioatox .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#riqoajzexj .gt_indent_1 {
+#yabzioatox .gt_indent_1 {
   text-indent: 5px;
 }
 
-#riqoajzexj .gt_indent_2 {
+#yabzioatox .gt_indent_2 {
   text-indent: 10px;
 }
 
-#riqoajzexj .gt_indent_3 {
+#yabzioatox .gt_indent_3 {
   text-indent: 15px;
 }
 
-#riqoajzexj .gt_indent_4 {
+#yabzioatox .gt_indent_4 {
   text-indent: 20px;
 }
 
-#riqoajzexj .gt_indent_5 {
+#yabzioatox .gt_indent_5 {
   text-indent: 25px;
 }
 
-#riqoajzexj .katex-display {
+#yabzioatox .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#riqoajzexj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#yabzioatox div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2287,39 +2289,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -2332,9 +2334,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -2402,23 +2404,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="uxwamexfop" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#uxwamexfop table {
+<div id="lpazbsasms" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lpazbsasms table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uxwamexfop thead, #uxwamexfop tbody, #uxwamexfop tfoot, #uxwamexfop tr, #uxwamexfop td, #uxwamexfop th {
+#lpazbsasms thead, #lpazbsasms tbody, #lpazbsasms tfoot, #lpazbsasms tr, #lpazbsasms td, #lpazbsasms th {
   border-style: none;
 }
 
-#uxwamexfop p {
+#lpazbsasms p {
   margin: 0;
   padding: 0;
 }
 
-#uxwamexfop .gt_table {
+#lpazbsasms .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2444,12 +2446,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_caption {
+#lpazbsasms .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uxwamexfop .gt_title {
+#lpazbsasms .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2461,7 +2463,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#uxwamexfop .gt_subtitle {
+#lpazbsasms .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2473,7 +2475,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#uxwamexfop .gt_heading {
+#lpazbsasms .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2485,13 +2487,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_bottom_border {
+#lpazbsasms .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_col_headings {
+#lpazbsasms .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2506,7 +2508,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_col_heading {
+#lpazbsasms .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2526,7 +2528,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#uxwamexfop .gt_column_spanner_outer {
+#lpazbsasms .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2538,15 +2540,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#uxwamexfop .gt_column_spanner_outer:first-child {
+#lpazbsasms .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uxwamexfop .gt_column_spanner_outer:last-child {
+#lpazbsasms .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uxwamexfop .gt_column_spanner {
+#lpazbsasms .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2558,11 +2560,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#uxwamexfop .gt_spanner_row {
+#lpazbsasms .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uxwamexfop .gt_group_heading {
+#lpazbsasms .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2588,7 +2590,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#uxwamexfop .gt_empty_group_heading {
+#lpazbsasms .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2603,15 +2605,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#uxwamexfop .gt_from_md > :first-child {
+#lpazbsasms .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uxwamexfop .gt_from_md > :last-child {
+#lpazbsasms .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uxwamexfop .gt_row {
+#lpazbsasms .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2630,7 +2632,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#uxwamexfop .gt_stub {
+#lpazbsasms .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2643,7 +2645,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#uxwamexfop .gt_stub_row_group {
+#lpazbsasms .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2657,15 +2659,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#uxwamexfop .gt_row_group_first td {
+#lpazbsasms .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uxwamexfop .gt_row_group_first th {
+#lpazbsasms .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uxwamexfop .gt_summary_row {
+#lpazbsasms .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2675,16 +2677,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#uxwamexfop .gt_first_summary_row {
+#lpazbsasms .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_first_summary_row.thick {
+#lpazbsasms .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uxwamexfop .gt_last_summary_row {
+#lpazbsasms .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2694,7 +2696,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_grand_summary_row {
+#lpazbsasms .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2704,7 +2706,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#uxwamexfop .gt_first_grand_summary_row {
+#lpazbsasms .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2714,7 +2716,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_last_grand_summary_row_top {
+#lpazbsasms .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -2724,11 +2726,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_striped {
+#lpazbsasms .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uxwamexfop .gt_table_body {
+#lpazbsasms .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2737,7 +2739,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_footnotes {
+#lpazbsasms .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2751,7 +2753,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_footnote {
+#lpazbsasms .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -2760,7 +2762,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#uxwamexfop .gt_sourcenotes {
+#lpazbsasms .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2774,7 +2776,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#uxwamexfop .gt_sourcenote {
+#lpazbsasms .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -2782,72 +2784,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#uxwamexfop .gt_left {
+#lpazbsasms .gt_left {
   text-align: left;
 }
 
-#uxwamexfop .gt_center {
+#lpazbsasms .gt_center {
   text-align: center;
 }
 
-#uxwamexfop .gt_right {
+#lpazbsasms .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uxwamexfop .gt_font_normal {
+#lpazbsasms .gt_font_normal {
   font-weight: normal;
 }
 
-#uxwamexfop .gt_font_bold {
+#lpazbsasms .gt_font_bold {
   font-weight: bold;
 }
 
-#uxwamexfop .gt_font_italic {
+#lpazbsasms .gt_font_italic {
   font-style: italic;
 }
 
-#uxwamexfop .gt_super {
+#lpazbsasms .gt_super {
   font-size: 65%;
 }
 
-#uxwamexfop .gt_footnote_marks {
+#lpazbsasms .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uxwamexfop .gt_asterisk {
+#lpazbsasms .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uxwamexfop .gt_indent_1 {
+#lpazbsasms .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uxwamexfop .gt_indent_2 {
+#lpazbsasms .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uxwamexfop .gt_indent_3 {
+#lpazbsasms .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uxwamexfop .gt_indent_4 {
+#lpazbsasms .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uxwamexfop .gt_indent_5 {
+#lpazbsasms .gt_indent_5 {
   text-indent: 25px;
 }
 
-#uxwamexfop .katex-display {
+#lpazbsasms .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#uxwamexfop div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lpazbsasms div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -2874,39 +2876,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -2919,9 +2921,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -2944,23 +2946,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="wncguifcqr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wncguifcqr table {
+<div id="glokgeiamn" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#glokgeiamn table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wncguifcqr thead, #wncguifcqr tbody, #wncguifcqr tfoot, #wncguifcqr tr, #wncguifcqr td, #wncguifcqr th {
+#glokgeiamn thead, #glokgeiamn tbody, #glokgeiamn tfoot, #glokgeiamn tr, #glokgeiamn td, #glokgeiamn th {
   border-style: none;
 }
 
-#wncguifcqr p {
+#glokgeiamn p {
   margin: 0;
   padding: 0;
 }
 
-#wncguifcqr .gt_table {
+#glokgeiamn .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2986,12 +2988,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_caption {
+#glokgeiamn .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wncguifcqr .gt_title {
+#glokgeiamn .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3003,7 +3005,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#wncguifcqr .gt_subtitle {
+#glokgeiamn .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3015,7 +3017,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#wncguifcqr .gt_heading {
+#glokgeiamn .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3027,13 +3029,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_bottom_border {
+#glokgeiamn .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_col_headings {
+#glokgeiamn .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3048,7 +3050,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_col_heading {
+#glokgeiamn .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3068,7 +3070,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#wncguifcqr .gt_column_spanner_outer {
+#glokgeiamn .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3080,15 +3082,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#wncguifcqr .gt_column_spanner_outer:first-child {
+#glokgeiamn .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wncguifcqr .gt_column_spanner_outer:last-child {
+#glokgeiamn .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wncguifcqr .gt_column_spanner {
+#glokgeiamn .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3100,11 +3102,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#wncguifcqr .gt_spanner_row {
+#glokgeiamn .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wncguifcqr .gt_group_heading {
+#glokgeiamn .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3130,7 +3132,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#wncguifcqr .gt_empty_group_heading {
+#glokgeiamn .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3145,15 +3147,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#wncguifcqr .gt_from_md > :first-child {
+#glokgeiamn .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wncguifcqr .gt_from_md > :last-child {
+#glokgeiamn .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wncguifcqr .gt_row {
+#glokgeiamn .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3172,7 +3174,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#wncguifcqr .gt_stub {
+#glokgeiamn .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3185,7 +3187,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#wncguifcqr .gt_stub_row_group {
+#glokgeiamn .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3199,15 +3201,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#wncguifcqr .gt_row_group_first td {
+#glokgeiamn .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wncguifcqr .gt_row_group_first th {
+#glokgeiamn .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wncguifcqr .gt_summary_row {
+#glokgeiamn .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3217,16 +3219,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#wncguifcqr .gt_first_summary_row {
+#glokgeiamn .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_first_summary_row.thick {
+#glokgeiamn .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wncguifcqr .gt_last_summary_row {
+#glokgeiamn .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3236,7 +3238,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_grand_summary_row {
+#glokgeiamn .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3246,7 +3248,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#wncguifcqr .gt_first_grand_summary_row {
+#glokgeiamn .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3256,7 +3258,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_last_grand_summary_row_top {
+#glokgeiamn .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3266,11 +3268,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_striped {
+#glokgeiamn .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wncguifcqr .gt_table_body {
+#glokgeiamn .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3279,7 +3281,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_footnotes {
+#glokgeiamn .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3293,7 +3295,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_footnote {
+#glokgeiamn .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -3302,7 +3304,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#wncguifcqr .gt_sourcenotes {
+#glokgeiamn .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3316,7 +3318,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#wncguifcqr .gt_sourcenote {
+#glokgeiamn .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -3324,72 +3326,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#wncguifcqr .gt_left {
+#glokgeiamn .gt_left {
   text-align: left;
 }
 
-#wncguifcqr .gt_center {
+#glokgeiamn .gt_center {
   text-align: center;
 }
 
-#wncguifcqr .gt_right {
+#glokgeiamn .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wncguifcqr .gt_font_normal {
+#glokgeiamn .gt_font_normal {
   font-weight: normal;
 }
 
-#wncguifcqr .gt_font_bold {
+#glokgeiamn .gt_font_bold {
   font-weight: bold;
 }
 
-#wncguifcqr .gt_font_italic {
+#glokgeiamn .gt_font_italic {
   font-style: italic;
 }
 
-#wncguifcqr .gt_super {
+#glokgeiamn .gt_super {
   font-size: 65%;
 }
 
-#wncguifcqr .gt_footnote_marks {
+#glokgeiamn .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wncguifcqr .gt_asterisk {
+#glokgeiamn .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wncguifcqr .gt_indent_1 {
+#glokgeiamn .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wncguifcqr .gt_indent_2 {
+#glokgeiamn .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wncguifcqr .gt_indent_3 {
+#glokgeiamn .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wncguifcqr .gt_indent_4 {
+#glokgeiamn .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wncguifcqr .gt_indent_5 {
+#glokgeiamn .gt_indent_5 {
   text-indent: 25px;
 }
 
-#wncguifcqr .katex-display {
+#glokgeiamn .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#wncguifcqr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#glokgeiamn div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3416,39 +3418,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -3461,9 +3463,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -3487,23 +3489,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="dgsazkexkk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dgsazkexkk table {
+<div id="gxljvqifhh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gxljvqifhh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dgsazkexkk thead, #dgsazkexkk tbody, #dgsazkexkk tfoot, #dgsazkexkk tr, #dgsazkexkk td, #dgsazkexkk th {
+#gxljvqifhh thead, #gxljvqifhh tbody, #gxljvqifhh tfoot, #gxljvqifhh tr, #gxljvqifhh td, #gxljvqifhh th {
   border-style: none;
 }
 
-#dgsazkexkk p {
+#gxljvqifhh p {
   margin: 0;
   padding: 0;
 }
 
-#dgsazkexkk .gt_table {
+#gxljvqifhh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3529,12 +3531,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_caption {
+#gxljvqifhh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dgsazkexkk .gt_title {
+#gxljvqifhh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3546,7 +3548,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#dgsazkexkk .gt_subtitle {
+#gxljvqifhh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3558,7 +3560,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#dgsazkexkk .gt_heading {
+#gxljvqifhh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3570,13 +3572,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_bottom_border {
+#gxljvqifhh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_col_headings {
+#gxljvqifhh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3591,7 +3593,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_col_heading {
+#gxljvqifhh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3611,7 +3613,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#dgsazkexkk .gt_column_spanner_outer {
+#gxljvqifhh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3623,15 +3625,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#dgsazkexkk .gt_column_spanner_outer:first-child {
+#gxljvqifhh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dgsazkexkk .gt_column_spanner_outer:last-child {
+#gxljvqifhh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dgsazkexkk .gt_column_spanner {
+#gxljvqifhh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3643,11 +3645,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#dgsazkexkk .gt_spanner_row {
+#gxljvqifhh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dgsazkexkk .gt_group_heading {
+#gxljvqifhh .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3673,7 +3675,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#dgsazkexkk .gt_empty_group_heading {
+#gxljvqifhh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3688,15 +3690,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#dgsazkexkk .gt_from_md > :first-child {
+#gxljvqifhh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dgsazkexkk .gt_from_md > :last-child {
+#gxljvqifhh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dgsazkexkk .gt_row {
+#gxljvqifhh .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3715,7 +3717,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#dgsazkexkk .gt_stub {
+#gxljvqifhh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3728,7 +3730,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#dgsazkexkk .gt_stub_row_group {
+#gxljvqifhh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3742,15 +3744,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#dgsazkexkk .gt_row_group_first td {
+#gxljvqifhh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dgsazkexkk .gt_row_group_first th {
+#gxljvqifhh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dgsazkexkk .gt_summary_row {
+#gxljvqifhh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3760,16 +3762,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#dgsazkexkk .gt_first_summary_row {
+#gxljvqifhh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_first_summary_row.thick {
+#gxljvqifhh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dgsazkexkk .gt_last_summary_row {
+#gxljvqifhh .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3779,7 +3781,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_grand_summary_row {
+#gxljvqifhh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3789,7 +3791,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#dgsazkexkk .gt_first_grand_summary_row {
+#gxljvqifhh .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3799,7 +3801,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_last_grand_summary_row_top {
+#gxljvqifhh .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -3809,11 +3811,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_striped {
+#gxljvqifhh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dgsazkexkk .gt_table_body {
+#gxljvqifhh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3822,7 +3824,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_footnotes {
+#gxljvqifhh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3836,7 +3838,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_footnote {
+#gxljvqifhh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -3845,7 +3847,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#dgsazkexkk .gt_sourcenotes {
+#gxljvqifhh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3859,7 +3861,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#dgsazkexkk .gt_sourcenote {
+#gxljvqifhh .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -3867,72 +3869,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#dgsazkexkk .gt_left {
+#gxljvqifhh .gt_left {
   text-align: left;
 }
 
-#dgsazkexkk .gt_center {
+#gxljvqifhh .gt_center {
   text-align: center;
 }
 
-#dgsazkexkk .gt_right {
+#gxljvqifhh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dgsazkexkk .gt_font_normal {
+#gxljvqifhh .gt_font_normal {
   font-weight: normal;
 }
 
-#dgsazkexkk .gt_font_bold {
+#gxljvqifhh .gt_font_bold {
   font-weight: bold;
 }
 
-#dgsazkexkk .gt_font_italic {
+#gxljvqifhh .gt_font_italic {
   font-style: italic;
 }
 
-#dgsazkexkk .gt_super {
+#gxljvqifhh .gt_super {
   font-size: 65%;
 }
 
-#dgsazkexkk .gt_footnote_marks {
+#gxljvqifhh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dgsazkexkk .gt_asterisk {
+#gxljvqifhh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dgsazkexkk .gt_indent_1 {
+#gxljvqifhh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dgsazkexkk .gt_indent_2 {
+#gxljvqifhh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dgsazkexkk .gt_indent_3 {
+#gxljvqifhh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dgsazkexkk .gt_indent_4 {
+#gxljvqifhh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dgsazkexkk .gt_indent_5 {
+#gxljvqifhh .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dgsazkexkk .katex-display {
+#gxljvqifhh .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dgsazkexkk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#gxljvqifhh div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -3959,39 +3961,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -4004,9 +4006,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -4033,23 +4035,23 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">text_interpret =</span> <span class="st">"html"</span></span>
 <span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<div id="grswjiogij" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#grswjiogij table {
+<div id="vtsdgkkabj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vtsdgkkabj table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#grswjiogij thead, #grswjiogij tbody, #grswjiogij tfoot, #grswjiogij tr, #grswjiogij td, #grswjiogij th {
+#vtsdgkkabj thead, #vtsdgkkabj tbody, #vtsdgkkabj tfoot, #vtsdgkkabj tr, #vtsdgkkabj td, #vtsdgkkabj th {
   border-style: none;
 }
 
-#grswjiogij p {
+#vtsdgkkabj p {
   margin: 0;
   padding: 0;
 }
 
-#grswjiogij .gt_table {
+#vtsdgkkabj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -4075,12 +4077,12 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-left-color: #D3D3D3;
 }
 
-#grswjiogij .gt_caption {
+#vtsdgkkabj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#grswjiogij .gt_title {
+#vtsdgkkabj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -4092,7 +4094,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-width: 0;
 }
 
-#grswjiogij .gt_subtitle {
+#vtsdgkkabj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -4104,7 +4106,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-width: 0;
 }
 
-#grswjiogij .gt_heading {
+#vtsdgkkabj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -4116,13 +4118,13 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#grswjiogij .gt_bottom_border {
+#vtsdgkkabj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#grswjiogij .gt_col_headings {
+#vtsdgkkabj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4137,7 +4139,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#grswjiogij .gt_col_heading {
+#vtsdgkkabj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4157,7 +4159,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#grswjiogij .gt_column_spanner_outer {
+#vtsdgkkabj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4169,15 +4171,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 4px;
 }
 
-#grswjiogij .gt_column_spanner_outer:first-child {
+#vtsdgkkabj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#grswjiogij .gt_column_spanner_outer:last-child {
+#vtsdgkkabj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#grswjiogij .gt_column_spanner {
+#vtsdgkkabj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -4189,11 +4191,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   width: 100%;
 }
 
-#grswjiogij .gt_spanner_row {
+#vtsdgkkabj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#grswjiogij .gt_group_heading {
+#vtsdgkkabj .gt_group_heading {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -4219,7 +4221,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   text-align: left;
 }
 
-#grswjiogij .gt_empty_group_heading {
+#vtsdgkkabj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -4234,15 +4236,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: middle;
 }
 
-#grswjiogij .gt_from_md > :first-child {
+#vtsdgkkabj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#grswjiogij .gt_from_md > :last-child {
+#vtsdgkkabj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#grswjiogij .gt_row {
+#vtsdgkkabj .gt_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -4261,7 +4263,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   overflow-x: hidden;
 }
 
-#grswjiogij .gt_stub {
+#vtsdgkkabj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4274,7 +4276,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#grswjiogij .gt_stub_row_group {
+#vtsdgkkabj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -4288,15 +4290,15 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   vertical-align: top;
 }
 
-#grswjiogij .gt_row_group_first td {
+#vtsdgkkabj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#grswjiogij .gt_row_group_first th {
+#vtsdgkkabj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#grswjiogij .gt_summary_row {
+#vtsdgkkabj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4306,16 +4308,16 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#grswjiogij .gt_first_summary_row {
+#vtsdgkkabj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#grswjiogij .gt_first_summary_row.thick {
+#vtsdgkkabj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#grswjiogij .gt_last_summary_row {
+#vtsdgkkabj .gt_last_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -4325,7 +4327,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#grswjiogij .gt_grand_summary_row {
+#vtsdgkkabj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -4335,7 +4337,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#grswjiogij .gt_first_grand_summary_row {
+#vtsdgkkabj .gt_first_grand_summary_row {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -4345,7 +4347,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-top-color: #D3D3D3;
 }
 
-#grswjiogij .gt_last_grand_summary_row_top {
+#vtsdgkkabj .gt_last_grand_summary_row_top {
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 5px;
@@ -4355,11 +4357,11 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#grswjiogij .gt_striped {
+#vtsdgkkabj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#grswjiogij .gt_table_body {
+#vtsdgkkabj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -4368,7 +4370,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-bottom-color: #D3D3D3;
 }
 
-#grswjiogij .gt_footnotes {
+#vtsdgkkabj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4382,7 +4384,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#grswjiogij .gt_footnote {
+#vtsdgkkabj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 1px;
@@ -4391,7 +4393,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#grswjiogij .gt_sourcenotes {
+#vtsdgkkabj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -4405,7 +4407,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   border-right-color: #D3D3D3;
 }
 
-#grswjiogij .gt_sourcenote {
+#vtsdgkkabj .gt_sourcenote {
   font-size: 90%;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -4413,72 +4415,72 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
   padding-right: 5px;
 }
 
-#grswjiogij .gt_left {
+#vtsdgkkabj .gt_left {
   text-align: left;
 }
 
-#grswjiogij .gt_center {
+#vtsdgkkabj .gt_center {
   text-align: center;
 }
 
-#grswjiogij .gt_right {
+#vtsdgkkabj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#grswjiogij .gt_font_normal {
+#vtsdgkkabj .gt_font_normal {
   font-weight: normal;
 }
 
-#grswjiogij .gt_font_bold {
+#vtsdgkkabj .gt_font_bold {
   font-weight: bold;
 }
 
-#grswjiogij .gt_font_italic {
+#vtsdgkkabj .gt_font_italic {
   font-style: italic;
 }
 
-#grswjiogij .gt_super {
+#vtsdgkkabj .gt_super {
   font-size: 65%;
 }
 
-#grswjiogij .gt_footnote_marks {
+#vtsdgkkabj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#grswjiogij .gt_asterisk {
+#vtsdgkkabj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#grswjiogij .gt_indent_1 {
+#vtsdgkkabj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#grswjiogij .gt_indent_2 {
+#vtsdgkkabj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#grswjiogij .gt_indent_3 {
+#vtsdgkkabj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#grswjiogij .gt_indent_4 {
+#vtsdgkkabj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#grswjiogij .gt_indent_5 {
+#vtsdgkkabj .gt_indent_5 {
   text-indent: 25px;
 }
 
-#grswjiogij .katex-display {
+#vtsdgkkabj .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#grswjiogij div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#vtsdgkkabj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -4505,39 +4507,39 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Never</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">84.9</td>
-<td headers="stat_1" class="gt_row gt_center">84.3</td>
-<td headers="stat_2" class="gt_row gt_center">85.4</td></tr>
+<td headers="stat_0" class="gt_row gt_center">85.0</td>
+<td headers="stat_1" class="gt_row gt_center">87.0</td>
+<td headers="stat_2" class="gt_row gt_center">83.5</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Less than once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">4.7</td>
-<td headers="stat_1" class="gt_row gt_center">4.6</td>
-<td headers="stat_2" class="gt_row gt_center">4.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">5.1</td>
+<td headers="stat_1" class="gt_row gt_center">3.7</td>
+<td headers="stat_2" class="gt_row gt_center">6.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.9</td>
-<td headers="stat_1" class="gt_row gt_center">2.4</td>
-<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">1.6</td>
+<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a month</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">3.2</td>
-<td headers="stat_1" class="gt_row gt_center">3.2</td>
-<td headers="stat_2" class="gt_row gt_center">3.2</td></tr>
+<td headers="stat_0" class="gt_row gt_center">3.1</td>
+<td headers="stat_1" class="gt_row gt_center">2.4</td>
+<td headers="stat_2" class="gt_row gt_center">3.7</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Once a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">2.4</td>
-<td headers="stat_1" class="gt_row gt_center">3.0</td>
-<td headers="stat_2" class="gt_row gt_center">1.8</td></tr>
+<td headers="stat_0" class="gt_row gt_center">2.6</td>
+<td headers="stat_1" class="gt_row gt_center">2.8</td>
+<td headers="stat_2" class="gt_row gt_center">2.3</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Several times a week</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.8</td>
-<td headers="stat_1" class="gt_row gt_center">1.4</td>
-<td headers="stat_2" class="gt_row gt_center">2.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.5</td>
+<td headers="stat_1" class="gt_row gt_center">1.5</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;Every day</td>
 <td headers="stat_label" class="gt_row gt_center">%</td>
-<td headers="stat_0" class="gt_row gt_center">1.1</td>
-<td headers="stat_1" class="gt_row gt_center">1.1</td>
-<td headers="stat_2" class="gt_row gt_center">1.1</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1.3</td>
+<td headers="stat_1" class="gt_row gt_center">0.9</td>
+<td headers="stat_2" class="gt_row gt_center">1.6</td></tr>
     <tr><td headers="label" class="gt_row gt_left"><br></td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
 <td headers="stat_0" class="gt_row gt_center"><br></td>
@@ -4550,9 +4552,9 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 <td headers="stat_2" class="gt_row gt_center"><br></td></tr>
     <tr><td headers="label" class="gt_row gt_left">&nbsp;&nbsp;&nbsp;&nbsp;How often do you or other members of your household skip a meal because there is not enough money for food?: SC B, C</td>
 <td headers="stat_label" class="gt_row gt_center"><br></td>
-<td headers="stat_0" class="gt_row gt_center">1,657</td>
-<td headers="stat_1" class="gt_row gt_center">759</td>
-<td headers="stat_2" class="gt_row gt_center">898</td></tr>
+<td headers="stat_0" class="gt_row gt_center">1,638</td>
+<td headers="stat_1" class="gt_row gt_center">737</td>
+<td headers="stat_2" class="gt_row gt_center">901</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>

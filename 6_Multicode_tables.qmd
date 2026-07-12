@@ -5,6 +5,7 @@ title: "Multicodes"
 ## Set up
 
 ```{r packages, collapse=TRUE}
+library(here)
 library(gtsummary)
 library(tidyverse)
 library(srvyr)
@@ -27,12 +28,12 @@ theme_gtsummary_compact()
 
 <br>
 
-Load Round 10 UK European Social Survey dataset. 
+Load Round 10 UK European Social Survey dataset.
 
 ```{r}
 
 ddir <- paste0(getwd())
-load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+ess10 <- readRDS(here::here("data", "synthetic_ess10_snippet.rds"))
 glimpse(ess10)
 
 svy_df <- ess10 %>% as_survey_design(weights = anweight)
@@ -49,6 +50,7 @@ file_paths
 <br>
 
 ### Load functions
+
 ```{r, results='hide'}
 
 # Load all functions (make sure no other .R files in this location)
@@ -60,11 +62,11 @@ map(file_paths, ~source(paste0(ddir,.x)))
 
 ### Load additional binary data
 
-The code below loads some additional data, for use in multicoded tables. 
+The code below loads some additional data, for use in multicoded tables.
 
 ```{r}
 
-load("/Users/joecrowley/R/Data/ESS_UK/ESS_UK_R_data_file.RData")
+ess <- readRDS(here::here("data", "synthetic_ess_uk.rds"))
 
 # Use set of variables on location people can access internet from
 ess %>% select(starts_with("acc")) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
@@ -84,21 +86,21 @@ ess10 %>% select(ctzcntr, brncntr,feethngr) %>% look_for() %>% convert_list_colu
 
 ## Overview of process
 
-**Some checks**   
+**Some checks**
 
- -  all have same base size?
- -  contains splitter in variable labels? (: )  
- -  not contains multiple splitters. 
- 
-**Steps**. 
+-   all have same base size?
+-   contains splitter in variable labels? (: )\
+-   not contains multiple splitters.
 
-1. Checks above,  
-2. Relabel variables, store stem
-3. Create unweighted base variable,  
-4. Create vector of variables to use, 
-5. Create table,
-6. Optional, add caption, 
-7. Optional, add CI. 
+**Steps**.
+
+1.  Checks above,\
+2.  Relabel variables, store stem
+3.  Create unweighted base variable,\
+4.  Create vector of variables to use,
+5.  Create table,
+6.  Optional, add caption,
+7.  Optional, add CI.
 
 #### Proposed variables testing multicodes
 
@@ -108,7 +110,7 @@ ess %>% select(all_of(int_loc)) %>% look_for(details = "none")
 
 ```
 
-<br> 
+<br>
 
 ## Checks
 
@@ -157,7 +159,7 @@ writeLines(
 
 ```
 
-<br> 
+<br>
 
 ### Labels contain splitter
 
@@ -213,7 +215,7 @@ writeLines(
 
 ```
 
-<br> 
+<br>
 
 ### Split variable labels and store stem
 
@@ -277,19 +279,19 @@ writeLines(
 
 ```
 
-<br> 
+<br>
 
 ## Data set up
 
-These functions are going to expect well managed data. 
+These functions are going to expect well managed data.
 
-You can provide variables which are either:  
+You can provide variables which are either:
 
-- yes / no.  
-- 0 / 1.  
-- TRUE / FALSE   
+-   yes / no.\
+-   0 / 1.\
+-   TRUE / FALSE
 
-All variables **must** have those levels, even if not observed for a particular variable. 
+All variables **must** have those levels, even if not observed for a particular variable.
 
 ```{r data management}
 
@@ -299,8 +301,8 @@ ess3 <- ess %>%
 
 # gtsummary expects yes/no, 0/1 or TRUE/FALSE for dichotomous variables
 ess3$acchome %>% levels # we have 'Not marked' / 'Marked'
-ess3 <- ess3 %>% 
-  mutate(across(all_of(int_loc), ~fct_recode(.x, 
+ess3 <- ess3 %>%
+  mutate(across(all_of(int_loc), ~fct_recode(.x,
         "Yes" = "Marked", "No" = "Not marked")))
 
 ess3$acchome %>% levels
@@ -314,7 +316,7 @@ ess3 %>%  select(all_of(int_loc)) %>% map(., levels)
 
 var_label(ess %>% select(all_of(int_loc)))
 
-# Age
+# # Age
 ess3 %>% count(age)
 sum(is.na(ess3$age))
 
@@ -342,7 +344,7 @@ svy_df <- ess3 %>% filter(!is.na(anweight)) %>% as_survey_design(weights = anwei
 
 ## The main function
 
-Applying the function itself. 
+Applying the function itself.
 
 ```{r simple multicode tables function}
 
@@ -563,13 +565,11 @@ writeLines(
 
 ```
 
-<br> 
+<br>
 
 ## Examples
 
-::: {.panel-tabset}
-
-
+::: panel-tabset
 ### Example 1
 
 ```{r}
@@ -616,11 +616,9 @@ multicodes(df = ess3, vars = int_loc, breaks = c("gndr2","pray2"))
 ```{r}
 multicodes(df = ess3, vars = int_loc, breaks = c("gndr2","pray2"), ci =T)
 ```
-
-
 :::
 
-##
+### Example 7
 
 ```{r}
 
@@ -628,7 +626,7 @@ multicodes(df = svy_df, vars = int_loc, breaks = c("gndr2","pray2"), ci = F)
 
 ```
 
-<br> 
+<br>
 
 ## Applying base size arguments
 
@@ -651,18 +649,3 @@ map(example_of_base_information, head)
 multicodes(df = ess3, vars = int_loc, breaks = c("gndr2"), ci = F, bases = example_of_base_information)
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

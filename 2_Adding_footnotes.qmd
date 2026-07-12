@@ -6,6 +6,7 @@ title: "Base notes"
 
 ```{r packages, collapse=TRUE}
 # Easiest to copy all these packages into a script using these functions
+library(here)
 library(tidyverse)
 library(labelled)
 library(gtsummary)
@@ -33,7 +34,7 @@ Load Round 10 UK European Social Survey dataset.
 
 ```{r}
 # Load BSA teaching data
-df <- read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+df <- readRDS(here::here("data", "synthetic_bsa2019.rds"))
 df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
 
 glimpse(df)

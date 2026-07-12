@@ -6,6 +6,7 @@ title: "Overview of gtsummary tables"
 <br> 
 
 ```{r packages, collapse=TRUE, include=FALSE}
+library(here)
 library(gtsummary) # Calculates statistics
 library(srvyr) # Creates survey design objects
 library(labelled) # For working with variable labels
@@ -139,7 +140,7 @@ The arguments above are mostly common to other functions. The exceptions are the
 
 ```{r, collapse=T, results='hide'}
 
-load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+ess10 <- readRDS(here::here("data", "synthetic_ess10_snippet.rds"))
 glimpse(ess10)
 look_for(ess10, details = "none")
 
@@ -215,7 +216,7 @@ There are two functions provided for this, and a supporting one:
 ```{r example application, collapse=TRUE}
 
 # Load BSA teaching data
-df <- haven::read_sav('/Users/joecrowley/R/Data/BSA Teaching Data/spss/spss25/bsa2019_poverty_open.sav', user_na = T)
+df <- readRDS(here::here("data", "synthetic_bsa2019.rds"))
 df <- df %>% mutate(across(c(skipmeal, RSex, HEdQual3), ~fct_drop(to_factor(.x, user_na_to_na = T))))
 
 # Create example table

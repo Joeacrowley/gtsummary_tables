@@ -5,6 +5,7 @@ title: "Nested Multicodes"
 ## Set up
 
 ```{r packages, collapse=TRUE}
+library(here)
 library(gtsummary)
 library(tidyverse)
 library(srvyr)
@@ -32,7 +33,7 @@ Load Round 10 UK European Social Survey dataset.
 ```{r}
 
 ddir <- paste0(getwd())
-load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+ess10 <- readRDS(here::here("data", "synthetic_ess10_snippet.rds"))
 glimpse(ess10)
 
 svy_df <- ess10 %>% as_survey_design(weights = anweight)
@@ -66,7 +67,7 @@ The code below loads some additional data, for use in multicoded tables.
 
 ```{r}
 
-load("/Users/joecrowley/R/Data/ESS_UK/ESS_UK_R_data_file.RData")
+ess <- readRDS(here::here("data", "synthetic_ess_uk.rds"))
 
 # Use set of variables on location people can access internet from
 ess %>% select(starts_with("acc")) %>% map_df(.,var_label) %>% pivot_longer(cols = everything())
