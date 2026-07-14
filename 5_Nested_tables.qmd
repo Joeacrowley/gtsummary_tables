@@ -5,6 +5,7 @@ title: "Nested tables"
 ## Set up
 
 ```{r packages, collapse=TRUE}
+library(here)
 library(gtsummary)
 library(tidyverse)
 library(srvyr)
@@ -32,7 +33,7 @@ Load Round 10 UK European Social Survey dataset.
 ```{r}
 
 ddir <- paste0(getwd())
-load(paste0(ddir,"/ESS_UK_snippet_Round 10.RData"))
+ess10 <- readRDS(here::here("data", "synthetic_ess10_snippet.rds"))
 glimpse(ess10)
 look_for(ess10, details = "none")
 
