@@ -1,11 +1,12 @@
 nested_tables <- 
-function (data, variables_int, crossbreak = NULL, nest = NULL, 
-    stats_cat_int = "{p}", stats_num_int = "{mean}", ci_int = NULL, 
-    num_digits_int = 2, split_num_int = F, sig_int = NULL, caption = NULL, 
-    bases = NULL, source = NULL, footnotes = NULL) 
+function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}", 
+    stats_num_int = "{mean}", ci_int = NULL, num_digits_int = 2, 
+    split_num_int = F, sig = NULL, caption = NULL, bases = NULL, 
+    filter_description = NULL,
+    source = NULL, footnotes = NULL) 
 {
     add_conf <- ifelse(is.null(ci_int), F, T)
-    add_p <- ifelse(is.null(sig_int), F, T)
+    add_p <- ifelse(is.null(sig), F, T)
     if (add_conf == F & add_p == F) {
         appendages <- function(x) {
             x %>% add_stat_label(location = "column")
@@ -13,12 +14,20 @@ function (data, variables_int, crossbreak = NULL, nest = NULL,
     }
     else if (add_conf == F & add_p == T) {
         appendages <- function(x) {
-            x %>% add_stat_label(location = "column") %>% add_p()
+            x %>% add_stat_label(location = "column") %>% 
+            add_p(test = list(
+              all_categorical() ~ "svy.wald.test"
+            )
+          )
         }
     }
     else if (add_conf == T & add_p == T) {
         appendages <- function(x) {
-            x %>% add_stat_label(location = "column") %>% add_p() %>% 
+            x %>% add_stat_label(location = "column") %>% 
+              add_p(test = list(
+                all_categorical() ~ "svy.wald.test"
+              )
+              ) %>% 
                 add_ci(statistic = list(all_categorical() ~ "{conf.low} - {conf.high}", 
                   all_continuous() ~ "{conf.low} - {conf.high}"), 
                   style_fun = list(all_categorical() ~ label_style_percent(digits = 0), 
@@ -57,32 +66,35 @@ function (data, variables_int, crossbreak = NULL, nest = NULL,
         stats_num_int2 <- paste0(stats_num_int, collapse = " ")
     }
     if (whether_survey_data == F) {
-        for (i in 1:length(variables_int)) {
+        for (i in 1:length(variables)) {
             base_name <- paste0("base_size", i)
-            o_lab <- paste0(var_label(data[variables_int[i]], 
-                null_action = "fill"))
-            data <- data %>% mutate(`:=`(!!base_name, case_when(is.na(across(all_of(c(crossbreak)))) ~ 
-                NA, is.na(across(all_of(c(nest)))) ~ NA, is.na(across(all_of(variables_int[i]))) ~ 
-                NA, TRUE ~ o_lab)), across(all_of(crossbreak), 
+            o_lab <- paste0(var_label(data[variables[i]], null_action = "fill"))
+            data <- data %>% mutate(`:=`(!!base_name, case_when(
+              is.na(.data[[crossbreak]]) ~ NA, 
+              is.na(.data[[variables[i]]]) ~ NA, 
+              is.na(.data[[nest]]) ~ NA, 
+              TRUE ~ o_lab)), across(all_of(crossbreak), 
                 ~fct_drop(.x)))
             var_label(data[[base_name]]) <- ""
         }
         var_label(data[["base_size1"]]) <- "Unweighted sample sizes"
     }
     else if (whether_survey_data == T) {
-        for (i in 1:length(variables_int)) {
+        for (i in 1:length(variables)) {
             base_name <- paste0("base_size", i)
-            o_lab <- paste0(var_label(data[["variables"]][variables_int[i]], 
+            o_lab <- paste0(var_label(data[["variables"]][variables[i]], 
                 null_action = "fill"))
-            data <- data %>% mutate(`:=`(!!base_name, case_when(is.na(across(all_of(c(crossbreak)))) ~ 
-                NA, is.na(across(all_of(c(nest)))) ~ NA, is.na(across(all_of(variables_int[i]))) ~ 
-                NA, TRUE ~ o_lab)), across(all_of(crossbreak), 
+            data <- data %>% mutate(`:=`(!!base_name, case_when(
+              is.na(.data[[crossbreak]]) ~ NA, 
+              is.na(.data[[variables[i]]]) ~ NA, 
+              is.na(.data[[nest]]) ~ NA, 
+              TRUE ~ o_lab)), across(all_of(crossbreak), 
                 ~fct_drop(.x)))
             var_label(data[["variables"]][[base_name]]) <- ""
         }
         var_label(data[["variables"]][["base_size1"]]) <- "Unweighted sample sizes"
     }
-    base_names <- paste0("base_size", 1:length(variables_int))
+    base_names <- paste0("base_size", 1:length(variables))
     crossbreak_var <- rlang::sym(crossbreak)
     final_data <- data %>% filter(!is.na(.data[[crossbreak]]) & 
         !is.na(.data[[nest]]))
@@ -103,11 +115,10 @@ function (data, variables_int, crossbreak = NULL, nest = NULL,
             nest
         }
     }, ~.x %>% summary_fun(type = all_continuous() ~ num_type, 
-        include = all_of(variables_int), by = crossbreak_var, 
-        missing = "no", statistic = list(all_categorical() ~ 
-            stats_cat_int, all_continuous() ~ stats_num_int2), 
-        digits = list(all_categorical() ~ 1, all_continuous() ~ 
-            num_digits_int)) %>% modify_header(all_stat_cols() ~ 
+        include = all_of(variables), by = crossbreak_var, missing = "no", 
+        statistic = list(all_categorical() ~ stats_cat_int, all_continuous() ~ 
+            stats_num_int2), digits = list(all_categorical() ~ 
+            1, all_continuous() ~ num_digits_int)) %>% modify_header(all_stat_cols() ~ 
         "**{level}**", label ~ "**Variable**") %>% bold_labels() %>% 
         add_overall(last = F) %>% modify_header(stat_0 ~ "**Total**") %>% 
         appendages(), .header = "**{strata}**")
@@ -132,7 +143,7 @@ function (data, variables_int, crossbreak = NULL, nest = NULL,
         ., value = T) %>% .[-1]
     table <- table %>% modify_table_body(~.x %>% dplyr::select(!all_of(stat_label_names)))
     if (whether_survey_data == T) {
-        for (x in c(variables_int, base_names)) {
+        for (x in c(variables, base_names)) {
             table <- table %>% modify_table_body(~.x %>% dplyr::mutate(label = case_when(label == 
                 x ~ var_label(temp_data[x]) %>% unlist, TRUE ~ 
                 label)))
@@ -142,24 +153,24 @@ function (data, variables_int, crossbreak = NULL, nest = NULL,
         "Unweighted sample sizes")
     table <- table %>% modify_table_body(~.x %>% filter(!(grepl("base_size([2-9]|[1-9][0-9]|100)", 
         variable, ignore.case = T) & label == "")) %>% add_row(.before = base_break_row))
-    variables <- c(variables_int, crossbreak, nest)
-    footnotes <- gtsummary_table_notes(bases_info = bases, vars = variables_int, 
+    variables <- c(variables, crossbreak, nest)
+    footnotes <- gtsummary_table_notes(bases_info = bases, vars = variables, filter_description = filter_description,
         source_note = source, other_footnotes = footnotes)
     if (footnotes != "") {
         table <- table %>% modify_source_note(source_note = footnotes, 
             text_interpret = "html")
     }
     if (is.null(caption)) {
-        caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
-            "Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
-            ", nested by ", var_label(temp_data[[nest]]), ".", 
-            "</div>")
+      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+                        "Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+                        ", nested by ", var_label(temp_data[[nest]]), ".", 
+                        "</div>")
     }
     else {
-        caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
-            caption, "</div>", "<div style='text-align: left; font-style: italic; color: black'>", 
-            "<br>Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
-            ", nested by ", var_label(temp_data[[nest]]), ".</div>")
+      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+                        caption, "</div>", "<div style='text-align: left; font-style: italic; color: black'>", 
+                        "<br>Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+                        ", nested by ", var_label(temp_data[[nest]]), ".</div>")
     }
     table <- table %>% modify_caption(caption)
     if (class(data) %>% grep("survey.design", ., value = T) %>% 

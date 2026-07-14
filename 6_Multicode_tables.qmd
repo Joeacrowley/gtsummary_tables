@@ -353,6 +353,7 @@ multicodes <- function(
     caption = NULL, # Replace with caption string
     breaks = NULL, # character vector of crossbreaks
     sig = F, 
+    filter_description = NULL,
     bases = NULL, # The object with base descriptions (from base_information() function)
     source = NULL, # A string describing the data source
     footnotes = NULL # Other character strings as footnotes, each on its own line.
@@ -449,7 +450,12 @@ multicodes <- function(
       
       brk_tbls <- map(brk_tbls, 
                       ~.x %>% 
-          add_p(include = !all_of("unweighted_base"))
+                        
+          add_p(test = list(
+              all_categorical() ~ "svy.wald.test"
+            ), 
+            include = !all_of("unweighted_base")
+            )
         )
     } 
      
@@ -515,25 +521,30 @@ multicodes <- function(
     
   if(!is.null(breaks)){
     bases_variables <- c("multicode_labels", breaks)
-  }
+  } else {
+    bases_variables <- "multicode_labels"
+}
    
     
-    if(!is.null(bases)) {
-      
-      description_of_multicode_variables <- bases[[2]] %>% unique
-      names(description_of_multicode_variables) <- "multicode_labels"
-      label_of_multicode_variables <- variable_label_stem
-      names(label_of_multicode_variables) <- "multicode_labels"
-
-      bases[[2]] <- c(bases[[2]], description_of_multicode_variables)
-      bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
-      bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
-      
-      } 
+if (!is.null(bases)) {
+    matched <- bases[[2]][names(bases[[2]]) %in% vars]
+    description_of_multicode_variables <- unique(matched)
+    
+    label_of_multicode_variables <- variable_label_stem
+    names(label_of_multicode_variables) <- "multicode_labels"
+    bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
+    bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
+    
+    if (length(description_of_multicode_variables) > 0) {
+        names(description_of_multicode_variables) <- "multicode_labels"
+        bases[[2]] <- c(bases[[2]], description_of_multicode_variables)
+    }
+}
   
   footnotes <- gtsummary_table_notes(
     bases_info = bases, 
     vars = bases_variables, 
+    filter_description = filter_description,
     source_note = source, 
     other_footnotes = footnotes
   )

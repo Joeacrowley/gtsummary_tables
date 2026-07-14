@@ -1,6 +1,6 @@
 multicodes <- 
 function (df, vars, ci = FALSE, caption = NULL, breaks = NULL, 
-    sig = F, bases = NULL, source = NULL, footnotes = NULL) 
+    sig = F, bases = NULL, filter_description = NULL, source = NULL, footnotes = NULL) 
 {
     whether_survey_data <- if (class(df) %>% grep("survey.design", 
         ., value = T) %>% length() > 0) {
@@ -67,7 +67,13 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
                         n_statistic), digits = list(all_dichotomous() ~ 
                         1)))
                   if (sig == TRUE) {
-                    brk_tbls <- map(brk_tbls, ~.x %>% add_p(include = !all_of("unweighted_base")))
+                    brk_tbls <- map(brk_tbls, ~.x %>% 
+                                      add_p(test = list(
+                                        all_categorical() ~ "svy.wald.test"
+                                      ), 
+                                      include = !all_of("unweighted_base")
+                                      )
+                                    )
                   }
                   if (ci == TRUE) {
                     brk_tbls <- map(brk_tbls, ~.x %>% add_ci(include = -unweighted_base, 
@@ -110,19 +116,28 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
         }
         if (!is.null(breaks)) {
             bases_variables <- c("multicode_labels", breaks)
+        } else {
+          bases_variables <- "multicode_labels"
         }
+        
         if (!is.null(bases)) {
-            description_of_multicode_variables <- bases[[2]] %>% 
-                unique
+          matched <- bases[[2]][names(bases[[2]]) %in% vars]
+          description_of_multicode_variables <- unique(matched)
+          
+          label_of_multicode_variables <- variable_label_stem
+          names(label_of_multicode_variables) <- "multicode_labels"
+          bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
+          bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
+          
+          if (length(description_of_multicode_variables) > 0) {
             names(description_of_multicode_variables) <- "multicode_labels"
-            label_of_multicode_variables <- variable_label_stem
-            names(label_of_multicode_variables) <- "multicode_labels"
             bases[[2]] <- c(bases[[2]], description_of_multicode_variables)
-            bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
-            bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
+          }
         }
+        
         footnotes <- gtsummary_table_notes(bases_info = bases, 
-            vars = bases_variables, source_note = source, other_footnotes = footnotes)
+            vars = bases_variables, filter_description = filter_description, 
+            source_note = source, other_footnotes = footnotes)
         if (footnotes != "") {
             tbl <- tbl %>% modify_source_note(source_note = footnotes, 
                 text_interpret = "html")

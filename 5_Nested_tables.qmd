@@ -78,7 +78,7 @@ This function takes one nesting variable and one predictor, but allows multiple 
 
 nested_tables <- function(
     data, # a dataframe
-    variables_int, # a vector of variable names (prefers, perhaps requires, factors)
+    variables, # a vector of variable names (prefers, perhaps requires, factors)
     crossbreak = NULL, # character vector - length 1
     nest = NULL,
     stats_cat_int = "{p}", # character vector for categorical variables
@@ -89,15 +89,16 @@ nested_tables <- function(
     num_digits_int = 2, 
     # Can only set split_num_int to TRUE if ci = NULL
     split_num_int = F, # set to TRUE to split continuous variables stats over multiple lines
-    sig_int = NULL, 
+    sig = NULL, 
     caption = NULL,
     bases = NULL, # The object with base descriptions (from base_information() function)
+    filter_description = NULL,
     source = NULL, # A string describing the data source
     footnotes = NULL # Other character strings as footnotes, each on its own line. 
     ) { 
   
   add_conf <- ifelse(is.null(ci_int), F, T)
-  add_p <- ifelse(is.null(sig_int), F, T)
+  add_p <- ifelse(is.null(sig), F, T)
   
   if(add_conf == F & add_p == F){
   
@@ -106,12 +107,16 @@ nested_tables <- function(
   } else if (add_conf == F & add_p == T){
     
       appendages <- function(x){x %>% add_stat_label(location = "column") %>%
-        add_p()}
+            add_p(test = list(
+              all_categorical() ~ "svy.wald.test"
+            ))}
       
   } else if (add_conf == T & add_p == T){
     
         appendages <- function(x){x %>% add_stat_label(location = "column") %>%
-        add_p()  %>% 
+        add_p(test = list(
+              all_categorical() ~ "svy.wald.test"
+            ))  %>% 
           add_ci(statistic = 
              list(
               all_categorical() ~ "{conf.low} - {conf.high}", 
@@ -151,14 +156,14 @@ nested_tables <- function(
     
     if(whether_survey_data == F){
 
-    for(i in 1:length(variables_int)){
+    for(i in 1:length(variables)){
       
         base_name <- paste0("base_size",i)
-        o_lab <- paste0(var_label(data[variables_int[i]], null_action = "fill"))
+        o_lab <- paste0(var_label(data[variables[i]], null_action = "fill"))
         data <- data %>% mutate(!!base_name := case_when(
-          is.na(across(all_of(c(crossbreak)))) ~ NA, 
-          is.na(across(all_of(c(nest)))) ~ NA, 
-          is.na(across(all_of(variables_int[i]))) ~ NA, 
+          is.na(.data[[crossbreak]]) ~ NA, 
+          is.na(.data[[variables[i]]]) ~ NA, 
+          is.na(.data[[nest]]) ~ NA, 
           TRUE ~ o_lab), 
           across(all_of(crossbreak), ~fct_drop(.x))
         )
@@ -171,14 +176,14 @@ nested_tables <- function(
 
     } else if (whether_survey_data == T){
       
-        for(i in 1:length(variables_int)){
+        for(i in 1:length(variables)){
       
           base_name <- paste0("base_size",i)
-          o_lab <- paste0(var_label(data[["variables"]][variables_int[i]], null_action = "fill"))
+          o_lab <- paste0(var_label(data[["variables"]][variables[i]], null_action = "fill"))
           data <- data %>% mutate(!!base_name := case_when(
-            is.na(across(all_of(c(crossbreak)))) ~ NA, 
-            is.na(across(all_of(c(nest)))) ~ NA, 
-            is.na(across(all_of(variables_int[i]))) ~ NA, 
+          is.na(.data[[crossbreak]]) ~ NA, 
+          is.na(.data[[variables[i]]]) ~ NA, 
+          is.na(.data[[nest]]) ~ NA, 
             TRUE ~ o_lab), 
             across(all_of(crossbreak), ~fct_drop(.x))
           )
@@ -191,7 +196,7 @@ nested_tables <- function(
 
     }
     
-    base_names <- paste0("base_size",1:length(variables_int))
+    base_names <- paste0("base_size",1:length(variables))
     crossbreak_var <- rlang::sym(crossbreak)
     
   final_data <- data %>% filter(!is.na(.data[[crossbreak]]) & !is.na(.data[[nest]]))
@@ -210,7 +215,7 @@ nested_tables <- function(
                ~.x %>% 
       summary_fun(
             type = all_continuous() ~ num_type,
-            include = all_of(variables_int), 
+            include = all_of(variables), 
             by = crossbreak_var,
             missing = "no", 
             statistic = list(
@@ -267,7 +272,7 @@ nested_tables <- function(
       )
     
     if(whether_survey_data == T){
-    for(x in c(variables_int, base_names)) {
+    for(x in c(variables, base_names)) {
       table <- table %>%
         modify_table_body(
         ~ .x %>%
@@ -288,11 +293,12 @@ nested_tables <- function(
   
   # table <- table %>% modify_footnote(all_stat_cols() ~ NA) 
     
-  variables <- c(variables_int, crossbreak, nest)
+  variables <- c(variables, crossbreak, nest)
   
   footnotes <- gtsummary_table_notes(
     bases_info = bases, 
-    vars = variables_int, 
+    vars = variables, 
+    filter_description = filter_description,
     source_note = source, 
     other_footnotes = footnotes
   )
@@ -303,23 +309,18 @@ nested_tables <- function(
     text_interpret = "html")
   }
   
-  if(is.null(caption)){
-   caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>",
-                 "Crosstabulation by ", 
-                 var_label(temp_data[[crossbreak]]),
-                 ", nested by ", 
-                 var_label(temp_data[[nest]]),
-                 ".",
-                 "</div>")
-  } else {
-    caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", caption,"</div>",
-                "<div style='text-align: left; font-style: italic; color: black'>","<br>Crosstabulation by ", 
-                 var_label(temp_data[[crossbreak]]),
-                 ", nested by ", 
-                 var_label(temp_data[[nest]]),
-                 ".</div>")
+  if (is.null(caption)) {
+      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+          "Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+          ", nested by ", var_label(temp_data[[nest]]), ".", 
+          "</div>")
   }
-  
+  else {
+      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+          caption, "</div>", "<div style='text-align: left; font-style: italic; color: black'>", 
+          "<br>Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+          ", nested by ", var_label(temp_data[[nest]]), ".</div>")
+  }
   table <- table %>% modify_caption(caption)
   
   if(class(data) %>% grep("survey.design", ., value = T) %>% length() > 0){
@@ -351,11 +352,11 @@ writeLines(
 vars_to_use <- c("lrscale", "lrscale_num", "atchctr", "atchctr_num", "psppsgva", "psppsgva_num", "hincfel")
 
 nested_tables(data = ess10, 
-       variables_int = vars_to_use,
+       variables = vars_to_use,
        crossbreak = "gndr",
        nest = "age3",
        ci_int = T, 
-       sig_int = T
+       sig = T
        ) 
 
 ```
@@ -367,11 +368,11 @@ nested_tables(data = ess10,
 ```{r}
 
 nested_tables(data = svy_df, 
-       variables_int = vars_to_use,
+       variables = vars_to_use,
        crossbreak = "gndr",
        nest = "age3",
        ci_int = T, 
-       sig_int = T
+       sig = T
        ) 
 ```
 
@@ -382,7 +383,7 @@ nested_tables(data = svy_df,
 ```{r}
 
 nested_tables(data = ess10, 
-       variables_int = vars_to_use, 
+       variables = vars_to_use, 
        stats_cat_int = "{p}",
        stats_num_int = c("{mean}", "{median}", "({sd})", "{min}-{max}"),
        num_digits_int = c(2, 0, 1, 0 ,0),
@@ -401,7 +402,7 @@ nested_tables(data = ess10,
 ```{r}
 
 nested_tables(data = svy_df, 
-       variables_int = vars_to_use, 
+       variables = vars_to_use, 
        stats_cat_int = "{p}",
        stats_num_int = c("{mean}", "{median}", "({sd})", "{min}-{max}"),
        num_digits_int = c(2, 0, 1, 0 ,0),
@@ -423,7 +424,7 @@ nested_tables(data = svy_df,
 paste0(c("{mean}", "{median}", "({sd})", "{min}-{max}"), collapse = " ")
 
 nested_tables(data = ess10, 
-       variables_int = vars_to_use, 
+       variables = vars_to_use, 
        crossbreak = c("gndr"),
        nest = "age3",
        stats_cat_int = "{p}",

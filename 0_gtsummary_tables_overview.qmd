@@ -214,7 +214,7 @@ Nested equivalent of *tables*. See, function arguments differ, needs cleaning up
 ```{r}
 
 nested_tables(ess10, 
-              variables_int = c("lrscale","atchctr"), 
+              variables = c("lrscale","atchctr"), 
               crossbreak = "gndr",
               nest = "age3")
 

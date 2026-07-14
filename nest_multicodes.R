@@ -1,6 +1,6 @@
 nest_multicodes <- 
 function (df, vars, ci = FALSE, caption = NULL, breaks = NULL, 
-    sig = F, nest = NULL, bases = NULL, source = NULL, footnotes = NULL) 
+    sig = F, nest = NULL, bases = NULL, filter_description = NULL, source = NULL, footnotes = NULL) 
 {
     if (ci == F & sig == F) {
         appendages <- function(x) {
@@ -9,12 +9,20 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
     }
     else if (ci == F & sig == T) {
         appendages <- function(x) {
-            x %>% add_p(include = !all_of("unweighted_base"))
+            x %>% 
+            add_p(
+              test = list(all_categorical() ~ "svy.wald.test"), 
+              include = !all_of("unweighted_base")
+            )
         }
     }
     else if (ci == T & sig == T) {
         appendages <- function(x) {
-            x %>% add_p(include = !all_of("unweighted_base")) %>% 
+            x %>% 
+                add_p(
+                  test = list(all_categorical() ~ "svy.wald.test"), 
+                  include = !all_of("unweighted_base")
+                ) %>% 
                 add_ci(include = -unweighted_base, statistic = list(all_categorical() ~ 
                   "[{conf.low} - {conf.high}]"), style_fun = all_categorical() ~ 
                   label_style_sigfig(scale = 100, digits = 1))
@@ -91,7 +99,11 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
                       n_statistic), digits = list(all_dichotomous() ~ 
                       1))
                 if (sig == TRUE) {
-                  brk_tbl <- brk_tbl %>% add_p(include = !all_of("unweighted_base"))
+                  brk_tbl <- brk_tbl %>% 
+                    add_p(
+                      test = list(all_categorical() ~ "svy.wald.test"), 
+                      include = !all_of("unweighted_base")
+                    )
                 }
                 if (ci == TRUE) {
                   brk_tbl <- brk_tbl %>% add_ci(include = -unweighted_base, 
@@ -117,7 +129,27 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
                     1)) %>% appendages(), .header = "**{strata}**")
             })
         })
+        
+        if (whether_survey_data == T) {
+          for (x in var_set) {
+            nest_tbl <- nest_tbl %>% modify_table_body(
+              ~.x %>% dplyr::mutate(
+                label = case_when(
+                label == x ~ var_label(dataset_reference[x]) %>% unlist,
+                TRUE ~ label), 
+                var_label = case_when(
+                  var_label == x ~ var_label(dataset_reference[x]) %>% unlist,
+                  TRUE ~ var_label), 
+                )
+              
+              
+              )
+          }
+        }
+        
         tbl <- list(tbl, brk_tbl, nest_tbl) %>% tbl_merge(tab_spanner = FALSE)
+    
+        
         if (is.null(caption)) {
             caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
                 "Crosstabulation by ", var_label(dataset_reference[[breaks]]), 
@@ -145,17 +177,22 @@ function (df, vars, ci = FALSE, caption = NULL, breaks = NULL,
                 replace = F)
         bases_variables <- c("multicode_labels", breaks, nest)
         if (!is.null(bases)) {
-            description_of_multicode_variables <- bases[[2]] %>% 
-                unique
+          matched <- bases[[2]][names(bases[[2]]) %in% vars]
+          description_of_multicode_variables <- unique(matched)
+          
+          label_of_multicode_variables <- variable_label_stem
+          names(label_of_multicode_variables) <- "multicode_labels"
+          bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
+          bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
+          
+          if (length(description_of_multicode_variables) > 0) {
             names(description_of_multicode_variables) <- "multicode_labels"
-            label_of_multicode_variables <- variable_label_stem
-            names(label_of_multicode_variables) <- "multicode_labels"
             bases[[2]] <- c(bases[[2]], description_of_multicode_variables)
-            bases[[3]] <- c(bases[[3]], label_of_multicode_variables)
-            bases[[4]] <- c(bases[[4]], label_of_multicode_variables)
+          }
         }
+        
         footnotes <- gtsummary_table_notes(bases_info = bases, 
-            vars = bases_variables, source_note = source, other_footnotes = footnotes)
+            vars = bases_variables, filter_description = filter_description, source_note = source, other_footnotes = footnotes)
         if (footnotes != "") {
             tbl <- tbl %>% modify_source_note(source_note = footnotes, 
                 text_interpret = "html")
