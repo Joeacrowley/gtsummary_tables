@@ -25,24 +25,20 @@ function (data, variables_int, crossbreak = NULL, stats_cat_int = "{p}",
         stats_num_int2 <- paste0(stats_num_int, collapse = " ")
     }
     if (!is.null(crossbreak)) {
-      data_f <- data %>% filter(!is.na(.data[[crossbreak]]))
-      
+        data_f <- data %>% filter(!is.na(.data[[crossbreak]]))
         if (whether_survey_data == T) {
-            temp_data <- data_f[["variables"]] 
-
+            temp_data <- data_f[["variables"]]
         }
         else {
-            temp_data <- data_f 
+            temp_data <- data_f
         }
         for (i in 1:length(variables_int)) {
             base_name <- paste0("base_size", i)
             o_lab <- paste0(var_label(temp_data[variables_int[i]], 
                 null_action = "fill"))
             temp_data <- temp_data %>% mutate(`:=`(!!base_name, 
-                case_when(
-                  is.na(.data[[crossbreak]]) ~ NA, 
-                  is.na(.data[[variables_int[i]]]) ~ NA, 
-                  TRUE ~ o_lab)), across(all_of(crossbreak), 
+                case_when(is.na(.data[[crossbreak]]) ~ NA, is.na(.data[[variables_int[i]]]) ~ 
+                  NA, TRUE ~ o_lab)), across(all_of(crossbreak), 
                 ~fct_drop(.x)))
             var_label(temp_data[[base_name]]) <- ""
         }
@@ -109,9 +105,14 @@ function (data, variables_int, crossbreak = NULL, stats_cat_int = "{p}",
             "**{level}**", label ~ "**Variable**", stat_0 ~ "**Total**") %>% 
             bold_labels()
         if (!is.null(sig_int)) {
-            table <- table %>% add_p(test = list(
-              all_categorical() ~ "svy.wald.test"
-            ))
+            if (whether_survey_data == T) {
+                table <- table %>% add_p(test = list(all_categorical() ~ 
+                  "svy.wald.test"))
+            }
+            else {
+                table <- table %>% add_p(test = list(all_categorical() ~ 
+                  "chisq.test"))
+            }
         }
         table <- list(table, base_of_table) %>% tbl_stack()
         table <- table %>% modify_spanning_header(all_stat_cols() ~ 

@@ -5,7 +5,6 @@ title: "General tables: totals, crossbreaks"
 ## Set up
 
 ```{r packages, collapse=TRUE}
-library(here)
 library(gtsummary)
 library(tidyverse)
 library(srvyr)
@@ -13,6 +12,8 @@ library(flextable)
 library(officer)
 library(labelled)
 library(rlang)
+library(here)
+
 ```
 
 <br>
@@ -209,10 +210,13 @@ totals <- function(
          ) %>%
         bold_labels() 
     
-    if(!is.null(sig_int)){table <- table %>% 
-      add_p(test = list(
-              all_categorical() ~ "svy.wald.test"
-            ))}
+    if(!is.null(sig_int)){
+      if (whether_survey_data == T) {
+        table <- table %>% add_p(test = list(all_categorical() ~ "svy.wald.test"))
+      } else {
+        table <- table %>% add_p(test = list(all_categorical() ~ "chisq.test"))
+      }
+    }
     
     table <- list(table, base_of_table) %>% tbl_stack() 
     

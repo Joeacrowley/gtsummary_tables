@@ -146,42 +146,27 @@ style_hux_df <- function(df, align = 1) {
     )
   }
   
-  # Extract raw caption text.
-  caption_divs <- str_match_all(df[["table_styling"]]$caption, "<div[^>]*>(.*?)</div>")[[1]][, 2]
-  caption_parts <- caption_divs %>% str_replace_all("<[^>]*>", " ") %>% str_squish()
-  caption_parts <- caption_parts[caption_parts != ""]
+  # Extract raw caption text (guard against no caption being set at all)
+  raw_caption <- df[["table_styling"]]$caption
+  
+  if (length(raw_caption) == 0 || is.na(raw_caption)) {
+    caption_parts <- character(0)
+  } else {
+    caption_divs <- str_match_all(raw_caption, "<div[^>]*>(.*?)</div>")[[1]][, 2]
+    caption_parts <- caption_divs %>% str_replace_all("<[^>]*>", " ") %>% str_squish()
+    caption_parts <- caption_parts[caption_parts != ""]
+  }
+  
   if (length(caption_parts) == 0) {
       caption_parts <- " "
   }
   
-  if (!(length(caption_parts) == 1 && caption_parts[1] == " ")) {
-      n_parts <- length(caption_parts)
-      empty_cols <- matrix("", nrow = n_parts, ncol = ncol(ht))
-      empty_hux <- as_hux(empty_cols)
-      for (r in seq_len(n_parts)) {
-          empty_hux[r, 1] <- caption_parts[r]
-          empty_hux <- empty_hux %>% merge_across(r, everywhere)
-      }
-      empty_hux <- set_header_rows(empty_hux, seq_len(n_parts), TRUE)
-      ht <- rbind(empty_hux, ht)
-      ht <- set_font(ht, 1:n_parts, everywhere, "Arial")
-      ht <- set_font_size(ht, 1:n_parts, everywhere, 13)
-      ht <- set_bold(ht, 1, everywhere, TRUE)
-      if (n_parts > 1) {
-          ht <- set_italic(ht, 2:n_parts, everywhere, TRUE)
-      }
-      ht <- set_align(ht, 1:n_parts, everywhere, "left")
-      ht <- set_bottom_border(ht, row = n_parts, col = everywhere, value = 2)
-  }
+  ht <- as_hux_table(df)
+  caption(ht) <- NA
   
-  ht <- as_hux_table(df)   # Convert gtsummary table to huxtable
-  caption(ht) <- NA # Remove caption text
-  
-  # Set font and size
   font(ht) <- "Arial"
   font_size(ht) <- 11
   
-  # Identify header and footnote rows
   header_row_num <- ht %>% header_rows() %>% sum
   number_of_body_rows <- nrow(df[["table_body"]])
   first_body_row <- header_row_num + 1
@@ -194,25 +179,12 @@ style_hux_df <- function(df, align = 1) {
   body_rows <- first_body_row:final_body_row
   footer_rows <- first_footer_row:final_footer_row
 
-  # Remove background fill
   ht <- map_background_color(ht, by_rows("#f5f7fa", "#ffffff")) %>%
     set_background_color(row = 1:header_row_num, value = "grey90") %>% 
     set_background_color(row = footer_rows, value = "white")
 
-  # Bold headers
-  # ht <- set_bold(ht, 1, everywhere, TRUE)
   ht <- set_bold(ht, 1:header_row_num, everywhere, TRUE)
-  # ht <- set_background_color(ht, 1, everywhere, "#8f99de")
-  
-  # if (header_row_num > 1){
-  #   ht <- set_background_color(ht, 2, everywhere, "#abb5e5")
-  # }
-  # 
-  # if (header_row_num > 2){
-  #   ht <- set_background_color(ht, 3, everywhere, "#c7cced")
-  # }
 
-  # Set border widths
   ht <- set_top_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
   ht <- set_bottom_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
   ht <- set_left_border(ht, row = 1:final_body_row, col = everywhere, value = 1)
@@ -220,7 +192,6 @@ style_hux_df <- function(df, align = 1) {
   ht <- set_top_border(ht, row = c(1, first_body_row), col = everywhere, value = 2)
   ht <- set_bottom_border(ht, row = c(final_body_row), col = everywhere, value = 2)
   
-  # Set padding 
   if(any(whether_any_sample_sizes_below_table)){
     ht <- set_top_padding(ht, row = starting_row_for_base_sizes + header_row_num, value = 5)
     ht <- set_bottom_padding(ht, row = starting_row_for_base_sizes + header_row_num, value = 5)
@@ -230,8 +201,6 @@ style_hux_df <- function(df, align = 1) {
   ht <- set_top_padding(ht, row = rows_to_pad, value = 3)
   ht <- set_bottom_padding(ht, row = rows_to_pad, value = 3)
   
-  # Alignment: left-align columns 1 to `align`, right-align the rest
-  # Alteration - Maybe start after col 2?
   align_vec <- ifelse(1:ncol(ht) <= align, "left", "right")
   for (col in seq_along(align_vec)) {
     ht <- set_align(ht, everywhere, col, align_vec[col])
@@ -262,31 +231,26 @@ style_hux_df <- function(df, align = 1) {
       ht <- rbind(ht[1:(min(footer_rows) - 1), ], combined_footer)
     }
   
-  # This requires a little more thinking about, may need more decimal places for mean, SD etc. 
-  # ht <- set_number_format(ht, everywhere, value = fmt_pretty(digits = 1)) 
-  
-  # Add caption (if one present)
-  if(temp_capt != " "){
-  # Create a matrix of empty strings with the same number of rows
-  empty_cols <- matrix("", nrow = 1, ncol = ncol(ht))
-  
-  # Convert to huxtable
-  empty_hux <- as_hux(empty_cols)
-  empty_hux[1,1] <- temp_capt
-  empty_hux <- empty_hux %>% merge_across(1, everywhere)
-  empty_hux <- set_header_rows(empty_hux, 1, T)
-  
-  ht <- rbind(empty_hux, ht)
-  
-  # Set font and size of caption
-  ht <- set_font(ht, 1, everywhere, "Arial")
-  ht <- set_font_size(ht, 1, everywhere, 13)
-  ht <- set_bold(ht, 1, everywhere, TRUE)
-  ht <- set_align(ht, 1, everywhere, "left")
-  ht <- set_bottom_border(ht, row = 1, col = everywhere, value = 2)
+  if (!(length(caption_parts) == 1 && caption_parts[1] == " ")) {
+      n_parts <- length(caption_parts)
+      empty_cols <- matrix("", nrow = n_parts, ncol = ncol(ht))
+      empty_hux <- as_hux(empty_cols)
+      for (r in seq_len(n_parts)) {
+          empty_hux[r, 1] <- caption_parts[r]
+          empty_hux <- empty_hux %>% merge_across(r, everywhere)
+      }
+      empty_hux <- set_header_rows(empty_hux, seq_len(n_parts), TRUE)
+      ht <- rbind(empty_hux, ht)
+      ht <- set_font(ht, 1:n_parts, everywhere, "Arial")
+      ht <- set_font_size(ht, 1:n_parts, everywhere, 13)
+      ht <- set_bold(ht, 1, everywhere, TRUE)
+      if (n_parts > 1) {
+          ht <- set_italic(ht, 2:n_parts, everywhere, TRUE)
+      }
+      ht <- set_align(ht, 1:n_parts, everywhere, "left")
+      ht <- set_bottom_border(ht, row = n_parts, col = everywhere, value = 2)
   }
   
-  # Set border colors
   top_border_color(ht)    <- "grey50"
   bottom_border_color(ht) <- "grey50"
   left_border_color(ht)   <- "grey50"
@@ -294,7 +258,6 @@ style_hux_df <- function(df, align = 1) {
   
   return(ht)
 }
-
 ```
 
 ```{r}
@@ -336,7 +299,7 @@ nested_tables
 
 ntbl <- 
   df %>% nested_tables(
-  variables_int = "skipmeal", 
+  variables = "skipmeal", 
   crossbreak = "RSex", 
   nest = "HEdQual3"
 )
@@ -474,19 +437,14 @@ addh <- function(
   
 # Convert huxtable to workbook (starts on row 2 and col 2)
 workbook_interim <- ht |> as_Workbook(Workbook = workbook ,start_row = 2, start_col = 2, sheet = sheet)
-
 # Excel cell locations
 end_row <- 1 + nrow(ht)  
 end_col <- 1 + ncol(ht)
-
 # Sheet background
 showGridLines(workbook_interim, sheet, showGridLines = FALSE)
-
 # Required to remove row heights set by as_Workbook() - these are problematic
 removeRowHeights(workbook_interim, sheet, rows = 2:end_row) 
-
 # Wrap cells -------------------------------------------------------------------
-
 addStyle(workbook_interim, 
          sheet, 
          style = createStyle(wrapText = T), 
@@ -494,6 +452,8 @@ addStyle(workbook_interim,
          rows = 2:end_row, 
          gridExpand = TRUE, 
          stack = T)
+
+total_width <- sum(ht %>% .col_width())   # <-- this line was missing
 
     row_line_counts <- apply(as.matrix(ht), 1, function(row_cells) {
       max(sapply(row_cells, function(cell) {
@@ -505,13 +465,11 @@ addStyle(workbook_interim,
     buffer_lines <- 0.3
     row_heights <- pmax((row_line_counts + buffer_lines) * 15, 15)
     setRowHeights(workbook_interim, sheet, rows = 2:end_row, heights = row_heights)
-
 # Remove huxtable defined column widths and apply openxlsx standards
 removeColWidths(workbook_interim, sheet, cols = 2:end_col)
 col_widths <- ht %>% .col_width()
 setColWidths(workbook_interim, sheet, cols = 2:end_col, widths = col_widths)
 setColWidths(workbook_interim, sheet, cols = 1, widths = 4)
-
 # Format caption... 
 addStyle(workbook_interim, 
          sheet, 
@@ -521,9 +479,7 @@ addStyle(workbook_interim,
          gridExpand = TRUE, 
          stack = T)
 setRowHeights(workbook_interim, sheet, rows = 2, heights = 30)
-
 return(workbook_interim)
-
 }
 
 wb <- createWorkbook()

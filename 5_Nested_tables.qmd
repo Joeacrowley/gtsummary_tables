@@ -100,7 +100,9 @@ nested_tables <- function(
   
   add_conf <- ifelse(is.null(ci_int), F, T)
   add_p <- ifelse(is.null(sig), F, T)
-  
+  whether_survey_data <- if(class(data) %>% grep("survey.design", ., value = T) %>% length() > 0){T} else {F}
+  chisq_test <- if(whether_survey_data){"svy.wald.test"} else {"chisq.test"}
+
   if(add_conf == F & add_p == F){
   
   appendages <- function(x){x %>% add_stat_label(location = "column")}
@@ -109,14 +111,14 @@ nested_tables <- function(
     
       appendages <- function(x){x %>% add_stat_label(location = "column") %>%
             add_p(test = list(
-              all_categorical() ~ "svy.wald.test"
+              all_categorical() ~ chisq_test
             ))}
       
   } else if (add_conf == T & add_p == T){
     
         appendages <- function(x){x %>% add_stat_label(location = "column") %>%
         add_p(test = list(
-              all_categorical() ~ "svy.wald.test"
+              all_categorical() ~ chisq_test
             ))  %>% 
           add_ci(statistic = 
              list(
@@ -145,8 +147,7 @@ nested_tables <- function(
           }
   }
   
-    whether_survey_data <- if(class(data) %>% grep("survey.design", ., value = T) %>% length() > 0){T} else {F}
-  
+
     if(is.null(ci_int)){
       num_type <- ifelse(split_num_int == T, "continuous2", "continuous")
       stats_num_int2 <- if(split_num_int == T){stats_num_int} else{paste0(stats_num_int, collapse = " ")}

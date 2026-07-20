@@ -2,11 +2,23 @@ nested_tables <-
 function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}", 
     stats_num_int = "{mean}", ci_int = NULL, num_digits_int = 2, 
     split_num_int = F, sig = NULL, caption = NULL, bases = NULL, 
-    filter_description = NULL,
-    source = NULL, footnotes = NULL) 
+    filter_description = NULL, source = NULL, footnotes = NULL) 
 {
     add_conf <- ifelse(is.null(ci_int), F, T)
     add_p <- ifelse(is.null(sig), F, T)
+    whether_survey_data <- if (class(data) %>% grep("survey.design", 
+        ., value = T) %>% length() > 0) {
+        T
+    }
+    else {
+        F
+    }
+    chisq_test <- if (whether_survey_data) {
+        "svy.wald.test"
+    }
+    else {
+        "chisq.test"
+    }
     if (add_conf == F & add_p == F) {
         appendages <- function(x) {
             x %>% add_stat_label(location = "column")
@@ -14,25 +26,18 @@ function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}"
     }
     else if (add_conf == F & add_p == T) {
         appendages <- function(x) {
-            x %>% add_stat_label(location = "column") %>% 
-            add_p(test = list(
-              all_categorical() ~ "svy.wald.test"
-            )
-          )
+            x %>% add_stat_label(location = "column") %>% add_p(test = list(all_categorical() ~ 
+                chisq_test))
         }
     }
     else if (add_conf == T & add_p == T) {
         appendages <- function(x) {
-            x %>% add_stat_label(location = "column") %>% 
-              add_p(test = list(
-                all_categorical() ~ "svy.wald.test"
-              )
-              ) %>% 
-                add_ci(statistic = list(all_categorical() ~ "{conf.low} - {conf.high}", 
-                  all_continuous() ~ "{conf.low} - {conf.high}"), 
-                  style_fun = list(all_categorical() ~ label_style_percent(digits = 0), 
-                    all_continuous() ~ label_style_sigfig(scale = 1, 
-                      digits = 2)))
+            x %>% add_stat_label(location = "column") %>% add_p(test = list(all_categorical() ~ 
+                chisq_test)) %>% add_ci(statistic = list(all_categorical() ~ 
+                "{conf.low} - {conf.high}", all_continuous() ~ 
+                "{conf.low} - {conf.high}"), style_fun = list(all_categorical() ~ 
+                label_style_percent(digits = 0), all_continuous() ~ 
+                label_style_sigfig(scale = 1, digits = 2)))
         }
     }
     else if (add_conf == T & add_p == F) {
@@ -43,13 +48,6 @@ function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}"
                 label_style_percent(digits = 0), all_continuous() ~ 
                 label_style_sigfig(scale = 1, digits = 2)))
         }
-    }
-    whether_survey_data <- if (class(data) %>% grep("survey.design", 
-        ., value = T) %>% length() > 0) {
-        T
-    }
-    else {
-        F
     }
     if (is.null(ci_int)) {
         num_type <- ifelse(split_num_int == T, "continuous2", 
@@ -69,11 +67,9 @@ function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}"
         for (i in 1:length(variables)) {
             base_name <- paste0("base_size", i)
             o_lab <- paste0(var_label(data[variables[i]], null_action = "fill"))
-            data <- data %>% mutate(`:=`(!!base_name, case_when(
-              is.na(.data[[crossbreak]]) ~ NA, 
-              is.na(.data[[variables[i]]]) ~ NA, 
-              is.na(.data[[nest]]) ~ NA, 
-              TRUE ~ o_lab)), across(all_of(crossbreak), 
+            data <- data %>% mutate(`:=`(!!base_name, case_when(is.na(.data[[crossbreak]]) ~ 
+                NA, is.na(.data[[variables[i]]]) ~ NA, is.na(.data[[nest]]) ~ 
+                NA, TRUE ~ o_lab)), across(all_of(crossbreak), 
                 ~fct_drop(.x)))
             var_label(data[[base_name]]) <- ""
         }
@@ -84,11 +80,9 @@ function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}"
             base_name <- paste0("base_size", i)
             o_lab <- paste0(var_label(data[["variables"]][variables[i]], 
                 null_action = "fill"))
-            data <- data %>% mutate(`:=`(!!base_name, case_when(
-              is.na(.data[[crossbreak]]) ~ NA, 
-              is.na(.data[[variables[i]]]) ~ NA, 
-              is.na(.data[[nest]]) ~ NA, 
-              TRUE ~ o_lab)), across(all_of(crossbreak), 
+            data <- data %>% mutate(`:=`(!!base_name, case_when(is.na(.data[[crossbreak]]) ~ 
+                NA, is.na(.data[[variables[i]]]) ~ NA, is.na(.data[[nest]]) ~ 
+                NA, TRUE ~ o_lab)), across(all_of(crossbreak), 
                 ~fct_drop(.x)))
             var_label(data[["variables"]][[base_name]]) <- ""
         }
@@ -154,23 +148,24 @@ function (data, variables, crossbreak = NULL, nest = NULL, stats_cat_int = "{p}"
     table <- table %>% modify_table_body(~.x %>% filter(!(grepl("base_size([2-9]|[1-9][0-9]|100)", 
         variable, ignore.case = T) & label == "")) %>% add_row(.before = base_break_row))
     variables <- c(variables, crossbreak, nest)
-    footnotes <- gtsummary_table_notes(bases_info = bases, vars = variables, filter_description = filter_description,
-        source_note = source, other_footnotes = footnotes)
+    footnotes <- gtsummary_table_notes(bases_info = bases, vars = variables, 
+        filter_description = filter_description, source_note = source, 
+        other_footnotes = footnotes)
     if (footnotes != "") {
         table <- table %>% modify_source_note(source_note = footnotes, 
             text_interpret = "html")
     }
     if (is.null(caption)) {
-      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
-                        "Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
-                        ", nested by ", var_label(temp_data[[nest]]), ".", 
-                        "</div>")
+        caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+            "Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+            ", nested by ", var_label(temp_data[[nest]]), ".", 
+            "</div>")
     }
     else {
-      caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
-                        caption, "</div>", "<div style='text-align: left; font-style: italic; color: black'>", 
-                        "<br>Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
-                        ", nested by ", var_label(temp_data[[nest]]), ".</div>")
+        caption <- paste0("<div style='text-align: left; font-weight: bold; color: black'>", 
+            caption, "</div>", "<div style='text-align: left; font-style: italic; color: black'>", 
+            "<br>Crosstabulation by ", var_label(temp_data[[crossbreak]]), 
+            ", nested by ", var_label(temp_data[[nest]]), ".</div>")
     }
     table <- table %>% modify_caption(caption)
     if (class(data) %>% grep("survey.design", ., value = T) %>% 

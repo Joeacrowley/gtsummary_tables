@@ -1,14 +1,13 @@
 tables <- 
 function (data, variables, crossbreaks = NULL, stats_cat = "{p}", 
     stats_num = "{mean}", ci = NULL, num_digits = 2, split_num = F, 
-    sig = NULL, caption = NULL, bases = NULL, source = NULL, 
-    footnotes = NULL, filter_description = NULL) 
+    sig = NULL, filter_description = NULL, caption = NULL, bases = NULL, 
+    source = NULL, footnotes = NULL) 
 {
-  had_crossbreaks <- !is.null(crossbreaks)
-  
-  if (is.null(crossbreaks)) {
-    crossbreaks <- list(NULL)
-  }
+    had_crossbreaks <- !is.null(crossbreaks)
+    if (is.null(crossbreaks)) {
+        crossbreaks <- list(NULL)
+    }
     tables_int <- map(crossbreaks, ~data %>% totals(variables_int = variables, 
         crossbreak = .x, stats_cat_int = stats_cat, stats_num_int = stats_num, 
         ci_int = ci, num_digits_int = num_digits, split_num_int = split_num, 
@@ -18,13 +17,22 @@ function (data, variables, crossbreaks = NULL, stats_cat = "{p}",
             tables_int[[i]] <- tables_int[[i]] %>% modify_table_body(~.x %>% 
                 select(!contains("stat_0")) %>% select(!contains("stat_label")))
         }
-
-      
-      whether_survey_data <- if(class(data) %>% grep("survey.design", ., value = T) %>% length() > 0){T} else {F}
-      underlying_data <- if(whether_survey_data){data[["variables"]]} else {data}
-      variable_labels <- underlying_data %>% select(all_of(crossbreaks)) %>% var_label(null_action = "fill") %>% unlist() %>% trimws() %>% paste0("**", ., "**")
-      
-      
+        whether_survey_data <- if (class(data) %>% grep("survey.design", 
+            ., value = T) %>% length() > 0) {
+            T
+        }
+        else {
+            F
+        }
+        underlying_data <- if (whether_survey_data) {
+            data[["variables"]]
+        }
+        else {
+            data
+        }
+        variable_labels <- underlying_data %>% select(all_of(crossbreaks)) %>% 
+            var_label(null_action = "fill") %>% unlist() %>% 
+            trimws() %>% paste0("**", ., "**")
         tables <- tbl_merge(tables_int, tab_spanner = variable_labels) %>% 
             modify_spanning_header(contains("stat_label") ~ NA, 
                 contains("stat_0") ~ NA)
@@ -33,12 +41,13 @@ function (data, variables, crossbreaks = NULL, stats_cat = "{p}",
         tables <- tables_int[[1]]
     }
     if (had_crossbreaks) {
-      bases_variables <- c(variables, crossbreaks)
-    } else {
-      bases_variables <- variables
+        bases_variables <- c(variables, crossbreaks)
     }
-    footnotes <- gtsummary_table_notes(bases_info = bases, vars = bases_variables, filter_description = filter_description,
-        source_note = source, other_footnotes = footnotes)
+    else {
+        bases_variables <- variables
+    }
+    footnotes <- gtsummary_table_notes(bases_info = bases, filter_description = filter_description, 
+        vars = bases_variables, source_note = source, other_footnotes = footnotes)
     if (footnotes != "") {
         tables <- tables %>% modify_source_note(source_note = footnotes, 
             text_interpret = "html")
